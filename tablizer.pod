@@ -85,7 +85,7 @@ example:
 You can  of course  still use  a regex  to reduce  the number  of rows
 displayed.
 
-Finally the  B<-d> options  enables debugging  output which  is mostly
+Finally the  B<-d> option  enables debugging  output which  is mostly
 usefull for the developer.
 
 =head1 BUGS
