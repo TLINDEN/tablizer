@@ -24,3 +24,6 @@ install: buildlocal
 	install -d -o $(UID) -g $(GID) $(PREFIX)/man/man1
 	install -o $(UID) -g $(GID) -m 555 $(tool)  $(PREFIX)/sbin/
 	install -o $(UID) -g $(GID) -m 444 $(tool).1 $(PREFIX)/man/man1/
+
+clean:
+	rm -f $(tool) $(tool).1
