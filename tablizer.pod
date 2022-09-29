@@ -70,9 +70,10 @@ The numbering can be suppressed by using the B<-n> option.
 
 There might be cases  when the tabular output of a  program is way too
 large  for your  current  terminal but  you still  need  to see  every
-column.   In  such  cases  the  B<-x> can  be  usefull  which  enables
+column.  In such  cases the B<-x> option can be  usefull which enables
 I<extended mode>. In  this mode, each row will  be printed vertically,
-header left, value right, aligned by the field widths. Here's an example:
+header  left, value  right, aligned  by  the field  widths. Here's  an
+example:
 
     kubectl get pods | ./tablizer -x    
         NAME: repldepl-7bcd8d5b64-7zq4l  
