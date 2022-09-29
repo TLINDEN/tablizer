@@ -68,8 +68,32 @@ repldepl-7bcd8d5b64-q2bf4    1/1      Running    1 (69m ago)    5h26m
 
 ## Installation
 
-Download the latest release file for your architecture and put it into
-a directory within your `$PATH`.
+There are multiple ways to install **tablizer**:
+
+- Go to the [latest release page](https://github.com/muesli/mango/releases/latest),
+  locate the binary for your operating system and platform.
+  
+  Download it and put it into some directory within your `$PATH` variable.
+  
+- You can also install from source. Issue the following commands in your shell:
+  ```
+  git clone https://github.com/TLINDEN/tablizer.git
+  cd tablizer
+  make
+  sudo make install
+  ```
+
+## Documentation
+
+The  documentation  is  provided  as  a unix  man-page.   It  will  be
+automatically installed if  you install from source.  However, you can
+read the man-page online:
+
+https://github.com/TLINDEN/tablizer/tablizer.pod
+
+Or if you cloned  the repository you can read it  this way (perl needs
+to be installed though): `perldoc tablizer.pod`.
+
 
 ## Getting help
 
