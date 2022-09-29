@@ -75,6 +75,12 @@ There are multiple ways to install **tablizer**:
   
   Download it and put it into some directory within your `$PATH` variable.
   
+- The release page also contains a tarball for every supported platform. Unpack it
+  to some temporary directory, extract it and execute the following command inside:
+  ```
+  sudo make install
+  ```
+  
 - You can also install from source. Issue the following commands in your shell:
   ```
   git clone https://github.com/TLINDEN/tablizer.git
@@ -82,6 +88,9 @@ There are multiple ways to install **tablizer**:
   make
   sudo make install
   ```
+
+If you  do not find a  binary release for your  platform, please don't
+hesitate to ask me about it, I'll add it.
 
 ## Documentation
 
