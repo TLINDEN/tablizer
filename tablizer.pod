@@ -108,7 +108,7 @@ This software uses the following GO libraries:
 
 Released under the MIT License, Copyright (c) 2016 Alec Thomas
 
-=item cobra (github.com/spf13/cobra)
+=item cobra (https://github.com/spf13/cobra)
 
 Released under the Apache 2.0 license, Copyright 2013-2022 The Cobra Authors
 
