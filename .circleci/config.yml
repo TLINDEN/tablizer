@@ -1,0 +1,52 @@
+---
+version: 2.1
+
+jobs:
+  compile:
+    docker:
+    - image: cimg/go:1.18
+    steps:
+    - checkout
+    - run: make
+
+  test:
+    parameters:
+      go_version:
+        type: string
+      os:
+        type: string
+      run_test:
+        type: boolean
+        default: true
+    docker:
+    - image: circleci/golang:<< parameters.go_version >>
+    environment:
+      GOOS: "<< parameters.os >>"
+    steps:
+    - checkout
+    - run: make test
+
+workflows:
+  version: 2
+  procfs:
+    jobs:
+    - compile
+    - test:
+        name: test-linux
+        os: linux
+        matrix:
+          parameters:
+            go_version:
+            - "1.16"
+            - "1.17"
+            - "1.18"
+    - test:
+        name: test-windows
+        os: windows
+        run_test: false
+        matrix:
+          parameters:
+            go_version:
+            - "1.16"
+            - "1.17"
+            - "1.18"
