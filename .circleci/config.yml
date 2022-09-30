@@ -39,14 +39,12 @@ workflows:
             go_version:
             - "1.16"
             - "1.17"
-            - "1.18"
     - test:
-        name: test-windows
-        os: windows
+        name: test-freebsd
+        os: freebsd
         run_test: false
         matrix:
           parameters:
             go_version:
             - "1.16"
             - "1.17"
-            - "1.18"
