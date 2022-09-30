@@ -19,7 +19,7 @@ jobs:
         type: boolean
         default: true
     docker:
-    - image: circleci/golang:<< parameters.go_version >>
+    - image: cimg/golang:<< parameters.go_version >>
     environment:
       GOOS: "<< parameters.os >>"
     steps:
@@ -39,6 +39,7 @@ workflows:
             go_version:
             - "1.16"
             - "1.17"
+            - "1.18"
     - test:
         name: test-freebsd
         os: freebsd
@@ -48,3 +49,4 @@ workflows:
             go_version:
             - "1.16"
             - "1.17"
+            - "1.18"
