@@ -18,68 +18,23 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/alecthomas/repr"
 	"github.com/spf13/cobra"
 	"os"
-	"strconv"
-	"strings"
 )
 
-var version = "v1.0.0"
+var version = "v1.0.1"
 
 var rootCmd = &cobra.Command{
 	Use:   "tablizer [regex] [file, ...]",
 	Short: "[Re-]tabularize tabular data",
 	Long:  `Manipulate tabular output of other programs`,
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		if Version {
 			fmt.Printf("This is tablizer version %s\n", version)
-			return
+			return nil
 		}
 
-		var pattern string
-		havefiles := false
-
-		if len(Columns) > 0 {
-			for _, use := range strings.Split(Columns, ",") {
-				usenum, err := strconv.Atoi(use)
-				if err != nil {
-					die(err)
-				}
-				UseColumns = append(UseColumns, usenum)
-			}
-		}
-
-		if len(args) > 0 {
-			if _, err := os.Stat(args[0]); err != nil {
-				pattern = args[0]
-				args = args[1:]
-			}
-
-			if len(args) > 0 {
-				for _, file := range args {
-					fd, err := os.OpenFile(file, os.O_RDONLY, 0755)
-					if err != nil {
-						die(err)
-					}
-
-					data := parseFile(fd, pattern)
-					if Debug {
-						repr.Print(data)
-					}
-					printTable(data)
-				}
-				havefiles = true
-			}
-		}
-
-		if !havefiles {
-			data := parseFile(os.Stdin, pattern)
-			if Debug {
-				repr.Print(data)
-			}
-			printTable(data)
-		}
+		return process(args)
 	},
 }
 
