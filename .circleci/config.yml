@@ -19,7 +19,7 @@ jobs:
         type: boolean
         default: true
     docker:
-    - image: cimg/golang:<< parameters.go_version >>
+    - image: cimg/go:<< parameters.go_version >>
     environment:
       GOOS: "<< parameters.os >>"
     steps:
