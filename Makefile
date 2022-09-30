@@ -44,3 +44,6 @@ install: buildlocal
 
 clean:
 	rm -rf $(tool) $(tool).1 releases
+
+test:
+	go test -v ./...
