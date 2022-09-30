@@ -18,16 +18,16 @@
 #
 # no need to modify anything below
 tool    = tablizer
-version = $(shell egrep "^var version = " cmd/root.go | cut -d'=' -f2 | cut -d'"' -f 2)
+version = $(shell egrep "^var Version = " lib/common.go | cut -d'=' -f2 | cut -d'"' -f 2)
 archs   = android darwin freebsd linux netbsd openbsd windows
 PREFIX = /usr/local
 UID    = root
 GID    = 0
 
-all: buildlocal man
+all: buildlocal $(tool).1
 
-man:
-	pod2man -c "User Commands" -r 1 -s 1 $(tool).pod > $(tool).1
+%.1: %.pod
+	pod2man -c "User Commands" -r 1 -s 1 $*.pod > $*.1
 
 buildlocal:
 	go build
@@ -43,4 +43,4 @@ install: buildlocal
 	install -o $(UID) -g $(GID) -m 444 $(tool).1 $(PREFIX)/man/man1/
 
 clean:
-	rm -f $(tool) $(tool).1
+	rm -rf $(tool) $(tool).1 releases

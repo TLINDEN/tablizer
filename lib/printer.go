@@ -15,19 +15,22 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package cmd
+package lib
 
 import (
 	"fmt"
 	"strings"
 )
 
-func printTable(data Tabdata) {
+func printData(data Tabdata) {
 	if XtendedOut {
-		printExtended(data)
-		return
+		printExtendedData(data)
+	} else {
+		printTabularData(data)
 	}
+}
 
+func printTabularData(data Tabdata) {
 	// needed for data output
 	var formats []string
 
@@ -93,7 +96,7 @@ func printTable(data Tabdata) {
 /*
    We simulate the \x command of psql (the PostgreSQL client)
 */
-func printExtended(data Tabdata) {
+func printExtendedData(data Tabdata) {
 	// needed for data output
 	format := fmt.Sprintf("%%%ds: %%s\n", data.maxwidthHeader) // FIXME: re-calculate if -c has been set
 
@@ -114,13 +117,4 @@ func printExtended(data Tabdata) {
 			fmt.Println()
 		}
 	}
-}
-
-func contains(s []int, e int) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-	return false
 }

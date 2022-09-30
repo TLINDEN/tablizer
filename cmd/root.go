@@ -17,34 +17,25 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
+	"daemon.de/tablizer/lib"
 	"fmt"
 	"github.com/spf13/cobra"
 	"os"
 )
-
-var version = "v1.0.1"
 
 var rootCmd = &cobra.Command{
 	Use:   "tablizer [regex] [file, ...]",
 	Short: "[Re-]tabularize tabular data",
 	Long:  `Manipulate tabular output of other programs`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if Version {
-			fmt.Printf("This is tablizer version %s\n", version)
+		if lib.ShowVersion {
+			fmt.Printf("This is tablizer version %s\n", lib.Version)
 			return nil
 		}
 
-		return process(args)
+		return lib.ProcessFiles(args)
 	},
 }
-
-var Debug bool
-var XtendedOut bool
-var NoNumbering bool
-var Version bool
-var Columns string
-var UseColumns []int
-var Separator string
 
 func Execute() {
 	err := rootCmd.Execute()
@@ -54,10 +45,10 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.PersistentFlags().BoolVarP(&Debug, "debug", "d", false, "Enable debugging")
-	rootCmd.PersistentFlags().BoolVarP(&XtendedOut, "extended", "x", false, "Enable extended output")
-	rootCmd.PersistentFlags().BoolVarP(&NoNumbering, "no-numbering", "n", false, "Disable header numbering")
-	rootCmd.PersistentFlags().BoolVarP(&Version, "version", "v", false, "Print program version")
-	rootCmd.PersistentFlags().StringVarP(&Separator, "separator", "s", "", "Custom field separator")
-	rootCmd.PersistentFlags().StringVarP(&Columns, "columns", "c", "", "Only show the speficied columns (separated by ,)")
+	rootCmd.PersistentFlags().BoolVarP(&lib.Debug, "debug", "d", false, "Enable debugging")
+	rootCmd.PersistentFlags().BoolVarP(&lib.XtendedOut, "extended", "x", false, "Enable extended output")
+	rootCmd.PersistentFlags().BoolVarP(&lib.NoNumbering, "no-numbering", "n", false, "Disable header numbering")
+	rootCmd.PersistentFlags().BoolVarP(&lib.ShowVersion, "version", "v", false, "Print program version")
+	rootCmd.PersistentFlags().StringVarP(&lib.Separator, "separator", "s", "", "Custom field separator")
+	rootCmd.PersistentFlags().StringVarP(&lib.Columns, "columns", "c", "", "Only show the speficied columns (separated by ,)")
 }

@@ -15,20 +15,30 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package cmd
+package lib
 
 import (
-	"errors"
-	"github.com/alecthomas/repr"
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
 )
 
-func process(args []string) error {
-	var pattern string
-	havefiles := false
+func die(v ...interface{}) {
+	fmt.Fprintln(os.Stderr, v...)
+	os.Exit(1)
+}
 
+func contains(s []int, e int) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}
+
+func prepareColumns() {
 	if len(Columns) > 0 {
 		for _, use := range strings.Split(Columns, ",") {
 			usenum, err := strconv.Atoi(use)
@@ -38,42 +48,4 @@ func process(args []string) error {
 			UseColumns = append(UseColumns, usenum)
 		}
 	}
-
-	if len(args) > 0 {
-		if _, err := os.Stat(args[0]); err != nil {
-			pattern = args[0]
-			args = args[1:]
-		}
-
-		if len(args) > 0 {
-			for _, file := range args {
-				fd, err := os.OpenFile(file, os.O_RDONLY, 0755)
-				if err != nil {
-					die(err)
-				}
-
-				data := parseFile(fd, pattern)
-				if Debug {
-					repr.Print(data)
-				}
-				printTable(data)
-			}
-			havefiles = true
-		}
-	}
-
-	if !havefiles {
-		stat, _ := os.Stdin.Stat()
-		if (stat.Mode() & os.ModeCharDevice) == 0 {
-			data := parseFile(os.Stdin, pattern)
-			if Debug {
-				repr.Print(data)
-			}
-			printTable(data)
-		} else {
-			return errors.New("No file specified and nothing to read on stdin!")
-		}
-	}
-
-	return nil
 }

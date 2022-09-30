@@ -15,13 +15,12 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package cmd
+package lib
 
 import (
 	"bufio"
 	"fmt"
 	"io"
-	"os"
 	"regexp"
 	"strings"
 )
@@ -34,11 +33,6 @@ type Tabdata struct {
 	headerIndices  []map[string]int // [ {beg=>0, end=>17}, ... ]
 	headers        []string         // [ "ID", "NAME", ...]
 	entries        [][]string
-}
-
-func die(v ...interface{}) {
-	fmt.Fprintln(os.Stderr, v...)
-	os.Exit(1)
 }
 
 /*
