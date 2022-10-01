@@ -27,7 +27,7 @@ func ProcessFiles(args []string) error {
 	var pattern string
 	havefiles := false
 
-	prepareColumns()
+	//prepareColumns()
 
 	if len(args) > 0 {
 		if _, err := os.Stat(args[0]); err != nil {

@@ -10,9 +10,12 @@ tablizer - Manipulate tabular output of other programs
     Flags:
       -c, --columns string     Only show the speficied columns (separated by ,)
       -d, --debug              Enable debugging
-      -x, --extended           Enable extended output
+      -X, --extended           Enable extended output
       -h, --help               help for tablizer
+      -M, --markdown           Enable markdown table output
       -n, --no-numbering       Disable header numbering
+      -O, --orgtbl             Enable org-mode table output
+      -o, --output string      Output mode - one of: orgtbl, markdown, extended, ascii(default)
       -s, --separator string   Custom field separator
       -v, --version            Print program version
 
@@ -70,12 +73,12 @@ The numbering can be suppressed by using the B<-n> option.
 
 There might be cases  when the tabular output of a  program is way too
 large  for your  current  terminal but  you still  need  to see  every
-column.  In such  cases the B<-x> option can be  usefull which enables
-I<extended mode>. In  this mode, each row will  be printed vertically,
-header  left, value  right, aligned  by  the field  widths. Here's  an
-example:
+column.  In  such cases  the B<-X>  option (or  B<-o extended>  can be
+usefull which enables I<extended mode>. In this mode, each row will be
+printed vertically,  header left,  value right,  aligned by  the field
+widths. Here's an example:
 
-    kubectl get pods | ./tablizer -x    
+    kubectl get pods | ./tablizer -X
         NAME: repldepl-7bcd8d5b64-7zq4l  
        READY: 1/1    
       STATUS: Running  
@@ -84,6 +87,10 @@ example:
 
 You can  of course  still use  a regex  to reduce  the number  of rows
 displayed.
+
+Beside normal  ascii mode (the  default) and extended mode  there more
+output modes available: B<orgtbl> which prints an Emacs org-mode table
+and B<markdown> which prints a Markdown table.
 
 Finally the  B<-d> option  enables debugging  output which  is mostly
 usefull for the developer.

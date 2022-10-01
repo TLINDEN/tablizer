@@ -19,78 +19,146 @@ package lib
 
 import (
 	"fmt"
+	"github.com/olekukonko/tablewriter"
+	"os"
+	"regexp"
 	"strings"
 )
 
 func printData(data Tabdata) {
-	if XtendedOut {
-		printExtendedData(data)
-	} else {
-		printTabularData(data)
-	}
-}
-
-func printTabularData(data Tabdata) {
-	// needed for data output
-	var formats []string
-
-	if len(data.entries) > 0 {
-		// headers
+	// prepare headers
+	// FIXME: maybe do this already in parseFile()?
+	if !NoNumbering {
+		numberedHeaders := []string{}
 		for i, head := range data.headers {
 			if len(Columns) > 0 {
 				if !contains(UseColumns, i+1) {
 					continue
 				}
 			}
-
-			// calculate column width
-			var width int
-			var iwidth int
-			var format string
-
-			// generate format string
-			if len(head) > data.maxwidthPerCol[i] {
-				width = len(head)
-			} else {
-				width = data.maxwidthPerCol[i]
-			}
-
-			if NoNumbering {
-				iwidth = 0
-			} else {
-				iwidth = len(fmt.Sprintf("%d", i)) // in case i > 9
-			}
-
-			format = fmt.Sprintf("%%-%ds", 3+iwidth+width)
-
-			if NoNumbering {
-				fmt.Printf(format, fmt.Sprintf("%s ", head))
-			} else {
-				fmt.Printf(format, fmt.Sprintf("%s(%d) ", head, i+1))
-			}
-
-			// register
-			formats = append(formats, format)
+			numberedHeaders = append(numberedHeaders, fmt.Sprintf("%s(%d)", head, i+1))
 		}
-		fmt.Println()
-
-		// entries
-		var idx int
-		for _, entry := range data.entries {
-			idx = 0
-			//fmt.Println(entry)
-			for i, value := range entry {
-				if len(Columns) > 0 {
-					if !contains(UseColumns, i+1) {
-						continue
-					}
-				}
-				fmt.Printf(formats[idx], strings.TrimSpace(value))
-				idx++
-			}
-			fmt.Println()
-		}
+		data.headers = numberedHeaders
 	}
+
+	// prepare data
+	if len(Columns) > 0 {
+		reducedEntries := [][]string{}
+		reducedEntry := []string{}
+		for _, entry := range data.entries {
+			reducedEntry = nil
+			for i, value := range entry {
+				if !contains(UseColumns, i+1) {
+					continue
+				}
+
+				reducedEntry = append(reducedEntry, value)
+			}
+			reducedEntries = append(reducedEntries, reducedEntry)
+		}
+		data.entries = reducedEntries
+	}
+
+	switch OutputMode {
+	case "extended":
+		printExtendedData(data)
+	case "ascii":
+		printAsciiData(data)
+	case "orgtbl":
+		printOrgmodeData(data)
+	case "markdown":
+		printMarkdownData(data)
+	default:
+		printAsciiData(data)
+	}
+}
+
+func trimRow(row []string) []string {
+	// FIXME: remove this when we only use Tablewriter and strip in ParseFile()!
+	var fixedrow []string
+	for _, cell := range row {
+		fixedrow = append(fixedrow, strings.TrimSpace(cell))
+	}
+
+	return fixedrow
+}
+
+/*
+   Emacs org-mode compatible table (also orgtbl-mode)
+*/
+func printOrgmodeData(data Tabdata) {
+	tableString := &strings.Builder{}
+	table := tablewriter.NewWriter(tableString)
+
+	table.SetHeader(data.headers)
+
+	for _, row := range data.entries {
+		table.Append(trimRow(row))
+	}
+
+	table.Render()
+
+	/* fix output for org-mode (orgtbl)
+	   tableWriter output:
+	   +------+------+
+	   | cell | cell |
+	   +------+------+
+
+	   Needed for org-mode compatibility:
+	   |------+------|
+	   | cell | cell |
+	   |------+------|
+	*/
+	leftR := regexp.MustCompile("(?m)^\\+")
+	rightR := regexp.MustCompile("\\+(?m)$")
+
+	fmt.Print(rightR.ReplaceAllString(leftR.ReplaceAllString(tableString.String(), "|"), "|"))
+}
+
+/*
+   Markdown table
+*/
+func printMarkdownData(data Tabdata) {
+	table := tablewriter.NewWriter(os.Stdout)
+
+	table.SetHeader(data.headers)
+
+	for _, row := range data.entries {
+		table.Append(trimRow(row))
+	}
+
+	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
+	table.SetCenterSeparator("|")
+
+	table.Render()
+}
+
+/*
+   Simple ASCII table without any borders etc, just like the input we expect
+*/
+func printAsciiData(data Tabdata) {
+	table := tablewriter.NewWriter(os.Stdout)
+
+	table.SetHeader(data.headers)
+	table.AppendBulk(data.entries)
+
+	// for _, row := range data.entries {
+	// 	table.Append(trimRow(row))
+	// }
+
+	table.SetAutoWrapText(false)
+	table.SetAutoFormatHeaders(true)
+	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
+	table.SetAlignment(tablewriter.ALIGN_LEFT)
+	table.SetCenterSeparator("")
+	table.SetColumnSeparator("")
+	table.SetRowSeparator("")
+	table.SetHeaderLine(false)
+	table.SetBorder(false)
+	table.SetTablePadding("\t") // pad with tabs
+	table.SetNoWhiteSpace(true)
+
+	table.Render()
 }
 
 /*

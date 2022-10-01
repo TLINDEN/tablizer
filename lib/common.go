@@ -17,6 +17,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 package lib
 
+// command line flags
 var Debug bool
 var XtendedOut bool
 var NoNumbering bool
@@ -24,5 +25,10 @@ var ShowVersion bool
 var Columns string
 var UseColumns []int
 var Separator string
+var OutflagExtended bool
+var OutflagMarkdown bool
+var OutflagOrgtable bool
+var OutputMode string
 
 var Version = "v1.0.2"
+var validOutputmodes = "(orgtbl|markdown|extended|ascii)"

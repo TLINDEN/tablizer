@@ -144,7 +144,7 @@ func parseFile(input io.Reader, pattern string) Tabdata {
 				// if Debug {
 				// 	fmt.Printf("<%s> ", value)
 				// }
-				values = append(values, value)
+				values = append(values, strings.TrimSpace(value))
 
 				idx++
 			}

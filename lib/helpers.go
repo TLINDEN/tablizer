@@ -18,8 +18,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package lib
 
 import (
+	"errors"
 	"fmt"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -38,7 +40,7 @@ func contains(s []int, e int) bool {
 	return false
 }
 
-func prepareColumns() {
+func PrepareColumns() {
 	if len(Columns) > 0 {
 		for _, use := range strings.Split(Columns, ",") {
 			usenum, err := strconv.Atoi(use)
@@ -48,4 +50,33 @@ func prepareColumns() {
 			UseColumns = append(UseColumns, usenum)
 		}
 	}
+}
+
+func PrepareModeFlags() error {
+	if len(OutputMode) == 0 {
+		switch {
+		case OutflagExtended:
+			OutputMode = "extended"
+		case OutflagMarkdown:
+			OutputMode = "markdown"
+		case OutflagOrgtable:
+			OutputMode = "orgtbl"
+		default:
+			OutputMode = "ascii"
+		}
+	} else {
+		r, err := regexp.Compile(validOutputmodes)
+
+		if err != nil {
+			return errors.New("Failed to validate output mode spec!")
+		}
+
+		match := r.MatchString(OutputMode)
+
+		if !match {
+			return errors.New("Invalid output mode!")
+		}
+	}
+
+	return nil
 }
