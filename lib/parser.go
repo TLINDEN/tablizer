@@ -15,13 +15,13 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package cmd
+package lib
 
 import (
 	"bufio"
 	"fmt"
+	"github.com/alecthomas/repr"
 	"io"
-	"os"
 	"regexp"
 	"strings"
 )
@@ -34,11 +34,6 @@ type Tabdata struct {
 	headerIndices  []map[string]int // [ {beg=>0, end=>17}, ... ]
 	headers        []string         // [ "ID", "NAME", ...]
 	entries        [][]string
-}
-
-func die(v ...interface{}) {
-	fmt.Fprintln(os.Stderr, v...)
-	os.Exit(1)
 }
 
 /*
@@ -65,7 +60,7 @@ func parseFile(input io.Reader, pattern string) Tabdata {
 	scanner = bufio.NewScanner(input)
 
 	for scanner.Scan() {
-		line := scanner.Text()
+		line := strings.TrimSpace(scanner.Text())
 		values := []string{}
 
 		patternR, err := regexp.Compile(pattern)
@@ -115,22 +110,18 @@ func parseFile(input io.Reader, pattern string) Tabdata {
 				// done
 				hadFirst = true
 			}
-			// if Debug {
-			// 	fmt.Println(data.headerIndices)
-			// }
 		} else {
 			// data processing
 			if len(pattern) > 0 {
-				//fmt.Println(patternR.MatchString(line))
 				if !patternR.MatchString(line) {
 					continue
 				}
 			}
 
 			idx := 0 // we cannot use the header index, because we could exclude columns
-
 			for _, index := range data.headerIndices {
 				value := ""
+
 				if index["end"] == 0 {
 					value = string(line[index["beg"]:])
 				} else {
@@ -150,7 +141,7 @@ func parseFile(input io.Reader, pattern string) Tabdata {
 				// if Debug {
 				// 	fmt.Printf("<%s> ", value)
 				// }
-				values = append(values, value)
+				values = append(values, strings.TrimSpace(value))
 
 				idx++
 			}
@@ -163,6 +154,10 @@ func parseFile(input io.Reader, pattern string) Tabdata {
 
 	if scanner.Err() != nil {
 		die(scanner.Err())
+	}
+
+	if Debug {
+		repr.Print(data)
 	}
 
 	return data

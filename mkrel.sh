@@ -27,6 +27,11 @@ windows/amd64"
 tool="$1"
 version="$2"
 
+if test -z "$version"; then
+  echo "Usage: $0 <tool name> <release version>"
+  exit 1
+fi
+
 rm -rf releases
 mkdir -p releases
 

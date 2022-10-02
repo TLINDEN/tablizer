@@ -1,3 +1,5 @@
+[![<ORG_NAME>](https://circleci.com/gh/TLINDEN/tablizer.svg?style=svg)](https://app.circleci.com/pipelines/github/TLINDEN/tablizer)
+
 ## tablizer - Manipulate tabular output of other programs
 
 Tablizer  can   be  used   to  re-format   tabular  output   of  other
