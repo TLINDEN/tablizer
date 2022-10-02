@@ -33,8 +33,7 @@ buildlocal:
 	go build
 
 release:
-	mkdir -p releases
-	$(foreach arch,$(archs), GOOS=$(arch) GOARCH=amd64 go build -x -o releases/$(tool)-$(arch)-amd64-$(version); sha256sum releases/$(tool)-$(arch)-amd64-$(version) | cut -d' ' -f1 > releases/$(tool)-$(arch)-amd64-$(version).sha256sum;)
+	./mkrel.sh $(tool) $(version)
 
 install: buildlocal
 	install -d -o $(UID) -g $(GID) $(PREFIX)/bin
