@@ -19,24 +19,54 @@ package lib
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 )
 
-func TestArrayContains(t *testing.T) {
+func Testcontains(t *testing.T) {
 	var tests = []struct {
 		list   []int
 		search int
 		want   bool
 	}{
 		{[]int{1, 2, 3}, 2, true},
+		{[]int{2, 3, 4}, 5, false},
 	}
 
 	for _, tt := range tests {
-		testname := fmt.Sprintf("%d,%d,%t", tt.list, tt.search, tt.want)
+		testname := fmt.Sprintf("contains-%d,%d,%t", tt.list, tt.search, tt.want)
 		t.Run(testname, func(t *testing.T) {
 			answer := contains(tt.list, tt.search)
 			if answer != tt.want {
 				t.Errorf("got %t, want %t", answer, tt.want)
+			}
+		})
+	}
+}
+
+func TestPrepareColumns(t *testing.T) {
+	var tests = []struct {
+		input     string
+		exp       []int
+		wanterror bool // expect error
+	}{
+		{"1,2,3", []int{1, 2, 3}, false},
+		{"1,2,", []int{}, true},
+	}
+
+	for _, tt := range tests {
+		testname := fmt.Sprintf("PrepareColumns-%s-%t", tt.input, tt.wanterror)
+		t.Run(testname, func(t *testing.T) {
+			Columns = tt.input
+			err := PrepareColumns()
+			if err != nil {
+				if !tt.wanterror {
+					t.Errorf("got error: %v", err)
+				}
+			} else {
+				if !reflect.DeepEqual(UseColumns, tt.exp) {
+					t.Errorf("got: %v, expected: %v", UseColumns, tt.exp)
+				}
 			}
 		})
 	}

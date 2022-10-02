@@ -40,16 +40,18 @@ func contains(s []int, e int) bool {
 	return false
 }
 
-func PrepareColumns() {
+func PrepareColumns() error {
 	if len(Columns) > 0 {
 		for _, use := range strings.Split(Columns, ",") {
 			usenum, err := strconv.Atoi(use)
 			if err != nil {
-				die(err)
+				msg := fmt.Sprintf("Could not parse columns list %s: %v", Columns, err)
+				return errors.New(msg)
 			}
 			UseColumns = append(UseColumns, usenum)
 		}
 	}
+	return nil
 }
 
 func PrepareModeFlags() error {

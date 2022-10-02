@@ -33,9 +33,12 @@ var rootCmd = &cobra.Command{
 			return nil
 		}
 
-		lib.PrepareColumns()
+		err := lib.PrepareColumns()
+		if err != nil {
+			return err
+		}
 
-		err := lib.PrepareModeFlags()
+		err = lib.PrepareModeFlags()
 		if err != nil {
 			return err
 		}
@@ -58,11 +61,14 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&lib.Separator, "separator", "s", "", "Custom field separator")
 	rootCmd.PersistentFlags().StringVarP(&lib.Columns, "columns", "c", "", "Only show the speficied columns (separated by ,)")
 
-	// output flags, only 1 allowed
+	// output flags, only 1 allowed, hidden, since just short cuts
 	rootCmd.PersistentFlags().BoolVarP(&lib.OutflagExtended, "extended", "X", false, "Enable extended output")
 	rootCmd.PersistentFlags().BoolVarP(&lib.OutflagMarkdown, "markdown", "M", false, "Enable markdown table output")
 	rootCmd.PersistentFlags().BoolVarP(&lib.OutflagOrgtable, "orgtbl", "O", false, "Enable org-mode table output")
 	rootCmd.MarkFlagsMutuallyExclusive("extended", "markdown", "orgtbl")
+	rootCmd.Flags().MarkHidden("extended")
+	rootCmd.Flags().MarkHidden("orgtbl")
+	rootCmd.Flags().MarkHidden("markdown")
 
 	// same thing but more common, takes precedence over above group
 	rootCmd.PersistentFlags().StringVarP(&lib.OutputMode, "output", "o", "", "Output mode - one of: orgtbl, markdown, extended, ascii(default)")
