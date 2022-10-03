@@ -20,16 +20,10 @@ package lib
 import (
 	"errors"
 	"fmt"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
 )
-
-func die(v ...interface{}) {
-	fmt.Fprintln(os.Stderr, v...)
-	os.Exit(1)
-}
 
 func contains(s []int, e int) bool {
 	for _, a := range s {
@@ -63,6 +57,9 @@ func PrepareModeFlags() error {
 			OutputMode = "markdown"
 		case OutflagOrgtable:
 			OutputMode = "orgtbl"
+		case OutflagShell:
+			OutputMode = "shell"
+			NoNumbering = true
 		default:
 			OutputMode = "ascii"
 		}
@@ -81,4 +78,14 @@ func PrepareModeFlags() error {
 	}
 
 	return nil
+}
+
+func trimRow(row []string) []string {
+	// FIXME: remove this when we only use Tablewriter and strip in ParseFile()!
+	var fixedrow []string
+	for _, cell := range row {
+		fixedrow = append(fixedrow, strings.TrimSpace(cell))
+	}
+
+	return fixedrow
 }

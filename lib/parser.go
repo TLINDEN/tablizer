@@ -19,6 +19,7 @@ package lib
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"github.com/alecthomas/repr"
 	"io"
@@ -43,7 +44,7 @@ type Tabdata struct {
    way we can turn "tabular data" (with fields containing whitespaces)
    into real tabular data. We re-tabulate our input if you will.
 */
-func parseFile(input io.Reader, pattern string) Tabdata {
+func parseFile(input io.Reader, pattern string) (Tabdata, error) {
 	data := Tabdata{}
 
 	var scanner *bufio.Scanner
@@ -65,7 +66,7 @@ func parseFile(input io.Reader, pattern string) Tabdata {
 
 		patternR, err := regexp.Compile(pattern)
 		if err != nil {
-			die(err)
+			return data, errors.Unwrap(fmt.Errorf("Regexp pattern %s is invalid: %w", pattern, err))
 		}
 
 		if !hadFirst {
@@ -145,20 +146,17 @@ func parseFile(input io.Reader, pattern string) Tabdata {
 
 				idx++
 			}
-			if Debug {
-				fmt.Println()
-			}
 			data.entries = append(data.entries, values)
 		}
 	}
 
 	if scanner.Err() != nil {
-		die(scanner.Err())
+		return data, errors.Unwrap(fmt.Errorf("Regexp pattern %s is invalid: %w", pattern, scanner.Err()))
 	}
 
 	if Debug {
 		repr.Print(data)
 	}
 
-	return data
+	return data, nil
 }
