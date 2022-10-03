@@ -65,11 +65,13 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&lib.OutflagExtended, "extended", "X", false, "Enable extended output")
 	rootCmd.PersistentFlags().BoolVarP(&lib.OutflagMarkdown, "markdown", "M", false, "Enable markdown table output")
 	rootCmd.PersistentFlags().BoolVarP(&lib.OutflagOrgtable, "orgtbl", "O", false, "Enable org-mode table output")
-	rootCmd.MarkFlagsMutuallyExclusive("extended", "markdown", "orgtbl")
+	rootCmd.PersistentFlags().BoolVarP(&lib.OutflagShell, "shell", "S", false, "Enable shell mode output")
+	rootCmd.MarkFlagsMutuallyExclusive("extended", "markdown", "orgtbl", "shell")
 	rootCmd.Flags().MarkHidden("extended")
 	rootCmd.Flags().MarkHidden("orgtbl")
 	rootCmd.Flags().MarkHidden("markdown")
+	rootCmd.Flags().MarkHidden("shell")
 
 	// same thing but more common, takes precedence over above group
-	rootCmd.PersistentFlags().StringVarP(&lib.OutputMode, "output", "o", "", "Output mode - one of: orgtbl, markdown, extended, ascii(default)")
+	rootCmd.PersistentFlags().StringVarP(&lib.OutputMode, "output", "o", "", "Output mode - one of: orgtbl, markdown, extended, shell, ascii(default)")
 }

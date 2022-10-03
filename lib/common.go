@@ -28,7 +28,8 @@ var Separator string
 var OutflagExtended bool
 var OutflagMarkdown bool
 var OutflagOrgtable bool
+var OutflagShell bool
 var OutputMode string
 
-var Version = "v1.0.2"
+var Version = "v1.0.3"
 var validOutputmodes = "(orgtbl|markdown|extended|ascii)"

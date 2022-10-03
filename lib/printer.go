@@ -27,20 +27,22 @@ import (
 
 func printData(data *Tabdata) {
 	// prepare headers: add numbers to headers
-	if !NoNumbering {
-		numberedHeaders := []string{}
-		for i, head := range data.headers {
-			if len(Columns) > 0 {
-				// -c specified
-				if !contains(UseColumns, i+1) {
-					// ignore this one
-					continue
-				}
+	numberedHeaders := []string{}
+	for i, head := range data.headers {
+		if len(Columns) > 0 {
+			// -c specified
+			if !contains(UseColumns, i+1) {
+				// ignore this one
+				continue
 			}
+		}
+		if NoNumbering {
+			numberedHeaders = append(numberedHeaders, head)
+		} else {
 			numberedHeaders = append(numberedHeaders, fmt.Sprintf("%s(%d)", head, i+1))
 		}
-		data.headers = numberedHeaders
 	}
+	data.headers = numberedHeaders
 
 	// prepare data
 	if len(Columns) > 0 {
@@ -69,6 +71,8 @@ func printData(data *Tabdata) {
 		printOrgmodeData(data)
 	case "markdown":
 		printMarkdownData(data)
+	case "shell":
+		printShellData(data)
 	default:
 		printAsciiData(data)
 	}
@@ -171,6 +175,29 @@ func printExtendedData(data *Tabdata) {
 				}
 
 				fmt.Printf(format, data.headers[idx], value)
+				idx++
+			}
+			fmt.Println()
+		}
+	}
+}
+
+/*
+   Shell output, ready to be eval'd. Just like FreeBSD stat(1)
+*/
+func printShellData(data *Tabdata) {
+	if len(data.entries) > 0 {
+		var idx int
+		for _, entry := range data.entries {
+			idx = 0
+			for i, value := range entry {
+				if len(Columns) > 0 {
+					if !contains(UseColumns, i+1) {
+						continue
+					}
+				}
+
+				fmt.Printf("%s=\"%s\" ", data.headers[idx], value)
 				idx++
 			}
 			fmt.Println()

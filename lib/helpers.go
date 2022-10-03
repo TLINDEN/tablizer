@@ -57,6 +57,9 @@ func PrepareModeFlags() error {
 			OutputMode = "markdown"
 		case OutflagOrgtable:
 			OutputMode = "orgtbl"
+		case OutflagShell:
+			OutputMode = "shell"
+			NoNumbering = true
 		default:
 			OutputMode = "ascii"
 		}
