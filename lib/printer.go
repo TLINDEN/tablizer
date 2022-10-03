@@ -25,14 +25,15 @@ import (
 	"strings"
 )
 
-func printData(data Tabdata) {
-	// prepare headers
-	// FIXME: maybe do this already in parseFile()?
+func printData(data *Tabdata) {
+	// prepare headers: add numbers to headers
 	if !NoNumbering {
 		numberedHeaders := []string{}
 		for i, head := range data.headers {
 			if len(Columns) > 0 {
+				// -c specified
 				if !contains(UseColumns, i+1) {
+					// ignore this one
 					continue
 				}
 			}
@@ -73,20 +74,10 @@ func printData(data Tabdata) {
 	}
 }
 
-func trimRow(row []string) []string {
-	// FIXME: remove this when we only use Tablewriter and strip in ParseFile()!
-	var fixedrow []string
-	for _, cell := range row {
-		fixedrow = append(fixedrow, strings.TrimSpace(cell))
-	}
-
-	return fixedrow
-}
-
 /*
    Emacs org-mode compatible table (also orgtbl-mode)
 */
-func printOrgmodeData(data Tabdata) {
+func printOrgmodeData(data *Tabdata) {
 	tableString := &strings.Builder{}
 	table := tablewriter.NewWriter(tableString)
 
@@ -118,7 +109,7 @@ func printOrgmodeData(data Tabdata) {
 /*
    Markdown table
 */
-func printMarkdownData(data Tabdata) {
+func printMarkdownData(data *Tabdata) {
 	table := tablewriter.NewWriter(os.Stdout)
 
 	table.SetHeader(data.headers)
@@ -136,7 +127,7 @@ func printMarkdownData(data Tabdata) {
 /*
    Simple ASCII table without any borders etc, just like the input we expect
 */
-func printAsciiData(data Tabdata) {
+func printAsciiData(data *Tabdata) {
 	table := tablewriter.NewWriter(os.Stdout)
 
 	table.SetHeader(data.headers)
@@ -164,7 +155,7 @@ func printAsciiData(data Tabdata) {
 /*
    We simulate the \x command of psql (the PostgreSQL client)
 */
-func printExtendedData(data Tabdata) {
+func printExtendedData(data *Tabdata) {
 	// needed for data output
 	format := fmt.Sprintf("%%%ds: %%s\n", data.maxwidthHeader) // FIXME: re-calculate if -c has been set
 

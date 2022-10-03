@@ -76,3 +76,13 @@ func PrepareModeFlags() error {
 
 	return nil
 }
+
+func trimRow(row []string) []string {
+	// FIXME: remove this when we only use Tablewriter and strip in ParseFile()!
+	var fixedrow []string
+	for _, cell := range row {
+		fixedrow = append(fixedrow, strings.TrimSpace(cell))
+	}
+
+	return fixedrow
+}

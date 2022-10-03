@@ -35,7 +35,7 @@ func ProcessFiles(args []string) error {
 		if err != nil {
 			return err
 		}
-		printData(data)
+		printData(&data)
 	}
 
 	return nil

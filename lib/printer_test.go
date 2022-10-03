@@ -60,7 +60,7 @@ asd   	igig  	cxxxncnc
 			t.Errorf("Parser returned error: %s\nData processed so far: %+v", err, data)
 		}
 
-		printData(data)
+		printData(&data)
 
 		buf := make([]byte, 1024)
 		n, err := r.Read(buf)
