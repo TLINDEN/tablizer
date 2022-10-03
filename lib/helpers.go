@@ -20,16 +20,10 @@ package lib
 import (
 	"errors"
 	"fmt"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
 )
-
-func die(v ...interface{}) {
-	fmt.Fprintln(os.Stderr, v...)
-	os.Exit(1)
-}
 
 func contains(s []int, e int) bool {
 	for _, a := range s {

@@ -54,7 +54,12 @@ asd   	igig  	cxxxncnc
 	for mode, expect := range expects {
 		OutputMode = mode
 		fd := strings.NewReader(table)
-		data := parseFile(fd, "")
+		data, err := parseFile(fd, "")
+
+		if err != nil {
+			t.Errorf("Parser returned error: %s\nData processed so far: %+v", err, data)
+		}
+
 		printData(data)
 
 		buf := make([]byte, 1024)

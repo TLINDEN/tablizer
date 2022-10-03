@@ -70,7 +70,12 @@ asd    igig   cxxxncnc
 19191  EDD 1  X`
 
 	readFd := strings.NewReader(table)
-	gotdata := parseFile(readFd, "")
+	gotdata, err := parseFile(readFd, "")
+
+	if err != nil {
+		t.Errorf("Parser returned error: %s\nData processed so far: %+v", err, gotdata)
+	}
+
 	if !reflect.DeepEqual(data, gotdata) {
 		t.Errorf("Parser returned invalid data\nExp: %+v\nGot: %+v\n", data, gotdata)
 	}
