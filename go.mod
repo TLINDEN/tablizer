@@ -1,4 +1,4 @@
-module daemon.de/tablizer
+module github.com/tlinden/tablizer
 
 go 1.18
 

@@ -25,21 +25,24 @@ import (
 	"strings"
 )
 
-func printData(data Tabdata) {
-	// prepare headers
-	// FIXME: maybe do this already in parseFile()?
-	if !NoNumbering {
-		numberedHeaders := []string{}
-		for i, head := range data.headers {
-			if len(Columns) > 0 {
-				if !contains(UseColumns, i+1) {
-					continue
-				}
+func printData(data *Tabdata) {
+	// prepare headers: add numbers to headers
+	numberedHeaders := []string{}
+	for i, head := range data.headers {
+		if len(Columns) > 0 {
+			// -c specified
+			if !contains(UseColumns, i+1) {
+				// ignore this one
+				continue
 			}
+		}
+		if NoNumbering {
+			numberedHeaders = append(numberedHeaders, head)
+		} else {
 			numberedHeaders = append(numberedHeaders, fmt.Sprintf("%s(%d)", head, i+1))
 		}
-		data.headers = numberedHeaders
 	}
+	data.headers = numberedHeaders
 
 	// prepare data
 	if len(Columns) > 0 {
@@ -68,25 +71,17 @@ func printData(data Tabdata) {
 		printOrgmodeData(data)
 	case "markdown":
 		printMarkdownData(data)
+	case "shell":
+		printShellData(data)
 	default:
 		printAsciiData(data)
 	}
 }
 
-func trimRow(row []string) []string {
-	// FIXME: remove this when we only use Tablewriter and strip in ParseFile()!
-	var fixedrow []string
-	for _, cell := range row {
-		fixedrow = append(fixedrow, strings.TrimSpace(cell))
-	}
-
-	return fixedrow
-}
-
 /*
    Emacs org-mode compatible table (also orgtbl-mode)
 */
-func printOrgmodeData(data Tabdata) {
+func printOrgmodeData(data *Tabdata) {
 	tableString := &strings.Builder{}
 	table := tablewriter.NewWriter(tableString)
 
@@ -118,7 +113,7 @@ func printOrgmodeData(data Tabdata) {
 /*
    Markdown table
 */
-func printMarkdownData(data Tabdata) {
+func printMarkdownData(data *Tabdata) {
 	table := tablewriter.NewWriter(os.Stdout)
 
 	table.SetHeader(data.headers)
@@ -136,7 +131,7 @@ func printMarkdownData(data Tabdata) {
 /*
    Simple ASCII table without any borders etc, just like the input we expect
 */
-func printAsciiData(data Tabdata) {
+func printAsciiData(data *Tabdata) {
 	table := tablewriter.NewWriter(os.Stdout)
 
 	table.SetHeader(data.headers)
@@ -164,7 +159,7 @@ func printAsciiData(data Tabdata) {
 /*
    We simulate the \x command of psql (the PostgreSQL client)
 */
-func printExtendedData(data Tabdata) {
+func printExtendedData(data *Tabdata) {
 	// needed for data output
 	format := fmt.Sprintf("%%%ds: %%s\n", data.maxwidthHeader) // FIXME: re-calculate if -c has been set
 
@@ -180,6 +175,29 @@ func printExtendedData(data Tabdata) {
 				}
 
 				fmt.Printf(format, data.headers[idx], value)
+				idx++
+			}
+			fmt.Println()
+		}
+	}
+}
+
+/*
+   Shell output, ready to be eval'd. Just like FreeBSD stat(1)
+*/
+func printShellData(data *Tabdata) {
+	if len(data.entries) > 0 {
+		var idx int
+		for _, entry := range data.entries {
+			idx = 0
+			for i, value := range entry {
+				if len(Columns) > 0 {
+					if !contains(UseColumns, i+1) {
+						continue
+					}
+				}
+
+				fmt.Printf("%s=\"%s\" ", data.headers[idx], value)
 				idx++
 			}
 			fmt.Println()

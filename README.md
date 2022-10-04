@@ -1,4 +1,5 @@
-[![<ORG_NAME>](https://circleci.com/gh/TLINDEN/tablizer.svg?style=svg)](https://app.circleci.com/pipelines/github/TLINDEN/tablizer)
+[![Actions](https://github.com/tlinden/tablizer/workflows/build/badge.svg)](https://github.com/tlinden/tablizer/actions)
+[![License](https://img.shields.io/badge/license-GPL-blue.svg)](https://github.com/tlinden/tablizer/blob/master/LICENSE)
 
 ## tablizer - Manipulate tabular output of other programs
 

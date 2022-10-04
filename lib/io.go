@@ -31,7 +31,11 @@ func ProcessFiles(args []string) error {
 	}
 
 	for _, fd := range fds {
-		printData(parseFile(fd, pattern))
+		data, err := parseFile(fd, pattern)
+		if err != nil {
+			return err
+		}
+		printData(&data)
 	}
 
 	return nil

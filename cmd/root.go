@@ -17,11 +17,35 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
-	"daemon.de/tablizer/lib"
+	"bytes"
+	"github.com/tlinden/tablizer/lib"
 	"fmt"
 	"github.com/spf13/cobra"
+	"log"
 	"os"
+	"os/exec"
 )
+
+var helpCmd = &cobra.Command{
+	Use:   "help",
+	Short: "Show documentation",
+	Run: func(cmd *cobra.Command, args []string) {
+		man := exec.Command("less", "-")
+
+		var b bytes.Buffer
+		b.Write([]byte(manpage))
+
+		man.Stdout = os.Stdout
+		man.Stdin = &b
+		man.Stderr = os.Stderr
+
+		err := man.Run()
+
+		if err != nil {
+			log.Fatal(err)
+		}
+	},
+}
 
 var rootCmd = &cobra.Command{
 	Use:   "tablizer [regex] [file, ...]",
@@ -29,7 +53,7 @@ var rootCmd = &cobra.Command{
 	Long:  `Manipulate tabular output of other programs`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if lib.ShowVersion {
-			fmt.Printf("This is tablizer version %s\n", lib.Version)
+			fmt.Printf("This is tablizer version %s\n", lib.VERSION)
 			return nil
 		}
 
@@ -65,11 +89,20 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&lib.OutflagExtended, "extended", "X", false, "Enable extended output")
 	rootCmd.PersistentFlags().BoolVarP(&lib.OutflagMarkdown, "markdown", "M", false, "Enable markdown table output")
 	rootCmd.PersistentFlags().BoolVarP(&lib.OutflagOrgtable, "orgtbl", "O", false, "Enable org-mode table output")
-	rootCmd.MarkFlagsMutuallyExclusive("extended", "markdown", "orgtbl")
+	rootCmd.PersistentFlags().BoolVarP(&lib.OutflagShell, "shell", "S", false, "Enable shell mode output")
+	rootCmd.MarkFlagsMutuallyExclusive("extended", "markdown", "orgtbl", "shell")
 	rootCmd.Flags().MarkHidden("extended")
 	rootCmd.Flags().MarkHidden("orgtbl")
 	rootCmd.Flags().MarkHidden("markdown")
+	rootCmd.Flags().MarkHidden("shell")
 
 	// same thing but more common, takes precedence over above group
-	rootCmd.PersistentFlags().StringVarP(&lib.OutputMode, "output", "o", "", "Output mode - one of: orgtbl, markdown, extended, ascii(default)")
+	rootCmd.PersistentFlags().StringVarP(&lib.OutputMode, "output", "o", "", "Output mode - one of: orgtbl, markdown, extended, shell, ascii(default)")
+
+	rootCmd.AddCommand(helpCmd)
+
+	rootCmd.SetHelpCommand(&cobra.Command{
+		Use:    "no-help",
+		Hidden: true,
+	})
 }

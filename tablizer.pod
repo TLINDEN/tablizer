@@ -74,7 +74,7 @@ The numbering can be suppressed by using the B<-n> option.
 Finally the  B<-d> option  enables debugging  output which  is mostly
 usefull for the developer.
 
-?head2 OUTPUT MODES
+=head2 OUTPUT MODES
 
 There might be cases  when the tabular output of a  program is way too
 large  for your  current  terminal but  you still  need  to see  every
@@ -83,7 +83,7 @@ usefull which enables I<extended mode>. In this mode, each row will be
 printed vertically,  header left,  value right,  aligned by  the field
 widths. Here's an example:
 
-    kubectl get pods | ./tablizer -X
+    kubectl get pods | ./tablizer -o extended
         NAME: repldepl-7bcd8d5b64-7zq4l  
        READY: 1/1    
       STATUS: Running  
@@ -92,6 +92,17 @@ widths. Here's an example:
 
 You can  of course  still use  a regex  to reduce  the number  of rows
 displayed.
+
+The option B<-o shell>  can be used if the output  has to be processed
+by the shell,  it prints variable assignments for each  cell, one line
+per row:
+
+    kubectl get pods | ./tablizer -o extended ./tablizer -o shell
+    NAME="repldepl-7bcd8d5b64-7zq4l" READY="1/1" STATUS="Running" RESTARTS="9 (47m ago)" AGE="4d23h" 
+    NAME="repldepl-7bcd8d5b64-m48n8" READY="1/1" STATUS="Running" RESTARTS="9 (47m ago)" AGE="4d23h" 
+    NAME="repldepl-7bcd8d5b64-q2bf4" READY="1/1" STATUS="Running" RESTARTS="9 (47m ago)" AGE="4d23h" 
+
+You can use this in an eval loop.
 
 Beside normal  ascii mode  (the default) and  extended mode  there are
 more output modes available: B<orgtbl>  which prints an Emacs org-mode

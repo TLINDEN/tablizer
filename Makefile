@@ -18,19 +18,30 @@
 #
 # no need to modify anything below
 tool    = tablizer
-version = $(shell egrep "^var Version = " lib/common.go | cut -d'=' -f2 | cut -d'"' -f 2)
+version = $(shell egrep "= .v" lib/common.go | cut -d'=' -f2 | cut -d'"' -f 2)
 archs   = android darwin freebsd linux netbsd openbsd windows
-PREFIX = /usr/local
-UID    = root
-GID    = 0
+PREFIX  = /usr/local
+UID     = root
+GID     = 0
+BRANCH  = $(shell git describe --all | cut -d/ -f2)
+COMMIT  = $(shell git rev-parse --short=8 HEAD)
+BUILD   = $(shell date +%Y.%m.%d.%H%M%S) 
+VERSION:= $(if $(filter $(BRANCH), development),$(version)-$(BRANCH)-$(COMMIT)-$(BUILD))
 
-all: buildlocal $(tool).1
+
+all: $(tool).1 cmd/$(tool).go buildlocal
 
 %.1: %.pod
 	pod2man -c "User Commands" -r 1 -s 1 $*.pod > $*.1
 
+cmd/%.go: %.pod
+	echo "package cmd" > cmd/$*.go
+	echo "var manpage = \`" >> cmd/$*.go
+	pod2text $*.pod >> cmd/$*.go
+	echo "\`" >> cmd/$*.go
+
 buildlocal:
-	go build
+	go build -ldflags "-X 'github.com/tlinden/tablizer/lib.VERSION=$(VERSION)'"
 
 release:
 	./mkrel.sh $(tool) $(version)
@@ -42,7 +53,7 @@ install: buildlocal
 	install -o $(UID) -g $(GID) -m 444 $(tool).1 $(PREFIX)/man/man1/
 
 clean:
-	rm -rf $(tool) $(tool).1 releases
+	rm -rf $(tool) releases
 
 test:
 	go test -v ./...
