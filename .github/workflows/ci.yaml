@@ -1,4 +1,4 @@
-name: build-tast-tablizer
+name: build-and-test-tablizer
 on: [push, pull_request]
 jobs:
   build:
