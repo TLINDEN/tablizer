@@ -53,7 +53,7 @@ install: buildlocal
 	install -o $(UID) -g $(GID) -m 444 $(tool).1 $(PREFIX)/man/man1/
 
 clean:
-	rm -rf $(tool) $(tool).1 cmd/$(tool).go releases
+	rm -rf $(tool) releases
 
 test:
 	go test -v ./...
