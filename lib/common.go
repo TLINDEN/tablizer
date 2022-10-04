@@ -17,19 +17,29 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 package lib
 
-// command line flags
-var Debug bool
-var XtendedOut bool
-var NoNumbering bool
-var ShowVersion bool
-var Columns string
-var UseColumns []int
-var Separator string
-var OutflagExtended bool
-var OutflagMarkdown bool
-var OutflagOrgtable bool
-var OutflagShell bool
-var OutputMode string
+var (
+	// command line flags
+	Debug           bool
+	XtendedOut      bool
+	NoNumbering     bool
+	ShowVersion     bool
+	Columns         string
+	UseColumns      []int
+	Separator       string
+	OutflagExtended bool
+	OutflagMarkdown bool
+	OutflagOrgtable bool
+	OutflagShell    bool
+	OutputMode      string
 
-var Version = "v1.0.3"
-var validOutputmodes = "(orgtbl|markdown|extended|ascii)"
+	// used for validation
+	validOutputmodes = "(orgtbl|markdown|extended|ascii)"
+
+	// main program version
+	Version = "v1.0.3"
+
+	// generated  version string, used  by -v contains  lib.Version on
+	//  main  branch,   and  lib.Version-$branch-$lastcommit-$date  on
+	// development branch
+	VERSION string
+)
