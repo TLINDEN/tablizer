@@ -1,0 +1,28 @@
+name: build-tast-tablizer
+on: [push, pull_request]
+jobs:
+  os_matrix:
+    strategy:
+      matrix:
+        version: [1.17, 1.18, 1.19]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+  build:
+    name: Build
+    runs-on: ${{ matrix.os }}
+    steps:
+
+    - name: Set up Go 1.18
+      uses: actions/setup-go@v3
+      with:
+        go-version: ${{ matrix.version }}
+      id: go
+
+    - name: checkout
+      uses: actions/checkout@v3
+
+    - name: build
+      run: make
+
+    - name: test
+      run: make test
