@@ -18,15 +18,33 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package lib
 
 import (
+	"fmt"
 	"os"
 	"strings"
 	"testing"
 )
 
 func TestPrinter(t *testing.T) {
-	table := `ONE    TWO    THREE  
-asd    igig   cxxxncnc  
-19191  EDD 1  X`
+	startdata := Tabdata{
+		maxwidthHeader: 5,
+		maxwidthPerCol: []int{
+			5,
+			5,
+			8,
+		},
+		columns: 3,
+		headers: []string{
+			"ONE", "TWO", "THREE",
+		},
+		entries: [][]string{
+			[]string{
+				"asd", "igig", "cxxxncnc",
+			},
+			[]string{
+				"19191", "EDD 1", "X",
+			},
+		},
+	}
 
 	expects := map[string]string{
 		"ascii": `ONE(1)	TWO(2)	THREE(3) 
@@ -42,6 +60,8 @@ asd   	igig  	cxxxncnc
 |--------|--------|----------|
 | asd    | igig   | cxxxncnc |
 |  19191 | EDD 1  | X        |`,
+		"shell": `ONE="asd" TWO="igig" THREE="cxxxncnc"
+ONE="19191" TWO="EDD 1" THREE="X"`,
 	}
 
 	r, w, err := os.Pipe()
@@ -52,27 +72,25 @@ asd   	igig  	cxxxncnc
 	os.Stdout = w
 
 	for mode, expect := range expects {
-		OutputMode = mode
-		fd := strings.NewReader(table)
-		data, err := parseFile(fd, "")
+		testname := fmt.Sprintf("print-%s", mode)
+		t.Run(testname, func(t *testing.T) {
 
-		if err != nil {
-			t.Errorf("Parser returned error: %s\nData processed so far: %+v", err, data)
-		}
+			OutputMode = mode
+			data := startdata // we need to reset our mock data, since it's being modified in printData()
+			printData(&data)
 
-		printData(&data)
+			buf := make([]byte, 1024)
+			n, err := r.Read(buf)
+			if err != nil {
+				t.Fatal(err)
+			}
+			buf = buf[:n]
+			output := strings.TrimSpace(string(buf))
 
-		buf := make([]byte, 1024)
-		n, err := r.Read(buf)
-		if err != nil {
-			t.Fatal(err)
-		}
-		buf = buf[:n]
-		output := strings.TrimSpace(string(buf))
-
-		if output != expect {
-			t.Errorf("output mode: %s, got:\n%s\nwant:\n%s\n (%d <=> %d)", mode, output, expect, len(output), len(expect))
-		}
+			if output != expect {
+				t.Errorf("output mode: %s, got:\n%s\nwant:\n%s\n (%d <=> %d)", mode, output, expect, len(output), len(expect))
+			}
+		})
 	}
 
 	// Restore

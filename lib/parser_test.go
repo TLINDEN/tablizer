@@ -28,26 +28,18 @@ func TestParser(t *testing.T) {
 	data := Tabdata{
 		maxwidthHeader: 5,
 		maxwidthPerCol: []int{
-			5,
-			5,
-			8,
+			5, 5, 8,
 		},
 		columns: 3,
 		headers: []string{
-			"ONE",
-			"TWO",
-			"THREE",
+			"ONE", "TWO", "THREE",
 		},
 		entries: [][]string{
 			[]string{
-				"asd",
-				"igig",
-				"cxxxncnc",
+				"asd", "igig", "cxxxncnc",
 			},
 			[]string{
-				"19191",
-				"EDD 1",
-				"X",
+				"19191", "EDD 1", "X",
 			},
 		},
 	}
@@ -58,6 +50,7 @@ asd    igig   cxxxncnc
 
 	readFd := strings.NewReader(table)
 	gotdata, err := parseFile(readFd, "")
+	Separator = DefaultSeparator
 
 	if err != nil {
 		t.Errorf("Parser returned error: %s\nData processed so far: %+v", err, gotdata)
@@ -77,9 +70,7 @@ func TestParserPatternmatching(t *testing.T) {
 		{
 			entries: [][]string{
 				[]string{
-					"asd",
-					"igig",
-					"cxxxncnc",
+					"asd", "igig", "cxxxncnc",
 				},
 			},
 			pattern: "ig",
@@ -88,9 +79,7 @@ func TestParserPatternmatching(t *testing.T) {
 		{
 			entries: [][]string{
 				[]string{
-					"19191",
-					"EDD 1",
-					"X",
+					"19191", "EDD 1", "X",
 				},
 			},
 			pattern: "ig",

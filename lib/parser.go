@@ -46,7 +46,6 @@ func parseFile(input io.Reader, pattern string) (Tabdata, error) {
 
 	hadFirst := false
 	separate := regexp.MustCompile(Separator)
-
 	patternR, err := regexp.Compile(pattern)
 	if err != nil {
 		return data, errors.Unwrap(fmt.Errorf("Regexp pattern %s is invalid: %w", pattern, err))

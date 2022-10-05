@@ -52,6 +52,7 @@ func TestPrepareColumns(t *testing.T) {
 	}{
 		{"1,2,3", []int{1, 2, 3}, false},
 		{"1,2,", []int{}, true},
+		{"a,b", []int{}, true},
 	}
 
 	for _, tt := range tests {
@@ -70,4 +71,47 @@ func TestPrepareColumns(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestReduceColumns(t *testing.T) {
+	var tests = []struct {
+		expect  [][]string
+		columns []int
+	}{
+		{
+			expect:  [][]string{[]string{"a", "b"}},
+			columns: []int{1, 2},
+		},
+		{
+			expect:  [][]string{[]string{"a", "c"}},
+			columns: []int{1, 3},
+		},
+		{
+			expect:  [][]string{[]string{"a"}},
+			columns: []int{1},
+		},
+		{
+			expect:  [][]string{nil},
+			columns: []int{4},
+		},
+	}
+
+	input := [][]string{[]string{"a", "b", "c"}}
+
+	Columns = "y" // used as a flag with len(Columns)...
+
+	for _, tt := range tests {
+		testname := fmt.Sprintf("reduce-columns-by-%+v", tt.columns)
+		t.Run(testname, func(t *testing.T) {
+			UseColumns = tt.columns
+			data := Tabdata{entries: input}
+			reduceColumns(&data)
+			if !reflect.DeepEqual(data.entries, tt.expect) {
+				t.Errorf("reduceColumns returned invalid data:\ngot: %+v\nexp: %+v", data.entries, tt.expect)
+			}
+		})
+	}
+
+	Columns = "" // reset for other tests
+	UseColumns = nil
 }

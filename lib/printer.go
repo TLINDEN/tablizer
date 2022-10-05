@@ -26,41 +26,10 @@ import (
 )
 
 func printData(data *Tabdata) {
-	// prepare headers: add numbers to headers
-	numberedHeaders := []string{}
-	for i, head := range data.headers {
-		if len(Columns) > 0 {
-			// -c specified
-			if !contains(UseColumns, i+1) {
-				// ignore this one
-				continue
-			}
-		}
-		if NoNumbering {
-			numberedHeaders = append(numberedHeaders, head)
-		} else {
-			numberedHeaders = append(numberedHeaders, fmt.Sprintf("%s(%d)", head, i+1))
-		}
+	if OutputMode != "shell" {
+		numberizeHeaders(data)
 	}
-	data.headers = numberedHeaders
-
-	// prepare data
-	if len(Columns) > 0 {
-		reducedEntries := [][]string{}
-		reducedEntry := []string{}
-		for _, entry := range data.entries {
-			reducedEntry = nil
-			for i, value := range entry {
-				if !contains(UseColumns, i+1) {
-					continue
-				}
-
-				reducedEntry = append(reducedEntry, value)
-			}
-			reducedEntries = append(reducedEntries, reducedEntry)
-		}
-		data.entries = reducedEntries
-	}
+	reduceColumns(data)
 
 	switch OutputMode {
 	case "extended":
@@ -190,6 +159,7 @@ func printShellData(data *Tabdata) {
 		var idx int
 		for _, entry := range data.entries {
 			idx = 0
+			shentries := []string{}
 			for i, value := range entry {
 				if len(Columns) > 0 {
 					if !contains(UseColumns, i+1) {
@@ -197,10 +167,10 @@ func printShellData(data *Tabdata) {
 					}
 				}
 
-				fmt.Printf("%s=\"%s\" ", data.headers[idx], value)
+				shentries = append(shentries, fmt.Sprintf("%s=\"%s\"", data.headers[idx], value))
 				idx++
 			}
-			fmt.Println()
+			fmt.Println(strings.Join(shentries, " "))
 		}
 	}
 }
