@@ -11,6 +11,8 @@ SYNOPSIS
           -c, --columns string     Only show the speficied columns (separated by ,)
           -d, --debug              Enable debugging
           -h, --help               help for tablizer
+          -v, --invert-match       select non-matching rows
+          -m, --man                Display manual page
           -n, --no-numbering       Disable header numbering
           -o, --output string      Output mode - one of: orgtbl, markdown, extended, ascii(default)
           -X, --extended           Enable extended output
@@ -38,7 +40,8 @@ DESCRIPTION
 
     Without any options it reads its input from "STDIN", but you can also
     specify a file as a parameter. If you want to reduce the output by some
-    regular expression, just specify it as its first parameters. Hence:
+    regular expression, just specify it as its first parameter. You may also
+    use the -v option to exclude all rows which match the pattern. Hence:
 
        # read from STDIN
        kubectl get pods | tablizer
