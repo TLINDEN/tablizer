@@ -87,7 +87,7 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&lib.ShowVersion, "version", "V", false, "Print program version")
 	rootCmd.PersistentFlags().BoolVarP(&lib.InvertMatch, "invert-match", "v", false, "select non-matching rows")
 	rootCmd.PersistentFlags().BoolVarP(&ShowManual, "man", "m", false, "Display manual page")
-	rootCmd.PersistentFlags().StringVarP(&lib.Separator, "separator", "s", "", "Custom field separator")
+	rootCmd.PersistentFlags().StringVarP(&lib.Separator, "separator", "s", lib.DefaultSeparator, "Custom field separator")
 	rootCmd.PersistentFlags().StringVarP(&lib.Columns, "columns", "c", "", "Only show the speficied columns (separated by ,)")
 
 	// output flags, only 1 allowed, hidden, since just short cuts

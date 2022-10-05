@@ -24,12 +24,12 @@ tablizer - Manipulate tabular output of other programs
 
 =head1 DESCRIPTION
 
-Many  programs generate  tabular  output.  But  sometimes  you need  to
+Many  programs generate  tabular output.   But sometimes  you need  to
 post-process these tables, you may need  to remove one or more columns
-or you may want to filter for  some pattern or you may need the output
-in another program and need to  parse it somehow.  Standard unix tools
-such as  awk(1), grep(1) or column(1)  may help, but sometimes  it's a
-tedious business.
+or you  may want to filter  for some pattern (See  L<PATTERNS>) or you
+may need the  output in another program and need  to parse it somehow.
+Standard unix tools such as awk(1), grep(1) or column(1) may help, but
+sometimes it's a tedious business.
 
 Let's take  the output of  the tool  kubectl.  It contains  cells with
 withespace and they do not separate columns by TAB characters. This is
@@ -76,6 +76,34 @@ The numbering can be suppressed by using the B<-n> option.
 
 Finally the  B<-d> option  enables debugging  output which  is mostly
 usefull for the developer.
+
+=head2 PATTERNS
+
+You can reduce the rows being  displayed by using a regular expression
+pattern.  The  regexp is  PCRE compatible, refer  to the  syntax cheat
+sheet here: L<https://github.com/google/re2/wiki/Syntax>.  If you want
+to read  a more comprehensive  documentation about the topic  and have
+perl installed you can read it with:
+
+    perldoc perlre
+
+Or read it online: L<https://perldoc.perl.org/perlre>.
+
+A note on  modifiers: the regexp engine used in  tablizer uses another
+modifier syntax:
+
+    (?MODIFIER)
+
+The most important modifiers are:
+
+C<i> ignore case
+C<m> multiline mode
+C<s> single line mode
+
+Example for a case insensitve search:
+
+    kubectl get pods -A | tablizer "(?i)account"
+
 
 =head2 OUTPUT MODES
 

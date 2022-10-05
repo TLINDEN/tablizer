@@ -28,40 +28,18 @@ func TestParser(t *testing.T) {
 	data := Tabdata{
 		maxwidthHeader: 5,
 		maxwidthPerCol: []int{
-			5,
-			5,
-			8,
+			5, 5, 8,
 		},
 		columns: 3,
-		headerIndices: []map[string]int{
-			map[string]int{
-				"beg": 0,
-				"end": 6,
-			},
-			map[string]int{
-				"end": 13,
-				"beg": 7,
-			},
-			map[string]int{
-				"beg": 14,
-				"end": 0,
-			},
-		},
 		headers: []string{
-			"ONE",
-			"TWO",
-			"THREE",
+			"ONE", "TWO", "THREE",
 		},
 		entries: [][]string{
 			[]string{
-				"asd",
-				"igig",
-				"cxxxncnc",
+				"asd", "igig", "cxxxncnc",
 			},
 			[]string{
-				"19191",
-				"EDD 1",
-				"X",
+				"19191", "EDD 1", "X",
 			},
 		},
 	}
@@ -72,13 +50,14 @@ asd    igig   cxxxncnc
 
 	readFd := strings.NewReader(table)
 	gotdata, err := parseFile(readFd, "")
+	Separator = DefaultSeparator
 
 	if err != nil {
 		t.Errorf("Parser returned error: %s\nData processed so far: %+v", err, gotdata)
 	}
 
 	if !reflect.DeepEqual(data, gotdata) {
-		t.Errorf("Parser returned invalid data\nExp: %+v\nGot: %+v\n", data, gotdata)
+		t.Errorf("Parser returned invalid data, Regex: %s\nExp: %+v\nGot: %+v\n", Separator, data, gotdata)
 	}
 }
 
@@ -91,9 +70,7 @@ func TestParserPatternmatching(t *testing.T) {
 		{
 			entries: [][]string{
 				[]string{
-					"asd",
-					"igig",
-					"cxxxncnc",
+					"asd", "igig", "cxxxncnc",
 				},
 			},
 			pattern: "ig",
@@ -102,9 +79,7 @@ func TestParserPatternmatching(t *testing.T) {
 		{
 			entries: [][]string{
 				[]string{
-					"19191",
-					"EDD 1",
-					"X",
+					"19191", "EDD 1", "X",
 				},
 			},
 			pattern: "ig",

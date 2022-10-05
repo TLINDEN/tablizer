@@ -29,49 +29,36 @@ import (
 
 // contains a whole parsed table
 type Tabdata struct {
-	maxwidthHeader int   // longest header
-	maxwidthPerCol []int // max width per column
-	columns        int
-	headerIndices  []map[string]int // [ {beg=>0, end=>17}, ... ]
-	headers        []string         // [ "ID", "NAME", ...]
+	maxwidthHeader int      // longest header
+	maxwidthPerCol []int    // max width per column
+	columns        int      // count
+	headers        []string // [ "ID", "NAME", ...]
 	entries        [][]string
 }
 
 /*
-   Parse tabular input. We split the  header (first line) by 2 or more
-   spaces, remember the positions of  the header fields. We then split
-   the data (everything after the first line) by those positions. That
-   way we can turn "tabular data" (with fields containing whitespaces)
-   into real tabular data. We re-tabulate our input if you will.
+   Parse tabular input.
 */
 func parseFile(input io.Reader, pattern string) (Tabdata, error) {
 	data := Tabdata{}
 
 	var scanner *bufio.Scanner
-	var spaces = `\s\s+|$`
-
-	if len(Separator) > 0 {
-		spaces = Separator
-	}
 
 	hadFirst := false
-	spacefinder := regexp.MustCompile(spaces)
-	beg := 0
+	separate := regexp.MustCompile(Separator)
+	patternR, err := regexp.Compile(pattern)
+	if err != nil {
+		return data, errors.Unwrap(fmt.Errorf("Regexp pattern %s is invalid: %w", pattern, err))
+	}
 
 	scanner = bufio.NewScanner(input)
 
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
-		values := []string{}
-
-		patternR, err := regexp.Compile(pattern)
-		if err != nil {
-			return data, errors.Unwrap(fmt.Errorf("Regexp pattern %s is invalid: %w", pattern, err))
-		}
+		parts := separate.Split(line, -1)
 
 		if !hadFirst {
 			// header processing
-			parts := spacefinder.FindAllStringIndex(line, -1)
 			data.columns = len(parts)
 			// if Debug {
 			// 	fmt.Println(parts)
@@ -83,30 +70,14 @@ func parseFile(input io.Reader, pattern string) (Tabdata, error) {
 				// 	fmt.Printf("Part: <%s>\n", string(line[beg:part[0]]))
 				//}
 
-				// current field
-				head := string(line[beg:part[0]])
-
-				// register begin and end of field within line
-				indices := make(map[string]int)
-				indices["beg"] = beg
-				if part[0] == part[1] {
-					indices["end"] = 0
-				} else {
-					indices["end"] = part[1] - 1
-				}
-
 				// register widest header field
-				headerlen := len(head)
+				headerlen := len(part)
 				if headerlen > data.maxwidthHeader {
 					data.maxwidthHeader = headerlen
 				}
 
 				// register fields data
-				data.headerIndices = append(data.headerIndices, indices)
-				data.headers = append(data.headers, head)
-
-				// end of current field == begin of next one
-				beg = part[1]
+				data.headers = append(data.headers, strings.TrimSpace(part))
 
 				// done
 				hadFirst = true
@@ -124,16 +95,9 @@ func parseFile(input io.Reader, pattern string) (Tabdata, error) {
 			}
 
 			idx := 0 // we cannot use the header index, because we could exclude columns
-			for _, index := range data.headerIndices {
-				value := ""
-
-				if index["end"] == 0 {
-					value = string(line[index["beg"]:])
-				} else {
-					value = string(line[index["beg"]:index["end"]])
-				}
-
-				width := len(strings.TrimSpace(value))
+			values := []string{}
+			for _, part := range parts {
+				width := len(strings.TrimSpace(part))
 
 				if len(data.maxwidthPerCol)-1 < idx {
 					data.maxwidthPerCol = append(data.maxwidthPerCol, width)
@@ -146,7 +110,7 @@ func parseFile(input io.Reader, pattern string) (Tabdata, error) {
 				// if Debug {
 				// 	fmt.Printf("<%s> ", value)
 				// }
-				values = append(values, strings.TrimSpace(value))
+				values = append(values, strings.TrimSpace(part))
 
 				idx++
 			}

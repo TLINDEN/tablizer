@@ -19,25 +19,26 @@ package lib
 
 var (
 	// command line flags
-	Debug           bool
-	XtendedOut      bool
-	NoNumbering     bool
-	ShowVersion     bool
-	Columns         string
-	UseColumns      []int
-	Separator       string
-	OutflagExtended bool
-	OutflagMarkdown bool
-	OutflagOrgtable bool
-	OutflagShell    bool
-	OutputMode      string
-	InvertMatch     bool
+	Debug            bool
+	XtendedOut       bool
+	NoNumbering      bool
+	ShowVersion      bool
+	Columns          string
+	UseColumns       []int
+	DefaultSeparator string = `(\s\s+|\t)`
+	Separator        string = `(\s\s+|\t)`
+	OutflagExtended  bool
+	OutflagMarkdown  bool
+	OutflagOrgtable  bool
+	OutflagShell     bool
+	OutputMode       string
+	InvertMatch      bool
 
 	// used for validation
 	validOutputmodes = "(orgtbl|markdown|extended|ascii)"
 
 	// main program version
-	Version = "v1.0.5"
+	Version = "v1.0.6"
 
 	// generated  version string, used  by -v contains  lib.Version on
 	//  main  branch,   and  lib.Version-$branch-$lastcommit-$date  on
