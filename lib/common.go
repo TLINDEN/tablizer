@@ -31,12 +31,13 @@ var (
 	OutflagOrgtable bool
 	OutflagShell    bool
 	OutputMode      string
+	InvertMatch     bool
 
 	// used for validation
 	validOutputmodes = "(orgtbl|markdown|extended|ascii)"
 
 	// main program version
-	Version = "v1.0.4"
+	Version = "v1.0.5"
 
 	// generated  version string, used  by -v contains  lib.Version on
 	//  main  branch,   and  lib.Version-$branch-$lastcommit-$date  on

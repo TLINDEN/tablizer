@@ -114,7 +114,11 @@ func parseFile(input io.Reader, pattern string) (Tabdata, error) {
 		} else {
 			// data processing
 			if len(pattern) > 0 {
-				if !patternR.MatchString(line) {
+				if patternR.MatchString(line) == InvertMatch {
+					// by default  -v is false, so if a  line does NOT
+					// match the pattern, we will ignore it. However,
+					// if the user specified -v, the matching is inverted,
+					// so we ignore all lines, which DO match.
 					continue
 				}
 			}
@@ -151,7 +155,7 @@ func parseFile(input io.Reader, pattern string) (Tabdata, error) {
 	}
 
 	if scanner.Err() != nil {
-		return data, errors.Unwrap(fmt.Errorf("Regexp pattern %s is invalid: %w", pattern, scanner.Err()))
+		return data, errors.Unwrap(fmt.Errorf("Failed to read from io.Reader: %w", scanner.Err()))
 	}
 
 	if Debug {

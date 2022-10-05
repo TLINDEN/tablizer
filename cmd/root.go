@@ -18,33 +18,31 @@ package cmd
 
 import (
 	"bytes"
-	"github.com/tlinden/tablizer/lib"
 	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/tlinden/tablizer/lib"
 	"log"
 	"os"
 	"os/exec"
 )
 
-var helpCmd = &cobra.Command{
-	Use:   "help",
-	Short: "Show documentation",
-	Run: func(cmd *cobra.Command, args []string) {
-		man := exec.Command("less", "-")
+var ShowManual = false
 
-		var b bytes.Buffer
-		b.Write([]byte(manpage))
+func man() {
+	man := exec.Command("less", "-")
 
-		man.Stdout = os.Stdout
-		man.Stdin = &b
-		man.Stderr = os.Stderr
+	var b bytes.Buffer
+	b.Write([]byte(manpage))
 
-		err := man.Run()
+	man.Stdout = os.Stdout
+	man.Stdin = &b
+	man.Stderr = os.Stderr
 
-		if err != nil {
-			log.Fatal(err)
-		}
-	},
+	err := man.Run()
+
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 var rootCmd = &cobra.Command{
@@ -54,6 +52,11 @@ var rootCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if lib.ShowVersion {
 			fmt.Printf("This is tablizer version %s\n", lib.VERSION)
+			return nil
+		}
+
+		if ShowManual {
+			man()
 			return nil
 		}
 
@@ -81,7 +84,9 @@ func Execute() {
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(&lib.Debug, "debug", "d", false, "Enable debugging")
 	rootCmd.PersistentFlags().BoolVarP(&lib.NoNumbering, "no-numbering", "n", false, "Disable header numbering")
-	rootCmd.PersistentFlags().BoolVarP(&lib.ShowVersion, "version", "v", false, "Print program version")
+	rootCmd.PersistentFlags().BoolVarP(&lib.ShowVersion, "version", "V", false, "Print program version")
+	rootCmd.PersistentFlags().BoolVarP(&lib.InvertMatch, "invert-match", "v", false, "select non-matching rows")
+	rootCmd.PersistentFlags().BoolVarP(&ShowManual, "man", "m", false, "Display manual page")
 	rootCmd.PersistentFlags().StringVarP(&lib.Separator, "separator", "s", "", "Custom field separator")
 	rootCmd.PersistentFlags().StringVarP(&lib.Columns, "columns", "c", "", "Only show the speficied columns (separated by ,)")
 
@@ -98,11 +103,4 @@ func init() {
 
 	// same thing but more common, takes precedence over above group
 	rootCmd.PersistentFlags().StringVarP(&lib.OutputMode, "output", "o", "", "Output mode - one of: orgtbl, markdown, extended, shell, ascii(default)")
-
-	rootCmd.AddCommand(helpCmd)
-
-	rootCmd.SetHelpCommand(&cobra.Command{
-		Use:    "no-help",
-		Hidden: true,
-	})
 }
