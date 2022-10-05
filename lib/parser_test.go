@@ -33,20 +33,6 @@ func TestParser(t *testing.T) {
 			8,
 		},
 		columns: 3,
-		headerIndices: []map[string]int{
-			map[string]int{
-				"beg": 0,
-				"end": 6,
-			},
-			map[string]int{
-				"end": 13,
-				"beg": 7,
-			},
-			map[string]int{
-				"beg": 14,
-				"end": 0,
-			},
-		},
 		headers: []string{
 			"ONE",
 			"TWO",
@@ -78,7 +64,7 @@ asd    igig   cxxxncnc
 	}
 
 	if !reflect.DeepEqual(data, gotdata) {
-		t.Errorf("Parser returned invalid data\nExp: %+v\nGot: %+v\n", data, gotdata)
+		t.Errorf("Parser returned invalid data, Regex: %s\nExp: %+v\nGot: %+v\n", Separator, data, gotdata)
 	}
 }
 

@@ -25,7 +25,7 @@ var (
 	ShowVersion     bool
 	Columns         string
 	UseColumns      []int
-	Separator       string
+	Separator       string = `(\s\s+|\t)`
 	OutflagExtended bool
 	OutflagMarkdown bool
 	OutflagOrgtable bool
