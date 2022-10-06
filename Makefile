@@ -26,7 +26,7 @@ GID     = 0
 BRANCH  = $(shell git describe --all | cut -d/ -f2)
 COMMIT  = $(shell git rev-parse --short=8 HEAD)
 BUILD   = $(shell date +%Y.%m.%d.%H%M%S) 
-VERSION:= $(if $(filter $(BRANCH), development),$(version)-$(BRANCH)-$(COMMIT)-$(BUILD))
+VERSION:= $(if $(filter $(BRANCH), development),$(version)-$(BRANCH)-$(COMMIT)-$(BUILD),$(version))
 
 
 all: $(tool).1 cmd/$(tool).go buildlocal

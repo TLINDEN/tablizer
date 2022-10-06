@@ -24,10 +24,10 @@ SYNOPSIS
 DESCRIPTION
     Many programs generate tabular output. But sometimes you need to
     post-process these tables, you may need to remove one or more columns or
-    you may want to filter for some pattern or you may need the output in
-    another program and need to parse it somehow. Standard unix tools such
-    as awk(1), grep(1) or column(1) may help, but sometimes it's a tedious
-    business.
+    you may want to filter for some pattern (See PATTERNS) or you may need
+    the output in another program and need to parse it somehow. Standard
+    unix tools such as awk(1), grep(1) or column(1) may help, but sometimes
+    it's a tedious business.
 
     Let's take the output of the tool kubectl. It contains cells with
     withespace and they do not separate columns by TAB characters. This is
@@ -72,6 +72,30 @@ DESCRIPTION
 
     Finally the -d option enables debugging output which is mostly usefull
     for the developer.
+
+  PATTERNS
+    You can reduce the rows being displayed by using a regular expression
+    pattern. The regexp is PCRE compatible, refer to the syntax cheat sheet
+    here: <https://github.com/google/re2/wiki/Syntax>. If you want to read a
+    more comprehensive documentation about the topic and have perl installed
+    you can read it with:
+
+        perldoc perlre
+
+    Or read it online: <https://perldoc.perl.org/perlre>.
+
+    A note on modifiers: the regexp engine used in tablizer uses another
+    modifier syntax:
+
+        (?MODIFIER)
+
+    The most important modifiers are:
+
+    "i" ignore case "m" multiline mode "s" single line mode
+
+    Example for a case insensitve search:
+
+        kubectl get pods -A | tablizer "(?i)account"
 
   OUTPUT MODES
     There might be cases when the tabular output of a program is way too
