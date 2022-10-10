@@ -19,6 +19,7 @@ package lib
 
 import (
 	"fmt"
+	"github.com/gookit/color"
 	"os"
 	"strings"
 	"testing"
@@ -64,12 +65,17 @@ asd   	igig  	cxxxncnc
 ONE="19191" TWO="EDD 1" THREE="X"`,
 	}
 
+	NoColor = true
+
 	r, w, err := os.Pipe()
 	if err != nil {
 		t.Fatal(err)
 	}
 	origStdout := os.Stdout
 	os.Stdout = w
+
+	// we need to tell the color mode the io.Writer, even if we don't usw colorization
+	color.SetOutput(w)
 
 	for mode, expect := range expects {
 		testname := fmt.Sprintf("print-%s", mode)

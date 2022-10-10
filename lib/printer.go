@@ -19,8 +19,8 @@ package lib
 
 import (
 	"fmt"
+	"github.com/gookit/color"
 	"github.com/olekukonko/tablewriter"
-	"os"
 	"regexp"
 	"strings"
 )
@@ -76,14 +76,18 @@ func printOrgmodeData(data *Tabdata) {
 	leftR := regexp.MustCompile("(?m)^\\+")
 	rightR := regexp.MustCompile("\\+(?m)$")
 
-	fmt.Print(rightR.ReplaceAllString(leftR.ReplaceAllString(tableString.String(), "|"), "|"))
+	color.Print(
+		colorizeData(
+			rightR.ReplaceAllString(
+				leftR.ReplaceAllString(tableString.String(), "|"), "|")))
 }
 
 /*
    Markdown table
 */
 func printMarkdownData(data *Tabdata) {
-	table := tablewriter.NewWriter(os.Stdout)
+	tableString := &strings.Builder{}
+	table := tablewriter.NewWriter(tableString)
 
 	table.SetHeader(data.headers)
 
@@ -95,13 +99,15 @@ func printMarkdownData(data *Tabdata) {
 	table.SetCenterSeparator("|")
 
 	table.Render()
+	color.Print(colorizeData(tableString.String()))
 }
 
 /*
    Simple ASCII table without any borders etc, just like the input we expect
 */
 func printAsciiData(data *Tabdata) {
-	table := tablewriter.NewWriter(os.Stdout)
+	tableString := &strings.Builder{}
+	table := tablewriter.NewWriter(tableString)
 
 	table.SetHeader(data.headers)
 	table.AppendBulk(data.entries)
@@ -123,6 +129,7 @@ func printAsciiData(data *Tabdata) {
 	table.SetNoWhiteSpace(true)
 
 	table.Render()
+	color.Print(colorizeData(tableString.String()))
 }
 
 /*
@@ -143,7 +150,7 @@ func printExtendedData(data *Tabdata) {
 					}
 				}
 
-				fmt.Printf(format, data.headers[idx], value)
+				color.Printf(format, data.headers[idx], value)
 				idx++
 			}
 			fmt.Println()

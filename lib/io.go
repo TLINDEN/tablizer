@@ -19,12 +19,17 @@ package lib
 
 import (
 	"errors"
+	"github.com/gookit/color"
 	"io"
 	"os"
 )
 
 func ProcessFiles(args []string) error {
 	fds, pattern, err := determineIO(args)
+
+	if !isTerminal(os.Stdout) {
+		color.Disable()
+	}
 
 	if err != nil {
 		return err
@@ -52,6 +57,7 @@ func determineIO(args []string) ([]io.Reader, string, error) {
 			// first  one is  not a  file, consider  it as  regexp and
 			// shift arg list
 			pattern = args[0]
+			Pattern = args[0] // FIXME
 			args = args[1:]
 		}
 

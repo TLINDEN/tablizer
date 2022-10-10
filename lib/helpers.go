@@ -20,6 +20,8 @@ package lib
 import (
 	"errors"
 	"fmt"
+	"github.com/gookit/color"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -129,4 +131,22 @@ func trimRow(row []string) []string {
 	}
 
 	return fixedrow
+}
+
+func colorizeData(output string) string {
+	if len(Pattern) > 0 && !NoColor && color.IsConsole(os.Stdout) {
+		r := regexp.MustCompile("(" + Pattern + ")")
+		return r.ReplaceAllString(output, "<bg="+MatchBG+";fg="+MatchFG+">$1</>")
+	} else {
+		return output
+	}
+}
+
+func isTerminal(f *os.File) bool {
+	o, _ := f.Stat()
+	if (o.Mode() & os.ModeCharDevice) == os.ModeCharDevice {
+		return true
+	} else {
+		return false
+	}
 }

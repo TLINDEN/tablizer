@@ -33,12 +33,18 @@ var (
 	OutflagShell     bool
 	OutputMode       string
 	InvertMatch      bool
+	Pattern          string
+
+	// FIXME: make configurable somehow, config file or ENV
+	MatchFG string = "black" // see https://github.com/gookit/color
+	MatchBG string = "green"
+	NoColor bool
 
 	// used for validation
 	validOutputmodes = "(orgtbl|markdown|extended|ascii)"
 
 	// main program version
-	Version = "v1.0.6"
+	Version = "v1.0.7"
 
 	// generated  version string, used  by -v contains  lib.Version on
 	//  main  branch,   and  lib.Version-$branch-$lastcommit-$date  on
