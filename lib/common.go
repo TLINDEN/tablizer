@@ -17,6 +17,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 package lib
 
+import (
+	"github.com/gookit/color"
+	//"github.com/xo/terminfo"
+)
+
 var (
 	// command line flags
 	Debug            bool
@@ -33,12 +38,37 @@ var (
 	OutflagShell     bool
 	OutputMode       string
 	InvertMatch      bool
+	Pattern          string
+
+	/*
+	 FIXME: make configurable somehow, config file or ENV
+	 see https://github.com/gookit/color will be set by
+	 io.ProcessFiles() according to currently supported
+	 color mode.
+	*/
+	MatchFG string
+	MatchBG string
+	NoColor bool
+
+	// colors to be used per supported color mode
+	Colors = map[color.Level]map[string]string{
+		color.Level16: map[string]string{
+			"bg": "green", "fg": "black",
+		},
+		color.Level256: map[string]string{
+			"bg": "lightGreen", "fg": "black",
+		},
+		color.LevelRgb: map[string]string{
+			// FIXME: maybe use something nicer
+			"bg": "lightGreen", "fg": "black",
+		},
+	}
 
 	// used for validation
 	validOutputmodes = "(orgtbl|markdown|extended|ascii)"
 
 	// main program version
-	Version = "v1.0.6"
+	Version = "v1.0.7"
 
 	// generated  version string, used  by -v contains  lib.Version on
 	//  main  branch,   and  lib.Version-$branch-$lastcommit-$date  on

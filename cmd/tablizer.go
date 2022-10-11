@@ -14,6 +14,7 @@ SYNOPSIS
           -v, --invert-match       select non-matching rows
           -m, --man                Display manual page
           -n, --no-numbering       Disable header numbering
+          -N, --no-color           Disable pattern highlighting
           -o, --output string      Output mode - one of: orgtbl, markdown, extended, ascii(default)
           -X, --extended           Enable extended output
           -M, --markdown           Enable markdown table output
@@ -69,6 +70,9 @@ DESCRIPTION
     the original order.
 
     The numbering can be suppressed by using the -n option.
+
+    By default, if a pattern has been speficied, matches will be
+    highlighted. You can disable this behavior with the -N option.
 
     Finally the -d option enables debugging output which is mostly usefull
     for the developer.

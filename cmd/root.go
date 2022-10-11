@@ -84,6 +84,7 @@ func Execute() {
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(&lib.Debug, "debug", "d", false, "Enable debugging")
 	rootCmd.PersistentFlags().BoolVarP(&lib.NoNumbering, "no-numbering", "n", false, "Disable header numbering")
+	rootCmd.PersistentFlags().BoolVarP(&lib.NoColor, "no-color", "N", false, "Disable pattern highlighting")
 	rootCmd.PersistentFlags().BoolVarP(&lib.ShowVersion, "version", "V", false, "Print program version")
 	rootCmd.PersistentFlags().BoolVarP(&lib.InvertMatch, "invert-match", "v", false, "select non-matching rows")
 	rootCmd.PersistentFlags().BoolVarP(&ShowManual, "man", "m", false, "Display manual page")
