@@ -45,6 +45,7 @@ buildlocal:
 
 release:
 	./mkrel.sh $(tool) $(version)
+	gh release create $(version) --generate-notes releases/*
 
 install: buildlocal
 	install -d -o $(UID) -g $(GID) $(PREFIX)/bin
