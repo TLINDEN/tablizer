@@ -63,6 +63,13 @@ asd   	igig  	cxxxncnc
 |  19191 | EDD 1  | X        |`,
 		"shell": `ONE="asd" TWO="igig" THREE="cxxxncnc"
 ONE="19191" TWO="EDD 1" THREE="X"`,
+		"extended": `ONE(1): asd
+  TWO(2): igig
+THREE(3): cxxxncnc
+
+  ONE(1): 19191
+  TWO(2): EDD 1
+THREE(3): X`,
 	}
 
 	NoColor = true
