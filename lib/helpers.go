@@ -53,7 +53,10 @@ func PrepareColumns() error {
 func numberizeHeaders(data *Tabdata) {
 	// prepare headers: add numbers to headers
 	numberedHeaders := []string{}
+	maxwidth := 0 // start from scratch, so we only look at displayed column widths
+
 	for i, head := range data.headers {
+		headlen := 0
 		if len(Columns) > 0 {
 			// -c specified
 			if !contains(UseColumns, i+1) {
@@ -63,11 +66,21 @@ func numberizeHeaders(data *Tabdata) {
 		}
 		if NoNumbering {
 			numberedHeaders = append(numberedHeaders, head)
+			headlen = len(head)
 		} else {
-			numberedHeaders = append(numberedHeaders, fmt.Sprintf("%s(%d)", head, i+1))
+			numhead := fmt.Sprintf("%s(%d)", head, i+1)
+			headlen = len(numhead)
+			numberedHeaders = append(numberedHeaders, numhead)
+		}
+
+		if headlen > maxwidth {
+			maxwidth = headlen
 		}
 	}
 	data.headers = numberedHeaders
+	if data.maxwidthHeader != maxwidth && maxwidth > 0 {
+		data.maxwidthHeader = maxwidth
+	}
 }
 
 func reduceColumns(data *Tabdata) {

@@ -29,6 +29,10 @@ func ProcessFiles(args []string) error {
 
 	if !isTerminal(os.Stdout) {
 		color.Disable()
+	} else {
+		level := color.TermColorLevel()
+		MatchFG = Colors[level]["fg"]
+		MatchBG = Colors[level]["bg"]
 	}
 
 	if err != nil {
