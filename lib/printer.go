@@ -26,10 +26,18 @@ import (
 )
 
 func printData(data *Tabdata) {
+	// some output preparations:
+
 	if OutputMode != "shell" {
+		// not needed in eval string
 		numberizeHeaders(data)
 	}
+
+	// remove unwanted columns, if any
 	reduceColumns(data)
+
+	// sort the data
+	sortTable(data, SortByColumn)
 
 	switch OutputMode {
 	case "extended":

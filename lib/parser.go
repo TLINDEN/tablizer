@@ -27,15 +27,6 @@ import (
 	"strings"
 )
 
-// contains a whole parsed table
-type Tabdata struct {
-	maxwidthHeader int      // longest header
-	maxwidthPerCol []int    // max width per column
-	columns        int      // count
-	headers        []string // [ "ID", "NAME", ...]
-	entries        [][]string
-}
-
 /*
    Parse tabular input.
 */

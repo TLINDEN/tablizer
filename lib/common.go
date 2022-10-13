@@ -68,10 +68,22 @@ var (
 	validOutputmodes = "(orgtbl|markdown|extended|ascii)"
 
 	// main program version
-	Version = "v1.0.7"
+	Version = "v1.0.8"
 
 	// generated  version string, used  by -v contains  lib.Version on
 	//  main  branch,   and  lib.Version-$branch-$lastcommit-$date  on
 	// development branch
 	VERSION string
+
+	// sorting
+	SortByColumn int
 )
+
+// contains a whole parsed table
+type Tabdata struct {
+	maxwidthHeader int      // longest header
+	maxwidthPerCol []int    // max width per column
+	columns        int      // count
+	headers        []string // [ "ID", "NAME", ...]
+	entries        [][]string
+}

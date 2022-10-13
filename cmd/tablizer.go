@@ -20,6 +20,7 @@ SYNOPSIS
           -M, --markdown           Enable markdown table output
           -O, --orgtbl             Enable org-mode table output
           -s, --separator string   Custom field separator
+          -k, --sort-by int        Sort by column (default: 1)
           -v, --version            Print program version
 
 DESCRIPTION
@@ -73,6 +74,10 @@ DESCRIPTION
 
     By default, if a pattern has been speficied, matches will be
     highlighted. You can disable this behavior with the -N option.
+
+    Use the -k option to specify by which column to sort the tabular data
+    (as in GNU sort(1)). The default sort column is the first one. To
+    disable sorting at all, supply 0 (Zero) to -k.
 
     Finally the -d option enables debugging output which is mostly usefull
     for the developer.

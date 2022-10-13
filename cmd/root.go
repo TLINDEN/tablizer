@@ -90,6 +90,7 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&ShowManual, "man", "m", false, "Display manual page")
 	rootCmd.PersistentFlags().StringVarP(&lib.Separator, "separator", "s", lib.DefaultSeparator, "Custom field separator")
 	rootCmd.PersistentFlags().StringVarP(&lib.Columns, "columns", "c", "", "Only show the speficied columns (separated by ,)")
+	rootCmd.PersistentFlags().IntVarP(&lib.SortByColumn, "sort-by", "k", 0, "Sort by column (default: 1)")
 
 	// output flags, only 1 allowed, hidden, since just short cuts
 	rootCmd.PersistentFlags().BoolVarP(&lib.OutflagExtended, "extended", "X", false, "Enable extended output")
