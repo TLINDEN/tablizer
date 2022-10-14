@@ -36,6 +36,7 @@ all: $(tool).1 cmd/$(tool).go buildlocal
 
 cmd/%.go: %.pod
 	echo "package cmd" > cmd/$*.go
+	echo >> cmd/$*.go
 	echo "var manpage = \`" >> cmd/$*.go
 	pod2text $*.pod >> cmd/$*.go
 	echo "\`" >> cmd/$*.go

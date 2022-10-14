@@ -52,13 +52,13 @@ var (
 
 	// colors to be used per supported color mode
 	Colors = map[color.Level]map[string]string{
-		color.Level16: map[string]string{
+		color.Level16: {
 			"bg": "green", "fg": "black",
 		},
-		color.Level256: map[string]string{
+		color.Level256: {
 			"bg": "lightGreen", "fg": "black",
 		},
-		color.LevelRgb: map[string]string{
+		color.LevelRgb: {
 			// FIXME: maybe use something nicer
 			"bg": "lightGreen", "fg": "black",
 		},
@@ -68,7 +68,7 @@ var (
 	validOutputmodes = "(orgtbl|markdown|extended|ascii)"
 
 	// main program version
-	Version = "v1.0.8"
+	Version = "v1.0.9"
 
 	// generated  version string, used  by -v contains  lib.Version on
 	//  main  branch,   and  lib.Version-$branch-$lastcommit-$date  on

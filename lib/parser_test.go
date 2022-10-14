@@ -35,10 +35,10 @@ func TestParser(t *testing.T) {
 			"ONE", "TWO", "THREE",
 		},
 		entries: [][]string{
-			[]string{
+			{
 				"asd", "igig", "cxxxncnc",
 			},
-			[]string{
+			{
 				"19191", "EDD 1", "X",
 			},
 		},
@@ -69,7 +69,7 @@ func TestParserPatternmatching(t *testing.T) {
 	}{
 		{
 			entries: [][]string{
-				[]string{
+				{
 					"asd", "igig", "cxxxncnc",
 				},
 			},
@@ -78,7 +78,7 @@ func TestParserPatternmatching(t *testing.T) {
 		},
 		{
 			entries: [][]string{
-				[]string{
+				{
 					"19191", "EDD 1", "X",
 				},
 			},

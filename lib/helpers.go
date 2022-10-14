@@ -87,7 +87,7 @@ func reduceColumns(data *Tabdata) {
 	// exclude columns, if any
 	if len(Columns) > 0 {
 		reducedEntries := [][]string{}
-		reducedEntry := []string{}
+		var reducedEntry []string
 		for _, entry := range data.entries {
 			reducedEntry = nil
 			for i, value := range entry {

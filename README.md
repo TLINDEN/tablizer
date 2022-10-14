@@ -1,5 +1,6 @@
 [![Actions](https://github.com/tlinden/tablizer/actions/workflows/ci.yaml/badge.svg)](https://github.com/tlinden/tablizer/actions)
 [![License](https://img.shields.io/badge/license-GPL-blue.svg)](https://github.com/tlinden/tablizer/blob/master/LICENSE)
+[![Go Report Card](https://goreportcard.com/badge/github.com/tlinden/tablizer)](https://goreportcard.com/report/github.com/tlinden/tablizer)
 
 ## tablizer - Manipulate tabular output of other programs
 

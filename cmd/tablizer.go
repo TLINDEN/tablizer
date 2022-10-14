@@ -1,4 +1,5 @@
 package cmd
+
 var manpage = `
 NAME
     tablizer - Manipulate tabular output of other programs
@@ -37,7 +38,7 @@ DESCRIPTION
 
     You can use tablizer to do these and more things.
 
-    tablizer analyses the header fiels of a table, registers the column
+    tablizer analyses the header fields of a table, registers the column
     positions of each header field and separates columns by those positions.
 
     Without any options it reads its input from "STDIN", but you can also
@@ -79,7 +80,7 @@ DESCRIPTION
     (as in GNU sort(1)). The default sort column is the first one. To
     disable sorting at all, supply 0 (Zero) to -k.
 
-    Finally the -d option enables debugging output which is mostly usefull
+    Finally the -d option enables debugging output which is mostly useful
     for the developer.
 
   PATTERNS
@@ -102,14 +103,14 @@ DESCRIPTION
 
     "i" ignore case "m" multiline mode "s" single line mode
 
-    Example for a case insensitve search:
+    Example for a case insensitive search:
 
         kubectl get pods -A | tablizer "(?i)account"
 
   OUTPUT MODES
     There might be cases when the tabular output of a program is way too
     large for your current terminal but you still need to see every column.
-    In such cases the -o extended or -X option can be usefull which enables
+    In such cases the -o extended or -X option can be useful which enables
     *extended mode*. In this mode, each row will be printed vertically,
     header left, value right, aligned by the field widths. Here's an
     example:

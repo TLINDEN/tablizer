@@ -39,8 +39,8 @@ not easy to process.
 
 You can use B<tablizer> to do these and more things.
 
-B<tablizer> analyses the header fiels of a table, registers the column
-positions  of  each  header  field  and  separates  columns  by  those
+B<tablizer>  analyses the  header  fields of  a  table, registers  the
+column positions of  each header field and separates  columns by those
 positions.
 
 Without any options it reads its input from C<STDIN>, but you can also
@@ -84,7 +84,7 @@ data (as in GNU sort(1)). The default sort column is the first one. To
 disable sorting at all, supply 0 (Zero) to -k.
 
 Finally the  B<-d> option  enables debugging  output which  is mostly
-usefull for the developer.
+useful for the developer.
 
 =head2 PATTERNS
 
@@ -109,7 +109,7 @@ C<i> ignore case
 C<m> multiline mode
 C<s> single line mode
 
-Example for a case insensitve search:
+Example for a case insensitive search:
 
     kubectl get pods -A | tablizer "(?i)account"
 
@@ -119,7 +119,7 @@ Example for a case insensitve search:
 There might be cases  when the tabular output of a  program is way too
 large  for your  current  terminal but  you still  need  to see  every
 column.   In such  cases the  B<-o extended>  or B<-X>  option can  be
-usefull which enables I<extended mode>. In this mode, each row will be
+useful which enables I<extended mode>. In  this mode, each row will be
 printed vertically,  header left,  value right,  aligned by  the field
 widths. Here's an example:
 

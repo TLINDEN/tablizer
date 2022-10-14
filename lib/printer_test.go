@@ -52,10 +52,10 @@ func TestPrinter(t *testing.T) {
 			"ONE", "TWO", "THREE",
 		},
 		entries: [][]string{
-			[]string{
+			{
 				"asd", "igig", "cxxxncnc",
 			},
-			[]string{
+			{
 				"19191", "EDD 1", "X",
 			},
 		},
@@ -100,7 +100,9 @@ THREE(3): X`,
 		t.Run(testname, func(t *testing.T) {
 
 			OutputMode = mode
-			data := startdata // we need to reset our mock data, since it's being modified in printData()
+			//  we need  to reset  our  mock data,  since it's  being
+			// modified in printData()
+			data := startdata
 			printData(&data)
 
 			buf := make([]byte, 1024)
@@ -136,13 +138,13 @@ func TestSortPrinter(t *testing.T) {
 			"ONE", "TWO", "THREE",
 		},
 		entries: [][]string{
-			[]string{
+			{
 				"abc", "345", "b1",
 			},
-			[]string{
+			{
 				"bcd", "234", "a2",
 			},
-			[]string{
+			{
 				"cde", "123", "c3",
 			},
 		},

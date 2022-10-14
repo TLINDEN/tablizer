@@ -79,15 +79,15 @@ func TestReduceColumns(t *testing.T) {
 		columns []int
 	}{
 		{
-			expect:  [][]string{[]string{"a", "b"}},
+			expect:  [][]string{{"a", "b"}},
 			columns: []int{1, 2},
 		},
 		{
-			expect:  [][]string{[]string{"a", "c"}},
+			expect:  [][]string{{"a", "c"}},
 			columns: []int{1, 3},
 		},
 		{
-			expect:  [][]string{[]string{"a"}},
+			expect:  [][]string{{"a"}},
 			columns: []int{1},
 		},
 		{
@@ -96,7 +96,7 @@ func TestReduceColumns(t *testing.T) {
 		},
 	}
 
-	input := [][]string{[]string{"a", "b", "c"}}
+	input := [][]string{{"a", "b", "c"}}
 
 	Columns = "y" // used as a flag with len(Columns)...
 
