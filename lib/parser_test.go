@@ -110,3 +110,41 @@ asd    igig   cxxxncnc
 		})
 	}
 }
+
+func TestParserIncompleteRows(t *testing.T) {
+	data := Tabdata{
+		maxwidthHeader: 5,
+		maxwidthPerCol: []int{
+			5, 5, 1,
+		},
+		columns: 3,
+		headers: []string{
+			"ONE", "TWO", "THREE",
+		},
+		entries: [][]string{
+			{
+				"asd", "igig", "",
+			},
+			{
+				"19191", "EDD 1", "X",
+			},
+		},
+	}
+
+	table := `ONE    TWO    THREE  
+asd    igig
+19191  EDD 1  X`
+
+	readFd := strings.NewReader(table)
+	gotdata, err := parseFile(readFd, "")
+	Separator = DefaultSeparator
+
+	if err != nil {
+		t.Errorf("Parser returned error: %s\nData processed so far: %+v", err, gotdata)
+	}
+
+	if !reflect.DeepEqual(data, gotdata) {
+		t.Errorf("Parser returned invalid data, Regex: %s\nExp: %+v\nGot: %+v\n",
+			Separator, data, gotdata)
+	}
+}

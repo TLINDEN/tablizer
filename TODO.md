@@ -1,17 +1,11 @@
 ## Fixes to be implemented
 
-- catch  rows with less  fields as headers and  fill them up  to avoid
-  a panic
-
 ## Features to be implemented
 
 - ability to change sort order (ascending vs descending)
 
 - sorting by: numerical, time, duration, string(default)
 
-- allow  regexp in -c like:  `-c N.*,ST,8` which means,  match "NAME",
-  "NAMESPACE", "STATUS", 8th Header
-  
 - add output modes yaml and csv
 
 - add --no-headers option

@@ -105,6 +105,12 @@ func parseFile(input io.Reader, pattern string) (Tabdata, error) {
 
 				idx++
 			}
+
+			// fill up missing fields, if any
+			for i := len(values); i < len(data.headers); i++ {
+				values = append(values, "")
+			}
+
 			data.entries = append(data.entries, values)
 		}
 	}
