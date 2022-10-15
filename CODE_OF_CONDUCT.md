@@ -1,7 +1,9 @@
 # No Code of Conduct
 
-This project does  **NOT** have a so called Code  of Conduct, nor will
-it ever get one.
+*TL;DR:* This project  does **NOT** have a so called  Code of Conduct,
+nor will it ever have one.
+
+## The Rant
 
 The reasons are somewhat complicated and  I'll try my best to document
 them here.
@@ -42,28 +44,22 @@ might be  sarcastic connotations I  don't understand or  references to
 historical figures, events  or traditions I don't know  and never have
 heard of.
 
-Juding over other peoples online behavior looks like a titanic task to
-me. It  is just not my  job to judge  others. I am not  legitimized or
-authorized to do so.
+Judging over other  peoples online behavior looks like  a titanic task
+to me. It is just not my job  to judge others, I am not legitimized or
+authorized to do so and I am not interested in this kind of business.
 
 Another huge  problem with ethical rules  is that you need  to outline
-and enforce  sanctions on thos who  violate the rules. But  since I am
-not an  elected authority  how would  I be  able to  do this?  I don't
-know.  And what  happens if  someone complains  about myself?  Shall I
+and enforce sanctions  on those who violate the rules.  But since I am
+not an  elected authority  how would I  be able to  do this?   I don't
+know.  And  what happens if  someone complains about myself?   Shall I
 remove myself from my own project? Come on!
 
-Last but  not least  there's the  law. I  am a  german citizen  and am
-living  in relatively  freedom.  Unlike  many other  people living  in
-democracies these days,  I myself fought for this very  freedom on the
-streets of  Leipzig in 1989.  I  saw the tanks, the  Stasi officers, I
-felt the  fear. But the laws  under I live  today and which I  have to
-adhere to, are only limited to the small speck on earth I am living on.
-
-So, let's say someone in india  says something insulting to some other
-developer in an issue.  Of course  german law does not apply to indian
-people. More, the insult might actually  not be an insult in india. In
-the end, nothing would happen. Under normal circumstances, maintainers
-would delete the posting, ban the user or remove push privileges etc.
+Last but  not least there's  the law. So,  let's say someone  in india
+says  something insulting  to some  other developer  in an  issue.  Of
+course german  law does not apply  to indian people. More,  the insult
+might actually  not be an insult  in india. In the  end, nothing would
+happen.  Under  normal  circumstances, maintainers  would  delete  the
+posting, ban the user or remove push privileges etc.
 
 But then, is there a way for  the offending user to defend himself? Of
 course not, since neither indian or german law alone applies. I cannot
@@ -71,12 +67,17 @@ go to  a german court  and sue the  guy and he  cannot do the  same in
 india. Or -  we possibly could but the judges  on both countries would
 just laugh and close the case.
 
-And let's not  even start talking about  there undemocratic "comitees"
-many projects are forming to  circumvent this problem.
-
 That  being said,  I  don't have  the  power nor  the  tools, nor  the
 authority to enforce serious sanctions  of any meaningful kind against
 others. Therefore I cannot outline any rules whatsoever.
+
+And let's not  even start talking about  there undemocratic "comitees"
+many projects  are forming to  circumvent this problem.  Some projects
+even  include  external  entities  like a  lawer  or  some  bureaucrat
+somewhere  just to  have the  ability  to complain  against a  comitee
+member. What a mess!
+
+
 
 ## So, which are the ethical rules within this project then?
 
@@ -86,7 +87,8 @@ This project is  about code, not society. It doesn't  matter where you
 come from,  how you look,  how you think,  what you believe,  who your
 friends are, whay you  said or did sometime in the  past. I don't even
 care if you are a human being. You are an alien so bored that you need
-to submit code on github? Fine with me.
+to submit code on github? Fine with me. You're a convicted criminal? I
+don't give a shit!
 
 **The only thing I am interested here is Code and only Code.**
 
