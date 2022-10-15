@@ -64,7 +64,7 @@ DESCRIPTION
        NAME(1) READY(2) STATUS(3) RESTARTS(4) AGE(5)
 
     These numbers denote the column and you can use them to specify which
-    columns you want to have in your output:
+    columns you want to have in your output (see COLUMNS:
 
        kubectl get pods | tablizer -c1,3
 
@@ -106,6 +106,32 @@ DESCRIPTION
     Example for a case insensitive search:
 
         kubectl get pods -A | tablizer "(?i)account"
+
+  COLUMNS
+    The parameter -c can be used to specify, which columns to display. By
+    default tablizer numerizes the header names and these numbers can be
+    used to specify which header to display, see example above.
+
+    However, beside numbers, you can also use regular expressions with -c,
+    also separated by comma. And you can mix column numbers with regexps.
+
+    Lets take this table:
+
+            PID TTY          TIME CMD
+          14001 pts/0    00:00:00 bash
+          42871 pts/0    00:00:00 ps
+          42872 pts/0    00:00:00 sed
+
+    We want to see only the CMD column and use a regex for this:
+
+        ps | tablizer -s '\s+' -c C
+        CMD(4)
+        bash
+        ps
+        tablizer
+        sed
+
+    where "C" is our regexp which matches CMD.
 
   OUTPUT MODES
     There might be cases when the tabular output of a program is way too

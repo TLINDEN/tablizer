@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "TABLIZER 1"
-.TH TABLIZER 1 "2022-10-14" "1" "User Commands"
+.TH TABLIZER 1 "2022-10-15" "1" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -209,7 +209,7 @@ have a numer associated with it, e.g.:
 .Ve
 .PP
 These numbers denote the column and  you can use them to specify which
-columns you want to have in your output:
+columns you want to have in your output (see \s-1COLUMNS\s0:
 .PP
 .Vb 1
 \&   kubectl get pods | tablizer \-c1,3
@@ -261,6 +261,38 @@ Example for a case insensitive search:
 .Vb 1
 \&    kubectl get pods \-A | tablizer "(?i)account"
 .Ve
+.SS "\s-1COLUMNS\s0"
+.IX Subsection "COLUMNS"
+The  parameter  \fB\-c\fR  can  be  used  to  specify,  which  columns  to
+display.  By default  tablizer numerizes  the header  names and  these
+numbers can  be used to specify  which header to display,  see example
+above.
+.PP
+However, beside  numbers, you  can also  use regular  expressions with
+\&\fB\-c\fR, also  separated by comma. And  you can mix column  numbers with
+regexps.
+.PP
+Lets take this table:
+.PP
+.Vb 4
+\&        PID TTY          TIME CMD
+\&      14001 pts/0    00:00:00 bash
+\&      42871 pts/0    00:00:00 ps
+\&      42872 pts/0    00:00:00 sed
+.Ve
+.PP
+We want to see only the \s-1CMD\s0 column and use a regex for this:
+.PP
+.Vb 6
+\&    ps | tablizer \-s \*(Aq\es+\*(Aq \-c C
+\&    CMD(4)
+\&    bash
+\&    ps
+\&    tablizer
+\&    sed
+.Ve
+.PP
+where \*(L"C\*(R" is our regexp which matches \s-1CMD.\s0
 .SS "\s-1OUTPUT MODES\s0"
 .IX Subsection "OUTPUT MODES"
 There might be cases  when the tabular output of a  program is way too

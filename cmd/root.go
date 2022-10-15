@@ -60,12 +60,7 @@ var rootCmd = &cobra.Command{
 			return nil
 		}
 
-		err := lib.PrepareColumns()
-		if err != nil {
-			return err
-		}
-
-		err = lib.PrepareModeFlags()
+		err := lib.PrepareModeFlags()
 		if err != nil {
 			return err
 		}

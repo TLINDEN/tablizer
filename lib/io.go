@@ -44,6 +44,12 @@ func ProcessFiles(args []string) error {
 		if err != nil {
 			return err
 		}
+
+		err = PrepareColumns(&data)
+		if err != nil {
+			return err
+		}
+
 		printData(&data)
 	}
 

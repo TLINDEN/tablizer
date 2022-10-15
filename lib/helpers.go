@@ -36,22 +36,56 @@ func contains(s []int, e int) bool {
 	return false
 }
 
-func PrepareColumns() error {
+// parse columns list given with -c
+func PrepareColumns(data *Tabdata) error {
+	UseColumns = nil
 	if len(Columns) > 0 {
 		for _, use := range strings.Split(Columns, ",") {
-			usenum, err := strconv.Atoi(use)
-			if err != nil {
-				msg := fmt.Sprintf("Could not parse columns list %s: %v", Columns, err)
+			if len(use) == 0 {
+				msg := fmt.Sprintf("Could not parse columns list %s: empty column", Columns)
 				return errors.New(msg)
 			}
-			UseColumns = append(UseColumns, usenum)
+
+			usenum, err := strconv.Atoi(use)
+			if err != nil {
+				// might be a regexp
+				colPattern, err := regexp.Compile(use)
+				if err != nil {
+					msg := fmt.Sprintf("Could not parse columns list %s: %v", Columns, err)
+					return errors.New(msg)
+				}
+
+				// find matching header fields
+				for i, head := range data.headers {
+					if colPattern.MatchString(head) {
+						UseColumns = append(UseColumns, i+1)
+					}
+
+				}
+			} else {
+				// we digress from go  best practises here, because if
+				// a colum spec is not a number, we process them above
+				// inside the err handler  for atoi(). so only add the
+				// number, if it's really just a number.
+				UseColumns = append(UseColumns, usenum)
+			}
+		}
+
+		// deduplicate
+		imap := make(map[int]int)
+		for _, i := range UseColumns {
+			imap[i] = 0
+		}
+		UseColumns = nil
+		for k := range imap {
+			UseColumns = append(UseColumns, k)
 		}
 	}
 	return nil
 }
 
+// prepare headers: add numbers to headers
 func numberizeHeaders(data *Tabdata) {
-	// prepare headers: add numbers to headers
 	numberedHeaders := []string{}
 	maxwidth := 0 // start from scratch, so we only look at displayed column widths
 
@@ -83,8 +117,8 @@ func numberizeHeaders(data *Tabdata) {
 	}
 }
 
+// exclude columns, if any
 func reduceColumns(data *Tabdata) {
-	// exclude columns, if any
 	if len(Columns) > 0 {
 		reducedEntries := [][]string{}
 		var reducedEntry []string

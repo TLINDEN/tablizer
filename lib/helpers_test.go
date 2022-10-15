@@ -45,6 +45,23 @@ func Testcontains(t *testing.T) {
 }
 
 func TestPrepareColumns(t *testing.T) {
+	data := Tabdata{
+		maxwidthHeader: 5,
+		maxwidthPerCol: []int{
+			5,
+			5,
+			8,
+		},
+		columns: 3,
+		headers: []string{
+			"ONE", "TWO", "THREE",
+		},
+		entries: [][]string{
+			{
+				"2", "3", "4",
+			},
+		},
+	}
 	var tests = []struct {
 		input     string
 		exp       []int
@@ -52,14 +69,15 @@ func TestPrepareColumns(t *testing.T) {
 	}{
 		{"1,2,3", []int{1, 2, 3}, false},
 		{"1,2,", []int{}, true},
-		{"a,b", []int{}, true},
+		{"T", []int{2, 3}, false},
+		{"T,2,3", []int{2, 3}, false},
 	}
 
 	for _, tt := range tests {
 		testname := fmt.Sprintf("PrepareColumns-%s-%t", tt.input, tt.wanterror)
 		t.Run(testname, func(t *testing.T) {
 			Columns = tt.input
-			err := PrepareColumns()
+			err := PrepareColumns(&data)
 			if err != nil {
 				if !tt.wanterror {
 					t.Errorf("got error: %v", err)
