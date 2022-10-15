@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org).
 
+## [v1.0.10](https://github.com/TLINDEN/tablizer/tree/v1.0.10) - 2022-10-15
+
+### Added
+
+- Added various sort modes: sort by time, by duration, numerical (-a -t -i)
+
+- Added possibility to modify sort order to descending (-D)
+
+- Added support  to specify a regexp in column  selector -c, which can
+  also be mixed with numerical column spec
+  
+- More unit tests
+
+### Fixed
+
+- Column specification  allowed to specify duplicate  columns like `-c
+  1,2,1,2` unchecked. Now this list will be deduplicated before use.
+
+
+
 ## [v1.0.9](https://github.com/TLINDEN/tablizer/tree/v1.0.9) - 2022-10-14
 
 [Full Changelog](https://github.com/TLINDEN/tablizer/compare/v1.0.8...v1.0.9)
