@@ -89,6 +89,9 @@ func init() {
 	// sort options
 	rootCmd.PersistentFlags().IntVarP(&lib.SortByColumn, "sort-by", "k", 0, "Sort by column (default: 1)")
 	rootCmd.PersistentFlags().BoolVarP(&lib.SortDescending, "sort-desc", "D", false, "Sort in descending order (default: ascending)")
+	rootCmd.PersistentFlags().BoolVarP(&lib.SortNumeric, "sort-numeric", "i", false, "sort according to string numerical value")
+	rootCmd.PersistentFlags().BoolVarP(&lib.SortTime, "sort-time", "t", false, "sort according to time string")
+	rootCmd.PersistentFlags().BoolVarP(&lib.SortAge, "sort-age", "a", false, "sort according to age (duration) string")
 
 	// output flags, only 1 allowed, hidden, since just short cuts
 	rootCmd.PersistentFlags().BoolVarP(&lib.OutflagExtended, "extended", "X", false, "Enable extended output")

@@ -18,7 +18,10 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package lib
 
 import (
+	"github.com/araddon/dateparse"
+	str2duration "github.com/xhit/go-str2duration/v2"
 	"sort"
+	"strconv"
 )
 
 func sortTable(data *Tabdata, col int) {
@@ -41,9 +44,45 @@ func sortTable(data *Tabdata, col int) {
 
 	// actual sorting
 	sort.SliceStable(data.entries, func(i, j int) bool {
-		if SortDescending {
-			return data.entries[i][col] > data.entries[j][col]
-		}
-		return data.entries[i][col] < data.entries[j][col]
+		return compare(data.entries[i][col], data.entries[j][col])
 	})
+}
+
+func compare(a string, b string) bool {
+	var comp bool
+
+	switch {
+	case SortNumeric:
+		left, err := strconv.Atoi(a)
+		if err != nil {
+			left = 0
+		}
+		right, err := strconv.Atoi(b)
+		if err != nil {
+			right = 0
+		}
+		comp = left < right
+	case SortAge:
+		left, err := str2duration.ParseDuration(a)
+		if err != nil {
+			left = 0
+		}
+		right, err := str2duration.ParseDuration(b)
+		if err != nil {
+			right = 0
+		}
+		comp = left.Seconds() < right.Seconds()
+	case SortTime:
+		left, _ := dateparse.ParseAny(a)
+		right, _ := dateparse.ParseAny(b)
+		comp = left.Unix() < right.Unix()
+	default:
+		comp = a < b
+	}
+
+	if SortDescending {
+		comp = !comp
+	}
+
+	return comp
 }
