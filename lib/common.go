@@ -68,7 +68,7 @@ var (
 	validOutputmodes = "(orgtbl|markdown|extended|ascii)"
 
 	// main program version
-	Version = "v1.0.9"
+	Version = "v1.0.10"
 
 	// generated  version string, used  by -v contains  lib.Version on
 	//  main  branch,   and  lib.Version-$branch-$lastcommit-$date  on
