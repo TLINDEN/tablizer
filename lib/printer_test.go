@@ -153,11 +153,13 @@ func TestSortPrinter(t *testing.T) {
 	var tests = []struct {
 		data   Tabdata
 		sortby int
+		desc   bool
 		expect string
 	}{
 		{
 			data:   startdata,
 			sortby: 1,
+			desc:   false,
 			expect: `ONE(1)	TWO(2)	THREE(3) 
 abc   	345   	b1      	
 bcd   	234   	a2      	
@@ -167,6 +169,7 @@ cde   	123   	c3`,
 		{
 			data:   startdata,
 			sortby: 2,
+			desc:   false,
 			expect: `ONE(1)	TWO(2)	THREE(3) 
 cde   	123   	c3      	
 bcd   	234   	a2      	
@@ -176,10 +179,20 @@ abc   	345   	b1`,
 		{
 			data:   startdata,
 			sortby: 3,
+			desc:   false,
 			expect: `ONE(1)	TWO(2)	THREE(3) 
 bcd   	234   	a2      	
 abc   	345   	b1      	
 cde   	123   	c3`,
+		},
+		{
+			data:   startdata,
+			sortby: 1,
+			desc:   true,
+			expect: `ONE(1)	TWO(2)	THREE(3) 
+cde   	123   	c3      	
+bcd   	234   	a2      	
+abc   	345   	b1`,
 		},
 	}
 
@@ -188,9 +201,10 @@ cde   	123   	c3`,
 	origStdout, reader := stdout2pipe(t)
 
 	for _, tt := range tests {
-		testname := fmt.Sprintf("print-sorted-table-%d", tt.sortby)
+		testname := fmt.Sprintf("print-sorted-table-by-%d-desc-%t", tt.sortby, tt.desc)
 		t.Run(testname, func(t *testing.T) {
 			SortByColumn = tt.sortby
+			SortDescending = tt.desc
 
 			printData(&tt.data)
 

@@ -23,6 +23,7 @@ import (
 	"github.com/gookit/color"
 	"os"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -71,8 +72,10 @@ func PrepareColumns(data *Tabdata) error {
 			}
 		}
 
-		// deduplicate
-		imap := make(map[int]int)
+		// deduplicate: put all values into a map (value gets map key)
+		// thereby  removing duplicates,  extract keys into  new slice
+		// and sort it
+		imap := make(map[int]int, len(UseColumns))
 		for _, i := range UseColumns {
 			imap[i] = 0
 		}
@@ -80,6 +83,7 @@ func PrepareColumns(data *Tabdata) error {
 		for k := range imap {
 			UseColumns = append(UseColumns, k)
 		}
+		sort.Ints(UseColumns)
 	}
 	return nil
 }
