@@ -174,6 +174,19 @@ func PrepareModeFlags() error {
 	return nil
 }
 
+func PrepareSortFlags() {
+	switch {
+	case SortNumeric:
+		SortMode = "numeric"
+	case SortAge:
+		SortMode = "duration"
+	case SortTime:
+		SortMode = "time"
+	default:
+		SortMode = "string"
+	}
+}
+
 func trimRow(row []string) []string {
 	// FIXME: remove this when we only use Tablewriter and strip in ParseFile()!
 	var fixedrow []string

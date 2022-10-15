@@ -20,8 +20,11 @@ tablizer - Manipulate tabular output of other programs
       -M, --markdown           Enable markdown table output
       -O, --orgtbl             Enable org-mode table output
       -s, --separator string   Custom field separator
+      -a, --sort-age           sort according to age (duration) string
       -k, --sort-by int        Sort by column (default: 1)
       -D, --sort-desc          Sort in descending order (default: ascending)
+      -i, --sort-numeric       sort according to string numerical value
+      -t, --sort-time          sort according to time string
       -v, --version            Print program version
 
 
@@ -84,7 +87,24 @@ Use the  B<-k> option to specify  by which column to  sort the tabular
 data (as in GNU sort(1)). The default sort column is the first one. To
 disable sorting at all, supply 0  (Zero) to -k. The default sort order
 is ascending. You can change this to descending order using the option
-B<-D>.
+B<-D>. The default  sort order is by string, but  there are other sort
+modes:
+
+=over
+
+=item B<-a --sort-age>
+
+Sorts duration strings like "1d4h32m51s".
+
+=item B<-i --sort-numeric>
+
+Sorts numeric fields.
+
+=item B<-t --sort-time>
+
+Sorts timestamps.
+
+=back
 
 Finally the  B<-d> option  enables debugging  output which  is mostly
 useful for the developer.

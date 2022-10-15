@@ -21,8 +21,11 @@ SYNOPSIS
           -M, --markdown           Enable markdown table output
           -O, --orgtbl             Enable org-mode table output
           -s, --separator string   Custom field separator
+          -a, --sort-age           sort according to age (duration) string
           -k, --sort-by int        Sort by column (default: 1)
           -D, --sort-desc          Sort in descending order (default: ascending)
+          -i, --sort-numeric       sort according to string numerical value
+          -t, --sort-time          sort according to time string
           -v, --version            Print program version
 
 DESCRIPTION
@@ -81,6 +84,16 @@ DESCRIPTION
     (as in GNU sort(1)). The default sort column is the first one. To
     disable sorting at all, supply 0 (Zero) to -k. The default sort order is
     ascending. You can change this to descending order using the option -D.
+    The default sort order is by string, but there are other sort modes:
+
+    -a --sort-age
+        Sorts duration strings like "1d4h32m51s".
+
+    -i --sort-numeric
+        Sorts numeric fields.
+
+    -t --sort-time
+        Sorts timestamps.
 
     Finally the -d option enables debugging output which is mostly useful
     for the developer.

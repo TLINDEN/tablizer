@@ -65,6 +65,8 @@ var rootCmd = &cobra.Command{
 			return err
 		}
 
+		lib.PrepareSortFlags()
+
 		return lib.ProcessFiles(args)
 	},
 }

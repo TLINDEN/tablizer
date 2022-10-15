@@ -51,8 +51,8 @@ func sortTable(data *Tabdata, col int) {
 func compare(a string, b string) bool {
 	var comp bool
 
-	switch {
-	case SortNumeric:
+	switch SortMode {
+	case "numeric":
 		left, err := strconv.Atoi(a)
 		if err != nil {
 			left = 0
@@ -62,7 +62,7 @@ func compare(a string, b string) bool {
 			right = 0
 		}
 		comp = left < right
-	case SortAge:
+	case "duration":
 		left, err := str2duration.ParseDuration(a)
 		if err != nil {
 			left = 0
@@ -72,7 +72,7 @@ func compare(a string, b string) bool {
 			right = 0
 		}
 		comp = left.Seconds() < right.Seconds()
-	case SortTime:
+	case "time":
 		left, _ := dateparse.ParseAny(a)
 		right, _ := dateparse.ParseAny(b)
 		comp = left.Unix() < right.Unix()

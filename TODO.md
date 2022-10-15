@@ -2,10 +2,6 @@
 
 ## Features to be implemented
 
-- sorting by: numerical, time, duration, string(default) [DONE]
-
-- add unit tests for the above
-
 - add output modes yaml and csv
 
 - add --no-headers option

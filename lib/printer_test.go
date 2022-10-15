@@ -201,7 +201,8 @@ abc   	345   	b1`,
 	origStdout, reader := stdout2pipe(t)
 
 	for _, tt := range tests {
-		testname := fmt.Sprintf("print-sorted-table-by-%d-desc-%t", tt.sortby, tt.desc)
+		testname := fmt.Sprintf("print-sorted-table-by-column-%d-desc-%t",
+			tt.sortby, tt.desc)
 		t.Run(testname, func(t *testing.T) {
 			SortByColumn = tt.sortby
 			SortDescending = tt.desc
@@ -219,6 +220,114 @@ abc   	345   	b1`,
 			if output != tt.expect {
 				t.Errorf("sort column: %d, got:\n%s\nwant:\n%s",
 					tt.sortby, output, tt.expect)
+			}
+		})
+	}
+
+	// Restore
+	os.Stdout = origStdout
+}
+
+func TestSortByPrinter(t *testing.T) {
+	data := Tabdata{
+		maxwidthHeader: 8,
+		maxwidthPerCol: []int{
+			5,
+			9,
+			3,
+			26,
+		},
+		columns: 4,
+		headers: []string{
+			"NAME",
+			"DURATION",
+			"COUNT",
+			"WHEN",
+		},
+		entries: [][]string{
+			{
+				"beta",
+				"1d10h5m1s",
+				"33",
+				"3/1/2014",
+			},
+			{
+				"alpha",
+				"4h35m",
+				"170",
+				"2013-Feb-03",
+			},
+			{
+				"ceta",
+				"33d12h",
+				"9",
+				"06/Jan/2008 15:04:05 -0700",
+			},
+		},
+	}
+
+	var tests = []struct {
+		sortby string
+		column int
+		desc   bool
+		expect string
+	}{
+		{
+			column: 3,
+			sortby: "numeric",
+			desc:   false,
+			expect: `NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                    
+ceta   	33d12h     	9       	06/Jan/2008 15:04:05 -0700	
+beta   	1d10h5m1s  	33      	3/1/2014                  	
+alpha  	4h35m      	170     	2013-Feb-03`,
+		},
+		{
+			column: 2,
+			sortby: "duration",
+			desc:   false,
+			expect: `NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                    
+alpha  	4h35m      	170     	2013-Feb-03               	
+beta   	1d10h5m1s  	33      	3/1/2014                  	
+ceta   	33d12h     	9       	06/Jan/2008 15:04:05 -0700`,
+		},
+		{
+			column: 4,
+			sortby: "time",
+			desc:   false,
+			expect: `NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                    
+ceta   	33d12h     	9       	06/Jan/2008 15:04:05 -0700	
+alpha  	4h35m      	170     	2013-Feb-03               	
+beta   	1d10h5m1s  	33      	3/1/2014`,
+		},
+	}
+
+	NoColor = true
+	OutputMode = "ascii"
+	origStdout, reader := stdout2pipe(t)
+
+	for _, tt := range tests {
+		testname := fmt.Sprintf("print-sorted-table-by-column-%d-desc-%t-sort-by-%s",
+			tt.column, tt.desc, tt.sortby)
+
+		t.Run(testname, func(t *testing.T) {
+			SortByColumn = tt.column
+			SortDescending = tt.desc
+			SortMode = tt.sortby
+
+			testdata := data
+			printData(&testdata)
+
+			buf := make([]byte, 1024)
+			n, err := reader.Read(buf)
+			if err != nil {
+				t.Fatal(err)
+			}
+			buf = buf[:n]
+			output := strings.TrimSpace(string(buf))
+
+			if output != tt.expect {
+				t.Errorf("sort column: %d, sortby: %s, got:\n%s\nwant:\n%s",
+					tt.column, tt.sortby, output, tt.expect)
 			}
 		})
 	}

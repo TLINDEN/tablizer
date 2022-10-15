@@ -78,9 +78,11 @@ var (
 	// sorting
 	SortByColumn   int
 	SortDescending bool
-	SortNumeric    bool
-	SortTime       bool
-	SortAge        bool
+
+	SortNumeric bool
+	SortTime    bool
+	SortAge     bool
+	SortMode    string
 )
 
 // contains a whole parsed table

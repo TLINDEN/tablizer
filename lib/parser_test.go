@@ -92,7 +92,7 @@ asd    igig   cxxxncnc
 19191  EDD 1  X`
 
 	for _, tt := range tests {
-		testname := fmt.Sprintf("parse-with-inverted-pattern-%t", tt.invert)
+		testname := fmt.Sprintf("parse-with-pattern-%s-inverted-%t", tt.pattern, tt.invert)
 		t.Run(testname, func(t *testing.T) {
 			InvertMatch = tt.invert
 

@@ -159,8 +159,11 @@ tablizer \- Manipulate tabular output of other programs
 \&      \-M, \-\-markdown           Enable markdown table output
 \&      \-O, \-\-orgtbl             Enable org\-mode table output
 \&      \-s, \-\-separator string   Custom field separator
+\&      \-a, \-\-sort\-age           sort according to age (duration) string
 \&      \-k, \-\-sort\-by int        Sort by column (default: 1)
 \&      \-D, \-\-sort\-desc          Sort in descending order (default: ascending)
+\&      \-i, \-\-sort\-numeric       sort according to string numerical value
+\&      \-t, \-\-sort\-time          sort according to time string
 \&      \-v, \-\-version            Print program version
 .Ve
 .SH "DESCRIPTION"
@@ -228,7 +231,17 @@ Use the  \fB\-k\fR option to specify  by which column to  sort the tabular
 data (as in \s-1GNU\s0 \fBsort\fR\|(1)). The default sort column is the first one. To
 disable sorting at all, supply 0  (Zero) to \-k. The default sort order
 is ascending. You can change this to descending order using the option
-\&\fB\-D\fR.
+\&\fB\-D\fR. The default  sort order is by string, but  there are other sort
+modes:
+.IP "\fB\-a \-\-sort\-age\fR" 4
+.IX Item "-a --sort-age"
+Sorts duration strings like \*(L"1d4h32m51s\*(R".
+.IP "\fB\-i \-\-sort\-numeric\fR" 4
+.IX Item "-i --sort-numeric"
+Sorts numeric fields.
+.IP "\fB\-t \-\-sort\-time\fR" 4
+.IX Item "-t --sort-time"
+Sorts timestamps.
 .PP
 Finally the  \fB\-d\fR option  enables debugging  output which  is mostly
 useful for the developer.
