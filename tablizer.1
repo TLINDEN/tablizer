@@ -160,6 +160,7 @@ tablizer \- Manipulate tabular output of other programs
 \&      \-O, \-\-orgtbl             Enable org\-mode table output
 \&      \-s, \-\-separator string   Custom field separator
 \&      \-k, \-\-sort\-by int        Sort by column (default: 1)
+\&      \-D, \-\-sort\-desc          Sort in descending order (default: ascending)
 \&      \-v, \-\-version            Print program version
 .Ve
 .SH "DESCRIPTION"
@@ -225,7 +226,9 @@ highlighted. You can disable this behavior with the \fB\-N\fR option.
 .PP
 Use the  \fB\-k\fR option to specify  by which column to  sort the tabular
 data (as in \s-1GNU\s0 \fBsort\fR\|(1)). The default sort column is the first one. To
-disable sorting at all, supply 0 (Zero) to \-k.
+disable sorting at all, supply 0  (Zero) to \-k. The default sort order
+is ascending. You can change this to descending order using the option
+\&\fB\-D\fR.
 .PP
 Finally the  \fB\-d\fR option  enables debugging  output which  is mostly
 useful for the developer.

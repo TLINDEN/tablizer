@@ -2,8 +2,6 @@
 
 ## Features to be implemented
 
-- ability to change sort order (ascending vs descending)
-
 - sorting by: numerical, time, duration, string(default)
 
 - add output modes yaml and csv

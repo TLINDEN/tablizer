@@ -76,7 +76,8 @@ var (
 	VERSION string
 
 	// sorting
-	SortByColumn int
+	SortByColumn   int
+	SortDescending bool
 )
 
 // contains a whole parsed table

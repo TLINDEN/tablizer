@@ -41,6 +41,9 @@ func sortTable(data *Tabdata, col int) {
 
 	// actual sorting
 	sort.SliceStable(data.entries, func(i, j int) bool {
+		if SortDescending {
+			return data.entries[i][col] > data.entries[j][col]
+		}
 		return data.entries[i][col] < data.entries[j][col]
 	})
 }
