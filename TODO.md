@@ -1,5 +1,7 @@
 ## Fixes to be implemented
 
+- add unit test for descending sort order
+
 ## Features to be implemented
 
 - sorting by: numerical, time, duration, string(default)
