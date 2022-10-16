@@ -8,7 +8,6 @@ require (
 	github.com/gookit/color v1.5.2
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/spf13/cobra v1.5.0
-	github.com/xhit/go-str2duration/v2 v2.0.0
 )
 
 require (

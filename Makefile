@@ -55,7 +55,11 @@ install: buildlocal
 	install -o $(UID) -g $(GID) -m 444 $(tool).1 $(PREFIX)/man/man1/
 
 clean:
-	rm -rf $(tool) releases
+	rm -rf $(tool) releases coverage.out
 
 test:
 	go test -v ./...
+
+cover-report:
+	go test ./... -cover -coverprofile=coverage.out
+	go tool cover -html=coverage.out
