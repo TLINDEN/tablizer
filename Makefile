@@ -60,6 +60,10 @@ clean:
 test:
 	go test -v ./...
 
+singletest:
+	@echo "Call like this: ''make singletest TEST=TestPrepareColumns MOD=lib"
+	go test -run $(TEST) github.com/tlinden/tablizer/$(MOD)
+
 cover-report:
 	go test ./... -cover -coverprofile=coverage.out
 	go tool cover -html=coverage.out
