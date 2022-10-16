@@ -2,7 +2,7 @@
 
 ## Features to be implemented
 
-- add output modes yaml and csv
+- add output mode csv
 
 - add --no-headers option
 
