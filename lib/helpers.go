@@ -154,6 +154,9 @@ func PrepareModeFlags() error {
 		case OutflagShell:
 			OutputMode = "shell"
 			NoNumbering = true
+		case OutflagYaml:
+			OutputMode = "yaml"
+			NoNumbering = true
 		default:
 			OutputMode = "ascii"
 		}

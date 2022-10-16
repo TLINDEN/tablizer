@@ -16,7 +16,7 @@ SYNOPSIS
           -m, --man                Display manual page
           -n, --no-numbering       Disable header numbering
           -N, --no-color           Disable pattern highlighting
-          -o, --output string      Output mode - one of: orgtbl, markdown, extended, ascii(default)
+          -o, --output string      Output mode - one of: orgtbl, markdown, extended, yaml, ascii(default)
           -X, --extended           Enable extended output
           -M, --markdown           Enable markdown table output
           -O, --orgtbl             Enable org-mode table output
@@ -178,7 +178,8 @@ DESCRIPTION
 
     Beside normal ascii mode (the default) and extended mode there are more
     output modes available: orgtbl which prints an Emacs org-mode table and
-    markdown which prints a Markdown table.
+    markdown which prints a Markdown table and yaml, which prints yaml
+    encoding.
 
 BUGS
     In order to report a bug, unexpected behavior, feature requests or to

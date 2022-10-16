@@ -15,7 +15,7 @@ tablizer - Manipulate tabular output of other programs
       -m, --man                Display manual page
       -n, --no-numbering       Disable header numbering
       -N, --no-color           Disable pattern highlighting
-      -o, --output string      Output mode - one of: orgtbl, markdown, extended, ascii(default)
+      -o, --output string      Output mode - one of: orgtbl, markdown, extended, yaml, ascii(default)
       -X, --extended           Enable extended output
       -M, --markdown           Enable markdown table output
       -O, --orgtbl             Enable org-mode table output
@@ -198,7 +198,8 @@ You can use this in an eval loop.
 
 Beside normal  ascii mode  (the default) and  extended mode  there are
 more output modes available: B<orgtbl>  which prints an Emacs org-mode
-table and B<markdown> which prints a Markdown table.
+table and B<markdown> which prints a Markdown table and B<yaml>, which
+prints yaml encoding.
 
 =head1 BUGS
 

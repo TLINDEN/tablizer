@@ -21,7 +21,11 @@ import (
 	"fmt"
 	"github.com/gookit/color"
 	"github.com/olekukonko/tablewriter"
+	"gopkg.in/yaml.v3"
+	"log"
+	"os"
 	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -50,6 +54,8 @@ func printData(data *Tabdata) {
 		printMarkdownData(data)
 	case "shell":
 		printShellData(data)
+	case "yaml":
+		printYamlData(data)
 	default:
 		printAsciiData(data)
 	}
@@ -174,10 +180,47 @@ func printShellData(data *Tabdata) {
 					}
 				}
 
-				shentries = append(shentries, fmt.Sprintf("%s=\"%s\"", data.headers[idx], value))
+				shentries = append(shentries, fmt.Sprintf("%s=\"%s\"",
+					data.headers[idx], value))
 				idx++
 			}
 			fmt.Println(strings.Join(shentries, " "))
 		}
 	}
+}
+
+func printYamlData(data *Tabdata) {
+	type D struct {
+		Entries []map[string]interface{} `yaml:"entries"`
+	}
+
+	d := D{}
+
+	for _, entry := range data.entries {
+		ml := map[string]interface{}{}
+
+		for i, entry := range entry {
+			style := yaml.TaggedStyle
+			_, err := strconv.Atoi(entry)
+			if err != nil {
+				style = yaml.DoubleQuotedStyle
+			}
+
+			ml[strings.ToLower(data.headers[i])] =
+				&yaml.Node{
+					Kind:  yaml.ScalarNode,
+					Style: style,
+					Value: entry}
+		}
+
+		d.Entries = append(d.Entries, ml)
+	}
+
+	yamlstr, err := yaml.Marshal(&d)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	os.Stdout.Write(yamlstr)
 }

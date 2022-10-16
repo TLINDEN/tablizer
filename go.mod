@@ -8,6 +8,7 @@ require (
 	github.com/gookit/color v1.5.2
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/spf13/cobra v1.5.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (

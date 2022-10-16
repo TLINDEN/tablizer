@@ -36,6 +36,7 @@ var (
 	OutflagMarkdown  bool
 	OutflagOrgtable  bool
 	OutflagShell     bool
+	OutflagYaml      bool
 	OutputMode       string
 	InvertMatch      bool
 	Pattern          string
@@ -65,7 +66,7 @@ var (
 	}
 
 	// used for validation
-	validOutputmodes = "(orgtbl|markdown|extended|ascii)"
+	validOutputmodes = "(orgtbl|markdown|extended|ascii|yaml)"
 
 	// main program version
 	Version = "v1.0.11"

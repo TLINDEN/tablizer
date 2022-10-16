@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "TABLIZER 1"
-.TH TABLIZER 1 "2022-10-15" "1" "User Commands"
+.TH TABLIZER 1 "2022-10-16" "1" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -154,7 +154,7 @@ tablizer \- Manipulate tabular output of other programs
 \&      \-m, \-\-man                Display manual page
 \&      \-n, \-\-no\-numbering       Disable header numbering
 \&      \-N, \-\-no\-color           Disable pattern highlighting
-\&      \-o, \-\-output string      Output mode \- one of: orgtbl, markdown, extended, ascii(default)
+\&      \-o, \-\-output string      Output mode \- one of: orgtbl, markdown, extended, yaml, ascii(default)
 \&      \-X, \-\-extended           Enable extended output
 \&      \-M, \-\-markdown           Enable markdown table output
 \&      \-O, \-\-orgtbl             Enable org\-mode table output
@@ -345,7 +345,8 @@ You can use this in an eval loop.
 .PP
 Beside normal  ascii mode  (the default) and  extended mode  there are
 more output modes available: \fBorgtbl\fR  which prints an Emacs org-mode
-table and \fBmarkdown\fR which prints a Markdown table.
+table and \fBmarkdown\fR which prints a Markdown table and \fByaml\fR, which
+prints yaml encoding.
 .SH "BUGS"
 .IX Header "BUGS"
 In order to report a bug, unexpected behavior, feature requests

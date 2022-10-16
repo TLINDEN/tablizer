@@ -88,6 +88,13 @@ THREE(3): cxxxncnc
   ONE(1): 19191
   TWO(2): EDD 1
 THREE(3): X`,
+		"yaml": `entries:
+    - one: "asd"
+      three: "cxxxncnc"
+      two: "igig"
+    - one: 19191
+      three: "X"
+      two: "EDD 1"`,
 	}
 
 	NoColor = true
@@ -100,6 +107,13 @@ THREE(3): X`,
 		t.Run(testname, func(t *testing.T) {
 
 			OutputMode = mode
+
+			if mode == "yaml" {
+				NoNumbering = true
+			} else {
+				NoNumbering = false
+			}
+
 			//  we need  to reset  our  mock data,  since it's  being
 			// modified in printData()
 			data := startdata
@@ -122,7 +136,7 @@ THREE(3): X`,
 
 	// Restore
 	os.Stdout = origStdout
-
+	NoNumbering = false
 }
 
 func TestSortPrinter(t *testing.T) {
