@@ -71,6 +71,7 @@ func TestPrepareColumns(t *testing.T) {
 		{"1,2,", []int{}, true},
 		{"T", []int{2, 3}, false},
 		{"T,2,3", []int{2, 3}, false},
+		{"[a-z,4,5", []int{4, 5}, true}, // invalid regexp
 	}
 
 	for _, tt := range tests {
@@ -132,4 +133,40 @@ func TestReduceColumns(t *testing.T) {
 
 	Columns = "" // reset for other tests
 	UseColumns = nil
+}
+
+func TestNumberizeHeaders(t *testing.T) {
+	data := Tabdata{
+		headers: []string{"ONE", "TWO", "THREE"},
+	}
+
+	var tests = []struct {
+		expect  []string
+		columns []int
+		nonum   bool
+	}{
+		{[]string{"ONE(1)", "TWO(2)", "THREE(3)"}, []int{1, 2, 3}, false},
+		{[]string{"ONE(1)", "TWO(2)"}, []int{1, 2}, false},
+		{[]string{"ONE", "TWO"}, []int{1, 2}, true},
+	}
+
+	Columns = "1" // so the len test succeeds, since we don't parse
+
+	for _, tt := range tests {
+		testname := fmt.Sprintf("numberize-headers-columns-%+v-nonum-%t", tt.columns, tt.nonum)
+		t.Run(testname, func(t *testing.T) {
+			UseColumns = tt.columns
+			NoNumbering = tt.nonum
+			usedata := data
+			numberizeHeaders(&usedata)
+			if !reflect.DeepEqual(usedata.headers, tt.expect) {
+				t.Errorf("numberizeHeaders returned invalid data:\ngot: %+v\nexp: %+v",
+					usedata.headers, tt.expect)
+			}
+		})
+	}
+
+	Columns = ""
+	UseColumns = nil
+	NoNumbering = false
 }
