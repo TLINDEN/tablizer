@@ -279,11 +279,15 @@ func TestPrinter(t *testing.T) {
 			}
 
 			testdata := mockdata
-			output := strings.TrimSpace(printData(&w, &testdata))
 			exp := strings.TrimSpace(tt.expect)
-			if output != exp {
+
+			printData(&w, &testdata)
+
+			got := strings.TrimSpace(w.String())
+
+			if got != exp {
 				t.Errorf("not rendered correctly:\n+++ got:\n%s\n+++ want:\n%s",
-					output, exp)
+					got, exp)
 			}
 		})
 	}
