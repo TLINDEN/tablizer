@@ -18,334 +18,273 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package lib
 
 import (
+	"bytes"
 	"fmt"
-	"github.com/gookit/color"
-	"os"
+	//"github.com/alecthomas/repr"
 	"strings"
 	"testing"
 )
 
-func stdout2pipe(t *testing.T) (*os.File, *os.File) {
-	reader, writer, err := os.Pipe()
-	if err != nil {
-		t.Fatal(err)
-	}
-	origStdout := os.Stdout
-	os.Stdout = writer
-
-	// we need to tell the color mode the io.Writer, even if we don't usw colorization
-	color.SetOutput(writer)
-
-	return origStdout, reader
+var mockdata = Tabdata{
+	maxwidthHeader: 8,
+	maxwidthPerCol: []int{
+		5,
+		9,
+		3,
+		26,
+	},
+	columns: 4,
+	headers: []string{
+		"NAME",
+		"DURATION",
+		"COUNT",
+		"WHEN",
+	},
+	entries: [][]string{
+		{
+			"beta",
+			"1d10h5m1s",
+			"33",
+			"3/1/2014",
+		},
+		{
+			"alpha",
+			"4h35m",
+			"170",
+			"2013-Feb-03",
+		},
+		{
+			"ceta",
+			"33d12h",
+			"9",
+			"06/Jan/2008 15:04:05 -0700",
+		},
+	},
 }
 
-func TestPrinter(t *testing.T) {
-	startdata := Tabdata{
-		maxwidthHeader: 5,
-		maxwidthPerCol: []int{
-			5,
-			5,
-			8,
-		},
-		columns: 3,
-		headers: []string{
-			"ONE", "TWO", "THREE",
-		},
-		entries: [][]string{
-			{
-				"asd", "igig", "cxxxncnc",
-			},
-			{
-				"19191", "EDD 1", "X",
-			},
-		},
-	}
+var tests = []struct {
+	name string // so we can identify which one fails, can be the same
+	// for multiple tests, because flags will be appended to the name
+	sortby    string // empty == default
+	column    int    // sort by this column, 0 == default first or NO Sort
+	desc      bool   // sort in descending order, default == ascending
+	nonum     bool   // hide numbering
+	mode      string // shell, orgtbl, etc. empty == default: ascii
+	usecol    []int  // columns to display, empty == display all
+	usecolstr string // for testname, must match usecol
+	expect    string // rendered output we expect
+}{
+	// --------------------- Default settings mode tests ``
+	{
+		mode: "ascii",
+		name: "default",
+		expect: `
+NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                    
+beta   	1d10h5m1s  	33      	3/1/2014                  	
+alpha  	4h35m      	170     	2013-Feb-03               	
+ceta   	33d12h     	9       	06/Jan/2008 15:04:05 -0700`,
+	},
+	{
+		name: "default",
+		mode: "orgtbl",
+		expect: `
+|---------+-------------+----------+----------------------------|
+| NAME(1) | DURATION(2) | COUNT(3) |          WHEN(4)           |
+|---------+-------------+----------+----------------------------|
+| beta    | 1d10h5m1s   |       33 | 3/1/2014                   |
+| alpha   | 4h35m       |      170 | 2013-Feb-03                |
+| ceta    | 33d12h      |        9 | 06/Jan/2008 15:04:05 -0700 |
+|---------+-------------+----------+----------------------------|`,
+	},
+	{
+		name: "default",
+		mode: "markdown",
+		expect: `
+| NAME(1) | DURATION(2) | COUNT(3) |          WHEN(4)           |
+|---------|-------------|----------|----------------------------|
+| beta    | 1d10h5m1s   |       33 | 3/1/2014                   |
+| alpha   | 4h35m       |      170 | 2013-Feb-03                |
+| ceta    | 33d12h      |        9 | 06/Jan/2008 15:04:05 -0700 |`,
+	},
+	{
+		name:  "default",
+		mode:  "shell",
+		nonum: true,
+		expect: `
+NAME="beta" DURATION="1d10h5m1s" COUNT="33" WHEN="3/1/2014"
+NAME="alpha" DURATION="4h35m" COUNT="170" WHEN="2013-Feb-03"
+NAME="ceta" DURATION="33d12h" COUNT="9" WHEN="06/Jan/2008 15:04:05 -0700"`,
+	},
+	{
+		name:  "default",
+		mode:  "yaml",
+		nonum: true,
+		expect: `
+entries:
+    - count: 33
+      duration: "1d10h5m1s"
+      name: "beta"
+      when: "3/1/2014"
+    - count: 170
+      duration: "4h35m"
+      name: "alpha"
+      when: "2013-Feb-03"
+    - count: 9
+      duration: "33d12h"
+      name: "ceta"
+      when: "06/Jan/2008 15:04:05 -0700"`,
+	},
+	{
+		name: "default",
+		mode: "extended",
+		expect: `
+    NAME(1): beta
+DURATION(2): 1d10h5m1s
+   COUNT(3): 33
+    WHEN(4): 3/1/2014
 
-	expects := map[string]string{
-		"ascii": `ONE(1)	TWO(2)	THREE(3) 
-asd   	igig  	cxxxncnc	
-19191 	EDD 1 	X`,
+    NAME(1): alpha
+DURATION(2): 4h35m
+   COUNT(3): 170
+    WHEN(4): 2013-Feb-03
 
-		"orgtbl": `|--------+--------+----------|
-| ONE(1) | TWO(2) | THREE(3) |
-|--------+--------+----------|
-| asd    | igig   | cxxxncnc |
-|  19191 | EDD 1  | X        |
-|--------+--------+----------|`,
+    NAME(1): ceta
+DURATION(2): 33d12h
+   COUNT(3): 9
+    WHEN(4): 06/Jan/2008 15:04:05 -0700`,
+	},
 
-		"markdown": `| ONE(1) | TWO(2) | THREE(3) |
-|--------|--------|----------|
-| asd    | igig   | cxxxncnc |
-|  19191 | EDD 1  | X        |`,
+	//  -----------------------  UseColumns Tests  FIXME: when  we put
+	//  these tests  AFTER  the sort  tests, then  the  order of  rows
+	//  follows  the last  sort  call  (-k 4  here),  even  if we  set
+	// SortByColumn  to 0, which is  also the default if  unset in the
+	// test struct. Somehow the SliceStable() seens to modify the data
+	//  structure, which  seems impossible,  since it's  copied during
+	//   every  test   run.  So,   I  really   don't  understand   the
+	// issue.  However, I'll  keep this for  the moment,  because this
+	// only seems  to be a unit  test related issue. In  real use, the
+	// program exits after each call anyway - and it works everytime.
 
-		"shell": `ONE="asd" TWO="igig" THREE="cxxxncnc"
-ONE="19191" TWO="EDD 1" THREE="X"`,
+	{
+		name:      "usecolumns",
+		usecol:    []int{2, 4},
+		usecolstr: "2,4",
+		expect: `
+DURATION(2)	WHEN(4)                    
+1d10h5m1s  	3/1/2014                  	
+4h35m      	2013-Feb-03               	
+33d12h     	06/Jan/2008 15:04:05 -0700`,
+	},
+	{
+		name:      "usecolumns",
+		usecol:    []int{1, 4},
+		usecolstr: "1,4",
+		expect: `
+NAME(1)	WHEN(4)                    
+beta   	3/1/2014                  	
+alpha  	2013-Feb-03               	
+ceta   	06/Jan/2008 15:04:05 -0700`,
+	},
+	{
+		name:      "usecolumns",
+		usecol:    []int{2},
+		usecolstr: "2",
+		expect: `
+DURATION(2) 
+1d10h5m1s  	
+4h35m      	
+33d12h`,
+	},
+	{
+		name:      "usecolumns",
+		usecol:    []int{3},
+		usecolstr: "3",
+		expect: `
+COUNT(3) 
+33      	
+170     	
+9`,
+	},
+	{
+		name:      "usecolumns",
+		column:    0,
+		usecol:    []int{1, 3},
+		usecolstr: "1,3",
+		expect: `
+NAME(1)	COUNT(3) 
+beta   	33      	
+alpha  	170     	
+ceta   	9`,
+	},
 
-		"extended": `ONE(1): asd
-  TWO(2): igig
-THREE(3): cxxxncnc
-
-  ONE(1): 19191
-  TWO(2): EDD 1
-THREE(3): X`,
-		"yaml": `entries:
-    - one: "asd"
-      three: "cxxxncnc"
-      two: "igig"
-    - one: 19191
-      three: "X"
-      two: "EDD 1"`,
-	}
-
-	NoColor = true
-	SortByColumn = 0 // disable sorting
-
-	origStdout, reader := stdout2pipe(t)
-
-	for mode, expect := range expects {
-		testname := fmt.Sprintf("print-%s", mode)
-		t.Run(testname, func(t *testing.T) {
-
-			OutputMode = mode
-
-			if mode == "yaml" {
-				NoNumbering = true
-			} else {
-				NoNumbering = false
-			}
-
-			//  we need  to reset  our  mock data,  since it's  being
-			// modified in printData()
-			data := startdata
-			printData(&data)
-
-			buf := make([]byte, 1024)
-			n, err := reader.Read(buf)
-			if err != nil {
-				t.Fatal(err)
-			}
-			buf = buf[:n]
-			output := strings.TrimSpace(string(buf))
-
-			if output != expect {
-				t.Errorf("output mode: %s, got:\n%s\nwant:\n%s\n (%d <=> %d)",
-					mode, output, expect, len(output), len(expect))
-			}
-		})
-	}
-
-	// Restore
-	os.Stdout = origStdout
-	NoNumbering = false
-}
-
-func TestSortPrinter(t *testing.T) {
-	startdata := Tabdata{
-		maxwidthHeader: 5,
-		maxwidthPerCol: []int{
-			3,
-			3,
-			2,
-		},
-		columns: 3,
-		headers: []string{
-			"ONE", "TWO", "THREE",
-		},
-		entries: [][]string{
-			{
-				"abc", "345", "b1",
-			},
-			{
-				"bcd", "234", "a2",
-			},
-			{
-				"cde", "123", "c3",
-			},
-		},
-	}
-
-	var tests = []struct {
-		data   Tabdata
-		sortby int
-		desc   bool
-		expect string
-	}{
-		{
-			data:   startdata,
-			sortby: 1,
-			desc:   false,
-			expect: `ONE(1)	TWO(2)	THREE(3) 
-abc   	345   	b1      	
-bcd   	234   	a2      	
-cde   	123   	c3`,
-		},
-
-		{
-			data:   startdata,
-			sortby: 2,
-			desc:   false,
-			expect: `ONE(1)	TWO(2)	THREE(3) 
-cde   	123   	c3      	
-bcd   	234   	a2      	
-abc   	345   	b1`,
-		},
-
-		{
-			data:   startdata,
-			sortby: 3,
-			desc:   false,
-			expect: `ONE(1)	TWO(2)	THREE(3) 
-bcd   	234   	a2      	
-abc   	345   	b1      	
-cde   	123   	c3`,
-		},
-		{
-			data:   startdata,
-			sortby: 1,
-			desc:   true,
-			expect: `ONE(1)	TWO(2)	THREE(3) 
-cde   	123   	c3      	
-bcd   	234   	a2      	
-abc   	345   	b1`,
-		},
-	}
-
-	NoColor = true
-	OutputMode = "ascii"
-	origStdout, reader := stdout2pipe(t)
-
-	for _, tt := range tests {
-		testname := fmt.Sprintf("print-sorted-table-by-column-%d-desc-%t",
-			tt.sortby, tt.desc)
-		t.Run(testname, func(t *testing.T) {
-			SortByColumn = tt.sortby
-			SortDescending = tt.desc
-
-			printData(&tt.data)
-
-			buf := make([]byte, 1024)
-			n, err := reader.Read(buf)
-			if err != nil {
-				t.Fatal(err)
-			}
-			buf = buf[:n]
-			output := strings.TrimSpace(string(buf))
-
-			if output != tt.expect {
-				t.Errorf("sort column: %d, got:\n%s\nwant:\n%s",
-					tt.sortby, output, tt.expect)
-			}
-		})
-	}
-
-	// Restore
-	os.Stdout = origStdout
-}
-
-func TestSortByPrinter(t *testing.T) {
-	data := Tabdata{
-		maxwidthHeader: 8,
-		maxwidthPerCol: []int{
-			5,
-			9,
-			3,
-			26,
-		},
-		columns: 4,
-		headers: []string{
-			"NAME",
-			"DURATION",
-			"COUNT",
-			"WHEN",
-		},
-		entries: [][]string{
-			{
-				"beta",
-				"1d10h5m1s",
-				"33",
-				"3/1/2014",
-			},
-			{
-				"alpha",
-				"4h35m",
-				"170",
-				"2013-Feb-03",
-			},
-			{
-				"ceta",
-				"33d12h",
-				"9",
-				"06/Jan/2008 15:04:05 -0700",
-			},
-		},
-	}
-
-	var tests = []struct {
-		sortby string
-		column int
-		desc   bool
-		expect string
-	}{
-		{
-			column: 3,
-			sortby: "numeric",
-			desc:   false,
-			expect: `NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                    
+	//------------------------ SORT TESTS
+	{
+		name:   "sortbycolumn",
+		column: 3,
+		sortby: "numeric",
+		desc:   false,
+		expect: `
+NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                    
 ceta   	33d12h     	9       	06/Jan/2008 15:04:05 -0700	
 beta   	1d10h5m1s  	33      	3/1/2014                  	
 alpha  	4h35m      	170     	2013-Feb-03`,
-		},
-		{
-			column: 2,
-			sortby: "duration",
-			desc:   false,
-			expect: `NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                    
+	},
+	{
+		name:   "sortbycolumn",
+		column: 2,
+		sortby: "duration",
+		desc:   false,
+		expect: `
+NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                    
 alpha  	4h35m      	170     	2013-Feb-03               	
 beta   	1d10h5m1s  	33      	3/1/2014                  	
 ceta   	33d12h     	9       	06/Jan/2008 15:04:05 -0700`,
-		},
-		{
-			column: 4,
-			sortby: "time",
-			desc:   false,
-			expect: `NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                    
+	},
+	{
+		name:   "sortbycolumn",
+		column: 4,
+		sortby: "time",
+		desc:   false,
+		expect: `
+NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                    
 ceta   	33d12h     	9       	06/Jan/2008 15:04:05 -0700	
 alpha  	4h35m      	170     	2013-Feb-03               	
 beta   	1d10h5m1s  	33      	3/1/2014`,
-		},
-	}
+	},
+}
 
+func TestPrinter(t *testing.T) {
 	NoColor = true
-	OutputMode = "ascii"
-	origStdout, reader := stdout2pipe(t)
 
 	for _, tt := range tests {
-		testname := fmt.Sprintf("print-sorted-table-by-column-%d-desc-%t-sort-by-%s",
-			tt.column, tt.desc, tt.sortby)
-
+		testname := fmt.Sprintf("print-sortcol-%d-desc-%t-sortby-%s-mode-%s-usecolumns-%s",
+			tt.column, tt.desc, tt.sortby, tt.mode, tt.usecolstr)
 		t.Run(testname, func(t *testing.T) {
+			// replaces os.Stdout, but we ignore it
+			var w bytes.Buffer
+
+			// cmd flags
 			SortByColumn = tt.column
 			SortDescending = tt.desc
 			SortMode = tt.sortby
+			OutputMode = tt.mode
+			NoNumbering = tt.nonum
+			UseColumns = tt.usecol
 
-			testdata := data
-			printData(&testdata)
-
-			buf := make([]byte, 1024)
-			n, err := reader.Read(buf)
-			if err != nil {
-				t.Fatal(err)
+			// the test checks the len!
+			if len(tt.usecol) > 0 {
+				Columns = "yes"
+			} else {
+				Columns = ""
 			}
-			buf = buf[:n]
-			output := strings.TrimSpace(string(buf))
 
-			if output != tt.expect {
-				t.Errorf("sort column: %d, sortby: %s, got:\n%s\nwant:\n%s",
-					tt.column, tt.sortby, output, tt.expect)
+			testdata := mockdata
+			output := strings.TrimSpace(printData(&w, &testdata))
+			exp := strings.TrimSpace(tt.expect)
+			if output != exp {
+				t.Errorf("not rendered correctly:\n+++ got:\n%s\n+++ want:\n%s",
+					output, exp)
 			}
 		})
 	}
-
-	// Restore
-	os.Stdout = origStdout
 }

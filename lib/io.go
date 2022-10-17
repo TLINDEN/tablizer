@@ -50,7 +50,7 @@ func ProcessFiles(args []string) error {
 			return err
 		}
 
-		printData(&data)
+		printData(os.Stdout, &data)
 	}
 
 	return nil

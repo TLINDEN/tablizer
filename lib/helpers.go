@@ -89,7 +89,7 @@ func PrepareColumns(data *Tabdata) error {
 }
 
 // prepare headers: add numbers to headers
-func numberizeHeaders(data *Tabdata) {
+func numberizeAndReduceHeaders(data *Tabdata) {
 	numberedHeaders := []string{}
 	maxwidth := 0 // start from scratch, so we only look at displayed column widths
 

@@ -22,20 +22,18 @@ import (
 	"github.com/gookit/color"
 	"github.com/olekukonko/tablewriter"
 	"gopkg.in/yaml.v3"
+	"io"
 	"log"
-	"os"
 	"regexp"
 	"strconv"
 	"strings"
 )
 
-func printData(data *Tabdata) {
+func printData(w io.Writer, data *Tabdata) string {
 	// some output preparations:
 
-	if OutputMode != "shell" {
-		// not needed in eval string
-		numberizeHeaders(data)
-	}
+	// add numbers to headers and remove this we're not interested in
+	numberizeAndReduceHeaders(data)
 
 	// remove unwanted columns, if any
 	reduceColumns(data)
@@ -45,26 +43,31 @@ func printData(data *Tabdata) {
 
 	switch OutputMode {
 	case "extended":
-		printExtendedData(data)
+		return printExtendedData(w, data)
 	case "ascii":
-		printAsciiData(data)
+		return printAsciiData(w, data)
 	case "orgtbl":
-		printOrgmodeData(data)
+		return printOrgmodeData(w, data)
 	case "markdown":
-		printMarkdownData(data)
+		return printMarkdownData(w, data)
 	case "shell":
-		printShellData(data)
+		return printShellData(w, data)
 	case "yaml":
-		printYamlData(data)
+		return printYamlData(w, data)
 	default:
-		printAsciiData(data)
+		return printAsciiData(w, data)
 	}
+}
+
+func output(w io.Writer, str string) string {
+	fmt.Fprint(w, str)
+	return str
 }
 
 /*
    Emacs org-mode compatible table (also orgtbl-mode)
 */
-func printOrgmodeData(data *Tabdata) {
+func printOrgmodeData(w io.Writer, data *Tabdata) string {
 	tableString := &strings.Builder{}
 	table := tablewriter.NewWriter(tableString)
 
@@ -90,16 +93,16 @@ func printOrgmodeData(data *Tabdata) {
 	leftR := regexp.MustCompile("(?m)^\\+")
 	rightR := regexp.MustCompile("\\+(?m)$")
 
-	color.Print(
+	return output(w, color.Sprint(
 		colorizeData(
 			rightR.ReplaceAllString(
-				leftR.ReplaceAllString(tableString.String(), "|"), "|")))
+				leftR.ReplaceAllString(tableString.String(), "|"), "|"))))
 }
 
 /*
    Markdown table
 */
-func printMarkdownData(data *Tabdata) {
+func printMarkdownData(w io.Writer, data *Tabdata) string {
 	tableString := &strings.Builder{}
 	table := tablewriter.NewWriter(tableString)
 
@@ -113,13 +116,13 @@ func printMarkdownData(data *Tabdata) {
 	table.SetCenterSeparator("|")
 
 	table.Render()
-	color.Print(colorizeData(tableString.String()))
+	return output(w, color.Sprint(colorizeData(tableString.String())))
 }
 
 /*
    Simple ASCII table without any borders etc, just like the input we expect
 */
-func printAsciiData(data *Tabdata) {
+func printAsciiData(w io.Writer, data *Tabdata) string {
 	tableString := &strings.Builder{}
 	table := tablewriter.NewWriter(tableString)
 
@@ -143,53 +146,48 @@ func printAsciiData(data *Tabdata) {
 	table.SetNoWhiteSpace(true)
 
 	table.Render()
-	color.Print(colorizeData(tableString.String()))
+	return output(w, color.Sprint(colorizeData(tableString.String())))
 }
 
 /*
    We simulate the \x command of psql (the PostgreSQL client)
 */
-func printExtendedData(data *Tabdata) {
+func printExtendedData(w io.Writer, data *Tabdata) string {
 	// needed for data output
 	format := fmt.Sprintf("%%%ds: %%s\n", data.maxwidthHeader)
-
+	out := ""
 	if len(data.entries) > 0 {
 		for _, entry := range data.entries {
 			for i, value := range entry {
-				color.Printf(format, data.headers[i], value)
+				out += color.Sprintf(format, data.headers[i], value)
 			}
 
-			fmt.Println()
+			out += "\n"
 		}
 	}
+
+	return output(w, out)
 }
 
 /*
    Shell output, ready to be eval'd. Just like FreeBSD stat(1)
 */
-func printShellData(data *Tabdata) {
+func printShellData(w io.Writer, data *Tabdata) string {
+	out := ""
 	if len(data.entries) > 0 {
-		var idx int
 		for _, entry := range data.entries {
-			idx = 0
 			shentries := []string{}
 			for i, value := range entry {
-				if len(Columns) > 0 {
-					if !contains(UseColumns, i+1) {
-						continue
-					}
-				}
-
 				shentries = append(shentries, fmt.Sprintf("%s=\"%s\"",
-					data.headers[idx], value))
-				idx++
+					data.headers[i], value))
 			}
-			fmt.Println(strings.Join(shentries, " "))
+			out += fmt.Sprint(strings.Join(shentries, " ")) + "\n"
 		}
 	}
+	return output(w, out)
 }
 
-func printYamlData(data *Tabdata) {
+func printYamlData(w io.Writer, data *Tabdata) string {
 	type D struct {
 		Entries []map[string]interface{} `yaml:"entries"`
 	}
@@ -222,5 +220,5 @@ func printYamlData(data *Tabdata) {
 		log.Fatal(err)
 	}
 
-	os.Stdout.Write(yamlstr)
+	return output(w, string(yamlstr))
 }

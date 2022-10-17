@@ -158,9 +158,9 @@ func TestNumberizeHeaders(t *testing.T) {
 			UseColumns = tt.columns
 			NoNumbering = tt.nonum
 			usedata := data
-			numberizeHeaders(&usedata)
+			numberizeAndReduceHeaders(&usedata)
 			if !reflect.DeepEqual(usedata.headers, tt.expect) {
-				t.Errorf("numberizeHeaders returned invalid data:\ngot: %+v\nexp: %+v",
+				t.Errorf("numberizeAndReduceHeaders returned invalid data:\ngot: %+v\nexp: %+v",
 					usedata.headers, tt.expect)
 			}
 		})

@@ -25,7 +25,7 @@ import (
 )
 
 func sortTable(data *Tabdata, col int) {
-	if col <= 0 {
+	if SortByColumn <= 0 {
 		// no sorting wanted
 		return
 	}
