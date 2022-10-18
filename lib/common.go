@@ -19,7 +19,6 @@ package lib
 
 import (
 	"github.com/gookit/color"
-	//"github.com/xo/terminfo"
 )
 
 var (

@@ -25,41 +25,43 @@ import (
 	"testing"
 )
 
-var mockdata = Tabdata{
-	maxwidthHeader: 8,
-	maxwidthPerCol: []int{
-		5,
-		9,
-		3,
-		26,
-	},
-	columns: 4,
-	headers: []string{
-		"NAME",
-		"DURATION",
-		"COUNT",
-		"WHEN",
-	},
-	entries: [][]string{
-		{
-			"beta",
-			"1d10h5m1s",
-			"33",
-			"3/1/2014",
+func newData() Tabdata {
+	return Tabdata{
+		maxwidthHeader: 8,
+		maxwidthPerCol: []int{
+			5,
+			9,
+			3,
+			26,
 		},
-		{
-			"alpha",
-			"4h35m",
-			"170",
-			"2013-Feb-03",
+		columns: 4,
+		headers: []string{
+			"NAME",
+			"DURATION",
+			"COUNT",
+			"WHEN",
 		},
-		{
-			"ceta",
-			"33d12h",
-			"9",
-			"06/Jan/2008 15:04:05 -0700",
+		entries: [][]string{
+			{
+				"beta",
+				"1d10h5m1s",
+				"33",
+				"3/1/2014",
+			},
+			{
+				"alpha",
+				"4h35m",
+				"170",
+				"2013-Feb-03",
+			},
+			{
+				"ceta",
+				"33d12h",
+				"9",
+				"06/Jan/2008 15:04:05 -0700",
+			},
 		},
-	},
+	}
 }
 
 var tests = []struct {
@@ -154,27 +156,42 @@ DURATION(2): 33d12h
     WHEN(4): 06/Jan/2008 15:04:05 -0700`,
 	},
 
-	//  -----------------------  UseColumns Tests  FIXME: when  we put
-	//  these tests  AFTER  the sort  tests, then  the  order of  rows
-	//  follows  the last  sort  call  (-k 4  here),  even  if we  set
-	// SortByColumn  to 0, which is  also the default if  unset in the
-	// test struct. Somehow the SliceStable() seens to modify the data
-	//  structure, which  seems impossible,  since it's  copied during
-	//   every  test   run.  So,   I  really   don't  understand   the
-	// issue.  However, I'll  keep this for  the moment,  because this
-	// only seems  to be a unit  test related issue. In  real use, the
-	// program exits after each call anyway - and it works everytime.
-
+	//------------------------ SORT TESTS
 	{
-		name:      "usecolumns",
-		usecol:    []int{2, 4},
-		usecolstr: "2,4",
+		name:   "sortbycolumn",
+		column: 3,
+		sortby: "numeric",
+		desc:   false,
 		expect: `
-DURATION(2)	WHEN(4)                    
-1d10h5m1s  	3/1/2014                  	
-4h35m      	2013-Feb-03               	
-33d12h     	06/Jan/2008 15:04:05 -0700`,
+NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                    
+ceta   	33d12h     	9       	06/Jan/2008 15:04:05 -0700	
+beta   	1d10h5m1s  	33      	3/1/2014                  	
+alpha  	4h35m      	170     	2013-Feb-03`,
 	},
+	{
+		name:   "sortbycolumn",
+		column: 4,
+		sortby: "time",
+		desc:   false,
+		expect: `
+NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                    
+ceta   	33d12h     	9       	06/Jan/2008 15:04:05 -0700	
+alpha  	4h35m      	170     	2013-Feb-03               	
+beta   	1d10h5m1s  	33      	3/1/2014`,
+	},
+	{
+		name:   "sortbycolumn",
+		column: 2,
+		sortby: "duration",
+		desc:   false,
+		expect: `
+NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                    
+alpha  	4h35m      	170     	2013-Feb-03               	
+beta   	1d10h5m1s  	33      	3/1/2014                  	
+ceta   	33d12h     	9       	06/Jan/2008 15:04:05 -0700`,
+	},
+
+	//  -----------------------  UseColumns Tests
 	{
 		name:      "usecolumns",
 		usecol:    []int{1, 4},
@@ -216,40 +233,15 @@ beta   	33
 alpha  	170     	
 ceta   	9`,
 	},
-
-	//------------------------ SORT TESTS
 	{
-		name:   "sortbycolumn",
-		column: 3,
-		sortby: "numeric",
-		desc:   false,
+		name:      "usecolumns",
+		usecol:    []int{2, 4},
+		usecolstr: "2,4",
 		expect: `
-NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                    
-ceta   	33d12h     	9       	06/Jan/2008 15:04:05 -0700	
-beta   	1d10h5m1s  	33      	3/1/2014                  	
-alpha  	4h35m      	170     	2013-Feb-03`,
-	},
-	{
-		name:   "sortbycolumn",
-		column: 2,
-		sortby: "duration",
-		desc:   false,
-		expect: `
-NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                    
-alpha  	4h35m      	170     	2013-Feb-03               	
-beta   	1d10h5m1s  	33      	3/1/2014                  	
-ceta   	33d12h     	9       	06/Jan/2008 15:04:05 -0700`,
-	},
-	{
-		name:   "sortbycolumn",
-		column: 4,
-		sortby: "time",
-		desc:   false,
-		expect: `
-NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                    
-ceta   	33d12h     	9       	06/Jan/2008 15:04:05 -0700	
-alpha  	4h35m      	170     	2013-Feb-03               	
-beta   	1d10h5m1s  	33      	3/1/2014`,
+DURATION(2)	WHEN(4)                    
+1d10h5m1s  	3/1/2014                  	
+4h35m      	2013-Feb-03               	
+33d12h     	06/Jan/2008 15:04:05 -0700`,
 	},
 }
 
@@ -278,7 +270,7 @@ func TestPrinter(t *testing.T) {
 				Columns = ""
 			}
 
-			testdata := mockdata
+			testdata := newData()
 			exp := strings.TrimSpace(tt.expect)
 
 			printData(&w, &testdata)
