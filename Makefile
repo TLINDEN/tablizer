@@ -18,7 +18,7 @@
 #
 # no need to modify anything below
 tool    = tablizer
-version = $(shell egrep "= .v" lib/common.go | cut -d'=' -f2 | cut -d'"' -f 2)
+version = $(shell egrep "= .v" cfg/config.go | cut -d'=' -f2 | cut -d'"' -f 2)
 archs   = android darwin freebsd linux netbsd openbsd windows
 PREFIX  = /usr/local
 UID     = root
@@ -42,7 +42,7 @@ cmd/%.go: %.pod
 	echo "\`" >> cmd/$*.go
 
 buildlocal:
-	go build -ldflags "-X 'github.com/tlinden/tablizer/lib.VERSION=$(VERSION)'"
+	go build -ldflags "-X 'github.com/tlinden/tablizer/cfg.VERSION=$(VERSION)'"
 
 release:
 	./mkrel.sh $(tool) $(version)

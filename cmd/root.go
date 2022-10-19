@@ -61,6 +61,7 @@ func Execute() {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if ShowVersion {
 				fmt.Println(cfg.Getversion())
+				return nil
 			}
 
 			if ShowManual {
@@ -112,7 +113,7 @@ func Execute() {
 	_ = rootCmd.Flags().MarkHidden("yaml")
 
 	// same thing but more common, takes precedence over above group
-	rootCmd.PersistentFlags().StringVarP(&Outputmode, "output", "o", "ascii", "Output mode - one of: orgtbl, markdown, extended, shell, ascii(default)")
+	rootCmd.PersistentFlags().StringVarP(&Outputmode, "output", "o", "", "Output mode - one of: orgtbl, markdown, extended, shell, ascii(default)")
 
 	err := rootCmd.Execute()
 	if err != nil {

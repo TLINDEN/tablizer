@@ -4,7 +4,33 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org).
 
+## [v1.0.11](https://github.com/TLINDEN/tablizer/tree/v1.0.11) - 2022-10-19
+
+[Full Changelog](https://github.com/TLINDEN/tablizer/compare/v1.0.10...v1.0.11)
+
+### Added
+
+- Added CI job golinter to regularly check for common mistakes.
+
+- Added YAML output mode.
+
+- Added more unit tests, we're over 95% in the lib module.
+
+### Changed
+
+- do  not use any global  variables anymore, makes the  code easier to
+  maintain, understand and test
+
+- using io.Writer  in print* functions, which is easier  to test, also
+  re-implemented the print tests.
+
+- replaced go-str2duration with my own implementation `duration2int()`.
+
+
+
 ## [v1.0.10](https://github.com/TLINDEN/tablizer/tree/v1.0.10) - 2022-10-15
+
+[Full Changelog](https://github.com/TLINDEN/tablizer/compare/v1.0.9...v1.0.10)
 
 ### Added
 
@@ -44,7 +70,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ### Added
 
-- Added sort support with the new parameter -k (like sort(1).
+- Added sort support with the new parameter -k (like sort(1)).
 
 
 

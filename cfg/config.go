@@ -24,7 +24,7 @@ import (
 )
 
 const DefaultSeparator string = `(\s\s+|\t)`
-const ValidOutputModes string = "(orgtbl|markdown|extended|ascii|yaml)"
+const ValidOutputModes string = "(orgtbl|markdown|extended|ascii|yaml|shell)"
 const Version string = "v1.0.11"
 
 var VERSION string // maintained by -x
@@ -117,17 +117,14 @@ func (conf *Config) PrepareModeFlags(flag Modeflag, mode string) error {
 			conf.OutputMode = "ascii"
 		}
 	} else {
-		r, err := regexp.Compile(ValidOutputModes)
-
-		if err != nil {
-			return errors.New("Failed to validate output mode spec!")
-		}
-
+		r, _ := regexp.Compile(ValidOutputModes) // hardcoded, no fail expected
 		match := r.MatchString(mode)
 
 		if !match {
 			return errors.New("Invalid output mode!")
 		}
+
+		conf.OutputMode = mode
 	}
 
 	return nil

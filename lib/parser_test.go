@@ -67,6 +67,7 @@ func TestParserPatternmatching(t *testing.T) {
 		entries [][]string
 		pattern string
 		invert  bool
+		want    bool
 	}{
 		{
 			entries: [][]string{
@@ -86,6 +87,15 @@ func TestParserPatternmatching(t *testing.T) {
 			pattern: "ig",
 			invert:  true,
 		},
+		{
+			entries: [][]string{
+				{
+					"asd", "igig", "cxxxncnc",
+				},
+			},
+			pattern: "[a-z",
+			want:    true,
+		},
 	}
 
 	table := `ONE    TWO    THREE  
@@ -101,12 +111,14 @@ asd    igig   cxxxncnc
 			gotdata, err := parseFile(c, readFd, tt.pattern)
 
 			if err != nil {
-				t.Errorf("Parser returned error: %s\nData processed so far: %+v", err, gotdata)
-			}
-
-			if !reflect.DeepEqual(tt.entries, gotdata.entries) {
-				t.Errorf("Parser returned invalid data (pattern: %s, invert: %t)\nExp: %+v\nGot: %+v\n",
-					tt.pattern, tt.invert, tt.entries, gotdata.entries)
+				if !tt.want {
+					t.Errorf("Parser returned error: %s\nData processed so far: %+v", err, gotdata)
+				}
+			} else {
+				if !reflect.DeepEqual(tt.entries, gotdata.entries) {
+					t.Errorf("Parser returned invalid data (pattern: %s, invert: %t)\nExp: %+v\nGot: %+v\n",
+						tt.pattern, tt.invert, tt.entries, gotdata.entries)
+				}
 			}
 		})
 	}
