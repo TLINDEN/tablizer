@@ -20,43 +20,50 @@ package lib
 import (
 	"errors"
 	"github.com/gookit/color"
+	"github.com/tlinden/tablizer/cfg"
 	"io"
 	"os"
 )
 
-func ProcessFiles(args []string) error {
-	fds, pattern, err := determineIO(args)
-
-	if !isTerminal(os.Stdout) {
-		color.Disable()
-	} else {
-		level := color.TermColorLevel()
-		MatchFG = Colors[level]["fg"]
-		MatchBG = Colors[level]["bg"]
-	}
+func ProcessFiles(c cfg.Config, args []string) error {
+	fds, pattern, err := determineIO(&c, args)
 
 	if err != nil {
 		return err
 	}
 
+	determineColormode(&c)
+
 	for _, fd := range fds {
-		data, err := parseFile(fd, pattern)
+		data, err := parseFile(c, fd, pattern)
 		if err != nil {
 			return err
 		}
 
-		err = PrepareColumns(&data)
+		err = PrepareColumns(&c, &data)
 		if err != nil {
 			return err
 		}
 
-		printData(os.Stdout, &data)
+		printData(os.Stdout, c, &data)
 	}
 
 	return nil
 }
 
-func determineIO(args []string) ([]io.Reader, string, error) {
+// find supported color mode, modifies config based on constants
+func determineColormode(c *cfg.Config) {
+	if !isTerminal(os.Stdout) {
+		color.Disable()
+	} else {
+		level := color.TermColorLevel()
+		colors := cfg.Colors()
+		c.MatchFG = colors[level]["fg"]
+		c.MatchBG = colors[level]["bg"]
+	}
+}
+
+func determineIO(c *cfg.Config, args []string) ([]io.Reader, string, error) {
 	var pattern string
 	var fds []io.Reader
 	var havefiles bool
@@ -67,7 +74,7 @@ func determineIO(args []string) ([]io.Reader, string, error) {
 			// first  one is  not a  file, consider  it as  regexp and
 			// shift arg list
 			pattern = args[0]
-			Pattern = args[0] // FIXME
+			c.Pattern = args[0] // used for colorization by printData()
 			args = args[1:]
 		}
 

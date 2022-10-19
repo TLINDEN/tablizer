@@ -19,16 +19,20 @@ package lib
 
 import (
 	"github.com/araddon/dateparse"
+	"github.com/tlinden/tablizer/cfg"
 	"regexp"
 	"sort"
 	"strconv"
 )
 
-func sortTable(data *Tabdata, col int) {
-	if SortByColumn <= 0 {
+func sortTable(c cfg.Config, data *Tabdata) {
+	if c.SortByColumn <= 0 {
 		// no sorting wanted
 		return
 	}
+
+	// slightly modified here to match internal array indicies
+	col := c.SortByColumn
 
 	col-- // ui starts counting by 1, but use 0 internally
 
@@ -44,14 +48,15 @@ func sortTable(data *Tabdata, col int) {
 
 	// actual sorting
 	sort.SliceStable(data.entries, func(i, j int) bool {
-		return compare(data.entries[i][col], data.entries[j][col])
+		return compare(&c, data.entries[i][col], data.entries[j][col])
 	})
 }
 
-func compare(a string, b string) bool {
+// config is not modified here, but it would be inefficient to copy it every loop
+func compare(c *cfg.Config, a string, b string) bool {
 	var comp bool
 
-	switch SortMode {
+	switch c.SortMode {
 	case "numeric":
 		left, err := strconv.Atoi(a)
 		if err != nil {
@@ -74,7 +79,7 @@ func compare(a string, b string) bool {
 		comp = a < b
 	}
 
-	if SortDescending {
+	if c.SortDescending {
 		comp = !comp
 	}
 

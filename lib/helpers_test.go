@@ -19,6 +19,7 @@ package lib
 
 import (
 	"fmt"
+	"github.com/tlinden/tablizer/cfg"
 	"reflect"
 	"testing"
 )
@@ -62,6 +63,7 @@ func TestPrepareColumns(t *testing.T) {
 			},
 		},
 	}
+
 	var tests = []struct {
 		input     string
 		exp       []int
@@ -77,15 +79,15 @@ func TestPrepareColumns(t *testing.T) {
 	for _, tt := range tests {
 		testname := fmt.Sprintf("PrepareColumns-%s-%t", tt.input, tt.wanterror)
 		t.Run(testname, func(t *testing.T) {
-			Columns = tt.input
-			err := PrepareColumns(&data)
+			c := cfg.Config{Columns: tt.input}
+			err := PrepareColumns(&c, &data)
 			if err != nil {
 				if !tt.wanterror {
 					t.Errorf("got error: %v", err)
 				}
 			} else {
-				if !reflect.DeepEqual(UseColumns, tt.exp) {
-					t.Errorf("got: %v, expected: %v", UseColumns, tt.exp)
+				if !reflect.DeepEqual(c.UseColumns, tt.exp) {
+					t.Errorf("got: %v, expected: %v", c.UseColumns, tt.exp)
 				}
 			}
 		})
@@ -117,22 +119,17 @@ func TestReduceColumns(t *testing.T) {
 
 	input := [][]string{{"a", "b", "c"}}
 
-	Columns = "y" // used as a flag with len(Columns)...
-
 	for _, tt := range tests {
 		testname := fmt.Sprintf("reduce-columns-by-%+v", tt.columns)
 		t.Run(testname, func(t *testing.T) {
-			UseColumns = tt.columns
+			c := cfg.Config{Columns: "x", UseColumns: tt.columns}
 			data := Tabdata{entries: input}
-			reduceColumns(&data)
+			reduceColumns(c, &data)
 			if !reflect.DeepEqual(data.entries, tt.expect) {
 				t.Errorf("reduceColumns returned invalid data:\ngot: %+v\nexp: %+v", data.entries, tt.expect)
 			}
 		})
 	}
-
-	Columns = "" // reset for other tests
-	UseColumns = nil
 }
 
 func TestNumberizeHeaders(t *testing.T) {
@@ -150,23 +147,16 @@ func TestNumberizeHeaders(t *testing.T) {
 		{[]string{"ONE", "TWO"}, []int{1, 2}, true},
 	}
 
-	Columns = "1" // so the len test succeeds, since we don't parse
-
 	for _, tt := range tests {
 		testname := fmt.Sprintf("numberize-headers-columns-%+v-nonum-%t", tt.columns, tt.nonum)
 		t.Run(testname, func(t *testing.T) {
-			UseColumns = tt.columns
-			NoNumbering = tt.nonum
+			c := cfg.Config{Columns: "x", UseColumns: tt.columns, NoNumbering: tt.nonum}
 			usedata := data
-			numberizeAndReduceHeaders(&usedata)
+			numberizeAndReduceHeaders(c, &usedata)
 			if !reflect.DeepEqual(usedata.headers, tt.expect) {
 				t.Errorf("numberizeAndReduceHeaders returned invalid data:\ngot: %+v\nexp: %+v",
 					usedata.headers, tt.expect)
 			}
 		})
 	}
-
-	Columns = ""
-	UseColumns = nil
-	NoNumbering = false
 }

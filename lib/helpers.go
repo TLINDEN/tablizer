@@ -21,6 +21,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gookit/color"
+	"github.com/tlinden/tablizer/cfg"
 	"os"
 	"regexp"
 	"sort"
@@ -37,13 +38,13 @@ func contains(s []int, e int) bool {
 	return false
 }
 
-// parse columns list given with -c
-func PrepareColumns(data *Tabdata) error {
-	UseColumns = nil
-	if len(Columns) > 0 {
-		for _, use := range strings.Split(Columns, ",") {
+// parse columns list given  with -c, modifies config.UseColumns based
+// on eventually given regex
+func PrepareColumns(c *cfg.Config, data *Tabdata) error {
+	if len(c.Columns) > 0 {
+		for _, use := range strings.Split(c.Columns, ",") {
 			if len(use) == 0 {
-				msg := fmt.Sprintf("Could not parse columns list %s: empty column", Columns)
+				msg := fmt.Sprintf("Could not parse columns list %s: empty column", c.Columns)
 				return errors.New(msg)
 			}
 
@@ -52,14 +53,14 @@ func PrepareColumns(data *Tabdata) error {
 				// might be a regexp
 				colPattern, err := regexp.Compile(use)
 				if err != nil {
-					msg := fmt.Sprintf("Could not parse columns list %s: %v", Columns, err)
+					msg := fmt.Sprintf("Could not parse columns list %s: %v", c.Columns, err)
 					return errors.New(msg)
 				}
 
 				// find matching header fields
 				for i, head := range data.headers {
 					if colPattern.MatchString(head) {
-						UseColumns = append(UseColumns, i+1)
+						c.UseColumns = append(c.UseColumns, i+1)
 					}
 
 				}
@@ -68,41 +69,41 @@ func PrepareColumns(data *Tabdata) error {
 				// a colum spec is not a number, we process them above
 				// inside the err handler  for atoi(). so only add the
 				// number, if it's really just a number.
-				UseColumns = append(UseColumns, usenum)
+				c.UseColumns = append(c.UseColumns, usenum)
 			}
 		}
 
 		// deduplicate: put all values into a map (value gets map key)
 		// thereby  removing duplicates,  extract keys into  new slice
 		// and sort it
-		imap := make(map[int]int, len(UseColumns))
-		for _, i := range UseColumns {
+		imap := make(map[int]int, len(c.UseColumns))
+		for _, i := range c.UseColumns {
 			imap[i] = 0
 		}
-		UseColumns = nil
+		c.UseColumns = nil
 		for k := range imap {
-			UseColumns = append(UseColumns, k)
+			c.UseColumns = append(c.UseColumns, k)
 		}
-		sort.Ints(UseColumns)
+		sort.Ints(c.UseColumns)
 	}
 	return nil
 }
 
 // prepare headers: add numbers to headers
-func numberizeAndReduceHeaders(data *Tabdata) {
+func numberizeAndReduceHeaders(c cfg.Config, data *Tabdata) {
 	numberedHeaders := []string{}
 	maxwidth := 0 // start from scratch, so we only look at displayed column widths
 
 	for i, head := range data.headers {
 		headlen := 0
-		if len(Columns) > 0 {
+		if len(c.Columns) > 0 {
 			// -c specified
-			if !contains(UseColumns, i+1) {
+			if !contains(c.UseColumns, i+1) {
 				// ignore this one
 				continue
 			}
 		}
-		if NoNumbering {
+		if c.NoNumbering {
 			numberedHeaders = append(numberedHeaders, head)
 			headlen = len(head)
 		} else {
@@ -122,14 +123,14 @@ func numberizeAndReduceHeaders(data *Tabdata) {
 }
 
 // exclude columns, if any
-func reduceColumns(data *Tabdata) {
-	if len(Columns) > 0 {
+func reduceColumns(c cfg.Config, data *Tabdata) {
+	if len(c.Columns) > 0 {
 		reducedEntries := [][]string{}
 		var reducedEntry []string
 		for _, entry := range data.entries {
 			reducedEntry = nil
 			for i, value := range entry {
-				if !contains(UseColumns, i+1) {
+				if !contains(c.UseColumns, i+1) {
 					continue
 				}
 
@@ -138,55 +139,6 @@ func reduceColumns(data *Tabdata) {
 			reducedEntries = append(reducedEntries, reducedEntry)
 		}
 		data.entries = reducedEntries
-	}
-}
-
-func PrepareModeFlags() error {
-	if len(OutputMode) == 0 {
-		// associate short flags like -X with mode selector
-		switch {
-		case OutflagExtended:
-			OutputMode = "extended"
-		case OutflagMarkdown:
-			OutputMode = "markdown"
-		case OutflagOrgtable:
-			OutputMode = "orgtbl"
-		case OutflagShell:
-			OutputMode = "shell"
-			NoNumbering = true
-		case OutflagYaml:
-			OutputMode = "yaml"
-			NoNumbering = true
-		default:
-			OutputMode = "ascii"
-		}
-	} else {
-		r, err := regexp.Compile(validOutputmodes)
-
-		if err != nil {
-			return errors.New("Failed to validate output mode spec!")
-		}
-
-		match := r.MatchString(OutputMode)
-
-		if !match {
-			return errors.New("Invalid output mode!")
-		}
-	}
-
-	return nil
-}
-
-func PrepareSortFlags() {
-	switch {
-	case SortNumeric:
-		SortMode = "numeric"
-	case SortAge:
-		SortMode = "duration"
-	case SortTime:
-		SortMode = "time"
-	default:
-		SortMode = "string"
 	}
 }
 
@@ -200,10 +152,10 @@ func trimRow(row []string) []string {
 	return fixedrow
 }
 
-func colorizeData(output string) string {
-	if len(Pattern) > 0 && !NoColor && color.IsConsole(os.Stdout) {
-		r := regexp.MustCompile("(" + Pattern + ")")
-		return r.ReplaceAllString(output, "<bg="+MatchBG+";fg="+MatchFG+">$1</>")
+func colorizeData(c cfg.Config, output string) string {
+	if len(c.Pattern) > 0 && !c.NoColor && color.IsConsole(os.Stdout) {
+		r := regexp.MustCompile("(" + c.Pattern + ")")
+		return r.ReplaceAllString(output, "<bg="+c.MatchBG+";fg="+c.MatchFG+">$1</>")
 	} else {
 		return output
 	}

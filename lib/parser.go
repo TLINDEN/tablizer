@@ -22,6 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/alecthomas/repr"
+	"github.com/tlinden/tablizer/cfg"
 	"io"
 	"regexp"
 	"strings"
@@ -30,13 +31,13 @@ import (
 /*
    Parse tabular input.
 */
-func parseFile(input io.Reader, pattern string) (Tabdata, error) {
+func parseFile(c cfg.Config, input io.Reader, pattern string) (Tabdata, error) {
 	data := Tabdata{}
 
 	var scanner *bufio.Scanner
 
 	hadFirst := false
-	separate := regexp.MustCompile(Separator)
+	separate := regexp.MustCompile(c.Separator)
 	patternR, err := regexp.Compile(pattern)
 	if err != nil {
 		return data, errors.Unwrap(fmt.Errorf("Regexp pattern %s is invalid: %w", pattern, err))
@@ -76,7 +77,7 @@ func parseFile(input io.Reader, pattern string) (Tabdata, error) {
 		} else {
 			// data processing
 			if len(pattern) > 0 {
-				if patternR.MatchString(line) == InvertMatch {
+				if patternR.MatchString(line) == c.InvertMatch {
 					// by default  -v is false, so if a  line does NOT
 					// match the pattern, we will ignore it. However,
 					// if the user specified -v, the matching is inverted,
@@ -119,7 +120,7 @@ func parseFile(input io.Reader, pattern string) (Tabdata, error) {
 		return data, errors.Unwrap(fmt.Errorf("Failed to read from io.Reader: %w", scanner.Err()))
 	}
 
-	if Debug {
+	if c.Debug {
 		repr.Print(data)
 	}
 

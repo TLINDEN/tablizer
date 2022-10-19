@@ -19,6 +19,7 @@ package lib
 
 import (
 	"fmt"
+	"github.com/tlinden/tablizer/cfg"
 	"reflect"
 	"strings"
 	"testing"
@@ -49,15 +50,15 @@ asd    igig   cxxxncnc
 19191  EDD 1  X`
 
 	readFd := strings.NewReader(table)
-	gotdata, err := parseFile(readFd, "")
-	Separator = DefaultSeparator
+	c := cfg.Config{Separator: cfg.DefaultSeparator}
+	gotdata, err := parseFile(c, readFd, "")
 
 	if err != nil {
 		t.Errorf("Parser returned error: %s\nData processed so far: %+v", err, gotdata)
 	}
 
 	if !reflect.DeepEqual(data, gotdata) {
-		t.Errorf("Parser returned invalid data, Regex: %s\nExp: %+v\nGot: %+v\n", Separator, data, gotdata)
+		t.Errorf("Parser returned invalid data, Regex: %s\nExp: %+v\nGot: %+v\n", c.Separator, data, gotdata)
 	}
 }
 
@@ -94,10 +95,10 @@ asd    igig   cxxxncnc
 	for _, tt := range tests {
 		testname := fmt.Sprintf("parse-with-pattern-%s-inverted-%t", tt.pattern, tt.invert)
 		t.Run(testname, func(t *testing.T) {
-			InvertMatch = tt.invert
+			c := cfg.Config{InvertMatch: tt.invert, Pattern: tt.pattern, Separator: cfg.DefaultSeparator}
 
 			readFd := strings.NewReader(table)
-			gotdata, err := parseFile(readFd, tt.pattern)
+			gotdata, err := parseFile(c, readFd, tt.pattern)
 
 			if err != nil {
 				t.Errorf("Parser returned error: %s\nData processed so far: %+v", err, gotdata)
@@ -136,8 +137,8 @@ asd    igig
 19191  EDD 1  X`
 
 	readFd := strings.NewReader(table)
-	gotdata, err := parseFile(readFd, "")
-	Separator = DefaultSeparator
+	c := cfg.Config{Separator: cfg.DefaultSeparator}
+	gotdata, err := parseFile(c, readFd, "")
 
 	if err != nil {
 		t.Errorf("Parser returned error: %s\nData processed so far: %+v", err, gotdata)
@@ -145,6 +146,6 @@ asd    igig
 
 	if !reflect.DeepEqual(data, gotdata) {
 		t.Errorf("Parser returned invalid data, Regex: %s\nExp: %+v\nGot: %+v\n",
-			Separator, data, gotdata)
+			c.Separator, data, gotdata)
 	}
 }

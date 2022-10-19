@@ -19,6 +19,7 @@ package lib
 
 import (
 	"fmt"
+	"github.com/tlinden/tablizer/cfg"
 	"testing"
 )
 
@@ -68,9 +69,8 @@ func TestCompare(t *testing.T) {
 	for _, tt := range tests {
 		testname := fmt.Sprintf("compare-mode-%s-a-%s-b-%s-desc-%t", tt.mode, tt.a, tt.b, tt.desc)
 		t.Run(testname, func(t *testing.T) {
-			SortMode = tt.mode
-			SortDescending = tt.desc
-			got := compare(tt.a, tt.b)
+			c := cfg.Config{SortMode: tt.mode, SortDescending: tt.desc}
+			got := compare(&c, tt.a, tt.b)
 			if got != tt.want {
 				t.Errorf("got %t, want %t", got, tt.want)
 			}

@@ -21,6 +21,7 @@ import (
 	"bytes"
 	"fmt"
 	//"github.com/alecthomas/repr"
+	"github.com/tlinden/tablizer/cfg"
 	"strings"
 	"testing"
 )
@@ -246,8 +247,6 @@ DURATION(2)	WHEN(4)
 }
 
 func TestPrinter(t *testing.T) {
-	NoColor = true
-
 	for _, tt := range tests {
 		testname := fmt.Sprintf("print-sortcol-%d-desc-%t-sortby-%s-mode-%s-usecolumns-%s",
 			tt.column, tt.desc, tt.sortby, tt.mode, tt.usecolstr)
@@ -256,24 +255,27 @@ func TestPrinter(t *testing.T) {
 			var w bytes.Buffer
 
 			// cmd flags
-			SortByColumn = tt.column
-			SortDescending = tt.desc
-			SortMode = tt.sortby
-			OutputMode = tt.mode
-			NoNumbering = tt.nonum
-			UseColumns = tt.usecol
+			c := cfg.Config{
+				SortByColumn:   tt.column,
+				SortDescending: tt.desc,
+				SortMode:       tt.sortby,
+				OutputMode:     tt.mode,
+				NoNumbering:    tt.nonum,
+				UseColumns:     tt.usecol,
+				NoColor:        true,
+			}
 
 			// the test checks the len!
 			if len(tt.usecol) > 0 {
-				Columns = "yes"
+				c.Columns = "yes"
 			} else {
-				Columns = ""
+				c.Columns = ""
 			}
 
 			testdata := newData()
 			exp := strings.TrimSpace(tt.expect)
 
-			printData(&w, &testdata)
+			printData(&w, c, &testdata)
 
 			got := strings.TrimSpace(w.String())
 

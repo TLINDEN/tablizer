@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"github.com/gookit/color"
 	"github.com/olekukonko/tablewriter"
+	"github.com/tlinden/tablizer/cfg"
 	"gopkg.in/yaml.v3"
 	"io"
 	"log"
@@ -29,33 +30,33 @@ import (
 	"strings"
 )
 
-func printData(w io.Writer, data *Tabdata) {
+func printData(w io.Writer, c cfg.Config, data *Tabdata) {
 	// some output preparations:
 
 	// add numbers to headers and remove this we're not interested in
-	numberizeAndReduceHeaders(data)
+	numberizeAndReduceHeaders(c, data)
 
 	// remove unwanted columns, if any
-	reduceColumns(data)
+	reduceColumns(c, data)
 
 	// sort the data
-	sortTable(data, SortByColumn)
+	sortTable(c, data)
 
-	switch OutputMode {
+	switch c.OutputMode {
 	case "extended":
-		printExtendedData(w, data)
+		printExtendedData(w, c, data)
 	case "ascii":
-		printAsciiData(w, data)
+		printAsciiData(w, c, data)
 	case "orgtbl":
-		printOrgmodeData(w, data)
+		printOrgmodeData(w, c, data)
 	case "markdown":
-		printMarkdownData(w, data)
+		printMarkdownData(w, c, data)
 	case "shell":
-		printShellData(w, data)
+		printShellData(w, c, data)
 	case "yaml":
-		printYamlData(w, data)
+		printYamlData(w, c, data)
 	default:
-		printAsciiData(w, data)
+		printAsciiData(w, c, data)
 	}
 }
 
@@ -66,7 +67,7 @@ func output(w io.Writer, str string) {
 /*
    Emacs org-mode compatible table (also orgtbl-mode)
 */
-func printOrgmodeData(w io.Writer, data *Tabdata) {
+func printOrgmodeData(w io.Writer, c cfg.Config, data *Tabdata) {
 	tableString := &strings.Builder{}
 	table := tablewriter.NewWriter(tableString)
 
@@ -93,7 +94,7 @@ func printOrgmodeData(w io.Writer, data *Tabdata) {
 	rightR := regexp.MustCompile("\\+(?m)$")
 
 	output(w, color.Sprint(
-		colorizeData(
+		colorizeData(c,
 			rightR.ReplaceAllString(
 				leftR.ReplaceAllString(tableString.String(), "|"), "|"))))
 }
@@ -101,7 +102,7 @@ func printOrgmodeData(w io.Writer, data *Tabdata) {
 /*
    Markdown table
 */
-func printMarkdownData(w io.Writer, data *Tabdata) {
+func printMarkdownData(w io.Writer, c cfg.Config, data *Tabdata) {
 	tableString := &strings.Builder{}
 	table := tablewriter.NewWriter(tableString)
 
@@ -115,13 +116,13 @@ func printMarkdownData(w io.Writer, data *Tabdata) {
 	table.SetCenterSeparator("|")
 
 	table.Render()
-	output(w, color.Sprint(colorizeData(tableString.String())))
+	output(w, color.Sprint(colorizeData(c, tableString.String())))
 }
 
 /*
    Simple ASCII table without any borders etc, just like the input we expect
 */
-func printAsciiData(w io.Writer, data *Tabdata) {
+func printAsciiData(w io.Writer, c cfg.Config, data *Tabdata) {
 	tableString := &strings.Builder{}
 	table := tablewriter.NewWriter(tableString)
 
@@ -145,13 +146,13 @@ func printAsciiData(w io.Writer, data *Tabdata) {
 	table.SetNoWhiteSpace(true)
 
 	table.Render()
-	output(w, color.Sprint(colorizeData(tableString.String())))
+	output(w, color.Sprint(colorizeData(c, tableString.String())))
 }
 
 /*
    We simulate the \x command of psql (the PostgreSQL client)
 */
-func printExtendedData(w io.Writer, data *Tabdata) {
+func printExtendedData(w io.Writer, c cfg.Config, data *Tabdata) {
 	// needed for data output
 	format := fmt.Sprintf("%%%ds: %%s\n", data.maxwidthHeader)
 	out := ""
@@ -165,13 +166,13 @@ func printExtendedData(w io.Writer, data *Tabdata) {
 		}
 	}
 
-	output(w, out)
+	output(w, colorizeData(c, out))
 }
 
 /*
    Shell output, ready to be eval'd. Just like FreeBSD stat(1)
 */
-func printShellData(w io.Writer, data *Tabdata) {
+func printShellData(w io.Writer, c cfg.Config, data *Tabdata) {
 	out := ""
 	if len(data.entries) > 0 {
 		for _, entry := range data.entries {
@@ -183,10 +184,12 @@ func printShellData(w io.Writer, data *Tabdata) {
 			out += fmt.Sprint(strings.Join(shentries, " ")) + "\n"
 		}
 	}
+
+	// no colrization here
 	output(w, out)
 }
 
-func printYamlData(w io.Writer, data *Tabdata) {
+func printYamlData(w io.Writer, c cfg.Config, data *Tabdata) {
 	type D struct {
 		Entries []map[string]interface{} `yaml:"entries"`
 	}

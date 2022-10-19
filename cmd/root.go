@@ -20,13 +20,12 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/tlinden/tablizer/cfg"
 	"github.com/tlinden/tablizer/lib"
 	"log"
 	"os"
 	"os/exec"
 )
-
-var ShowManual = false
 
 func man() {
 	man := exec.Command("less", "-")
@@ -45,62 +44,66 @@ func man() {
 	}
 }
 
-var rootCmd = &cobra.Command{
-	Use:   "tablizer [regex] [file, ...]",
-	Short: "[Re-]tabularize tabular data",
-	Long:  `Manipulate tabular output of other programs`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		if lib.ShowVersion {
-			fmt.Printf("This is tablizer version %s\n", lib.VERSION)
-			return nil
-		}
-
-		if ShowManual {
-			man()
-			return nil
-		}
-
-		err := lib.PrepareModeFlags()
-		if err != nil {
-			return err
-		}
-
-		lib.PrepareSortFlags()
-
-		return lib.ProcessFiles(args)
-	},
-}
-
 func Execute() {
-	err := rootCmd.Execute()
-	if err != nil {
-		os.Exit(1)
-	}
-}
+	var (
+		conf        cfg.Config
+		ShowManual  bool
+		Outputmode  string
+		ShowVersion bool
+		modeflag    cfg.Modeflag
+		sortmode    cfg.Sortmode
+	)
 
-func init() {
-	rootCmd.PersistentFlags().BoolVarP(&lib.Debug, "debug", "d", false, "Enable debugging")
-	rootCmd.PersistentFlags().BoolVarP(&lib.NoNumbering, "no-numbering", "n", false, "Disable header numbering")
-	rootCmd.PersistentFlags().BoolVarP(&lib.NoColor, "no-color", "N", false, "Disable pattern highlighting")
-	rootCmd.PersistentFlags().BoolVarP(&lib.ShowVersion, "version", "V", false, "Print program version")
-	rootCmd.PersistentFlags().BoolVarP(&lib.InvertMatch, "invert-match", "v", false, "select non-matching rows")
+	var rootCmd = &cobra.Command{
+		Use:   "tablizer [regex] [file, ...]",
+		Short: "[Re-]tabularize tabular data",
+		Long:  `Manipulate tabular output of other programs`,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if ShowVersion {
+				fmt.Println(cfg.Getversion())
+			}
+
+			if ShowManual {
+				man()
+				return nil
+			}
+
+			// prepare flags
+			err := conf.PrepareModeFlags(modeflag, Outputmode)
+			if err != nil {
+				return err
+			}
+
+			conf.PrepareSortFlags(sortmode)
+
+			// actual execution starts here
+			return lib.ProcessFiles(conf, args)
+		},
+	}
+
+	// options
+	rootCmd.PersistentFlags().BoolVarP(&conf.Debug, "debug", "d", false, "Enable debugging")
+	rootCmd.PersistentFlags().BoolVarP(&conf.NoNumbering, "no-numbering", "n", false, "Disable header numbering")
+	rootCmd.PersistentFlags().BoolVarP(&conf.NoColor, "no-color", "N", false, "Disable pattern highlighting")
+	rootCmd.PersistentFlags().BoolVarP(&ShowVersion, "version", "V", false, "Print program version")
+	rootCmd.PersistentFlags().BoolVarP(&conf.InvertMatch, "invert-match", "v", false, "select non-matching rows")
 	rootCmd.PersistentFlags().BoolVarP(&ShowManual, "man", "m", false, "Display manual page")
-	rootCmd.PersistentFlags().StringVarP(&lib.Separator, "separator", "s", lib.DefaultSeparator, "Custom field separator")
-	rootCmd.PersistentFlags().StringVarP(&lib.Columns, "columns", "c", "", "Only show the speficied columns (separated by ,)")
+	rootCmd.PersistentFlags().StringVarP(&conf.Separator, "separator", "s", cfg.DefaultSeparator, "Custom field separator")
+	rootCmd.PersistentFlags().StringVarP(&conf.Columns, "columns", "c", "", "Only show the speficied columns (separated by ,)")
 
 	// sort options
-	rootCmd.PersistentFlags().IntVarP(&lib.SortByColumn, "sort-by", "k", 0, "Sort by column (default: 1)")
-	rootCmd.PersistentFlags().BoolVarP(&lib.SortDescending, "sort-desc", "D", false, "Sort in descending order (default: ascending)")
-	rootCmd.PersistentFlags().BoolVarP(&lib.SortNumeric, "sort-numeric", "i", false, "sort according to string numerical value")
-	rootCmd.PersistentFlags().BoolVarP(&lib.SortTime, "sort-time", "t", false, "sort according to time string")
-	rootCmd.PersistentFlags().BoolVarP(&lib.SortAge, "sort-age", "a", false, "sort according to age (duration) string")
+	rootCmd.PersistentFlags().IntVarP(&conf.SortByColumn, "sort-by", "k", 0, "Sort by column (default: 1)")
+	rootCmd.PersistentFlags().BoolVarP(&conf.SortDescending, "sort-desc", "D", false, "Sort in descending order (default: ascending)")
+	rootCmd.PersistentFlags().BoolVarP(&sortmode.Numeric, "sort-numeric", "i", false, "sort according to string numerical value")
+	rootCmd.PersistentFlags().BoolVarP(&sortmode.Time, "sort-time", "t", false, "sort according to time string")
+	rootCmd.PersistentFlags().BoolVarP(&sortmode.Age, "sort-age", "a", false, "sort according to age (duration) string")
 
 	// output flags, only 1 allowed, hidden, since just short cuts
-	rootCmd.PersistentFlags().BoolVarP(&lib.OutflagExtended, "extended", "X", false, "Enable extended output")
-	rootCmd.PersistentFlags().BoolVarP(&lib.OutflagMarkdown, "markdown", "M", false, "Enable markdown table output")
-	rootCmd.PersistentFlags().BoolVarP(&lib.OutflagOrgtable, "orgtbl", "O", false, "Enable org-mode table output")
-	rootCmd.PersistentFlags().BoolVarP(&lib.OutflagShell, "shell", "S", false, "Enable shell mode output")
-	rootCmd.PersistentFlags().BoolVarP(&lib.OutflagYaml, "yaml", "Y", false, "Enable yaml output")
+	rootCmd.PersistentFlags().BoolVarP(&modeflag.X, "extended", "X", false, "Enable extended output")
+	rootCmd.PersistentFlags().BoolVarP(&modeflag.M, "markdown", "M", false, "Enable markdown table output")
+	rootCmd.PersistentFlags().BoolVarP(&modeflag.O, "orgtbl", "O", false, "Enable org-mode table output")
+	rootCmd.PersistentFlags().BoolVarP(&modeflag.S, "shell", "S", false, "Enable shell mode output")
+	rootCmd.PersistentFlags().BoolVarP(&modeflag.Y, "yaml", "Y", false, "Enable yaml output")
 	rootCmd.MarkFlagsMutuallyExclusive("extended", "markdown", "orgtbl", "shell", "yaml")
 	rootCmd.Flags().MarkHidden("extended")
 	rootCmd.Flags().MarkHidden("orgtbl")
@@ -109,5 +112,10 @@ func init() {
 	rootCmd.Flags().MarkHidden("yaml")
 
 	// same thing but more common, takes precedence over above group
-	rootCmd.PersistentFlags().StringVarP(&lib.OutputMode, "output", "o", "", "Output mode - one of: orgtbl, markdown, extended, shell, ascii(default)")
+	rootCmd.PersistentFlags().StringVarP(&Outputmode, "output", "o", "ascii", "Output mode - one of: orgtbl, markdown, extended, shell, ascii(default)")
+
+	err := rootCmd.Execute()
+	if err != nil {
+		os.Exit(1)
+	}
 }
