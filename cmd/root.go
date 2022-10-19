@@ -105,11 +105,11 @@ func Execute() {
 	rootCmd.PersistentFlags().BoolVarP(&modeflag.S, "shell", "S", false, "Enable shell mode output")
 	rootCmd.PersistentFlags().BoolVarP(&modeflag.Y, "yaml", "Y", false, "Enable yaml output")
 	rootCmd.MarkFlagsMutuallyExclusive("extended", "markdown", "orgtbl", "shell", "yaml")
-	rootCmd.Flags().MarkHidden("extended")
-	rootCmd.Flags().MarkHidden("orgtbl")
-	rootCmd.Flags().MarkHidden("markdown")
-	rootCmd.Flags().MarkHidden("shell")
-	rootCmd.Flags().MarkHidden("yaml")
+	_ = rootCmd.Flags().MarkHidden("extended")
+	_ = rootCmd.Flags().MarkHidden("orgtbl")
+	_ = rootCmd.Flags().MarkHidden("markdown")
+	_ = rootCmd.Flags().MarkHidden("shell")
+	_ = rootCmd.Flags().MarkHidden("yaml")
 
 	// same thing but more common, takes precedence over above group
 	rootCmd.PersistentFlags().StringVarP(&Outputmode, "output", "o", "ascii", "Output mode - one of: orgtbl, markdown, extended, shell, ascii(default)")

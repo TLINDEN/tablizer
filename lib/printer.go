@@ -90,8 +90,8 @@ func printOrgmodeData(w io.Writer, c cfg.Config, data *Tabdata) {
 	   | cell | cell |
 	   |------+------|
 	*/
-	leftR := regexp.MustCompile("(?m)^\\+")
-	rightR := regexp.MustCompile("\\+(?m)$")
+	leftR := regexp.MustCompile(`(?m)^\\+`)
+	rightR := regexp.MustCompile(`\\+(?m)$`)
 
 	output(w, color.Sprint(
 		colorizeData(c,

@@ -24,7 +24,7 @@ import (
 	"testing"
 )
 
-func Testcontains(t *testing.T) {
+func TestContains(t *testing.T) {
 	var tests = []struct {
 		list   []int
 		search int
