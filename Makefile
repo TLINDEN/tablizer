@@ -41,6 +41,10 @@ cmd/%.go: %.pod
 	pod2text $*.pod >> cmd/$*.go
 	echo "\`" >> cmd/$*.go
 
+	echo "var usage = \`" >> cmd/$*.go
+	awk '/SYNOPS/{f=1;next} /DESCR/{f=0} f' $*.pod  | sed 's/^    //' >> cmd/$*.go
+	echo "\`" >> cmd/$*.go
+
 buildlocal:
 	go build -ldflags "-X 'github.com/tlinden/tablizer/cfg.VERSION=$(VERSION)'"
 

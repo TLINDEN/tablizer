@@ -43,21 +43,22 @@ func printData(w io.Writer, c cfg.Config, data *Tabdata) {
 	sortTable(c, data)
 
 	switch c.OutputMode {
-	case "extended":
+	case cfg.Extended:
 		printExtendedData(w, c, data)
-	case "ascii":
+	case cfg.Ascii:
 		printAsciiData(w, c, data)
-	case "orgtbl":
+	case cfg.Orgtbl:
 		printOrgmodeData(w, c, data)
-	case "markdown":
+	case cfg.Markdown:
 		printMarkdownData(w, c, data)
-	case "shell":
+	case cfg.Shell:
 		printShellData(w, c, data)
-	case "yaml":
+	case cfg.Yaml:
 		printYamlData(w, c, data)
 	default:
 		printAsciiData(w, c, data)
 	}
+
 }
 
 func output(w io.Writer, str string) {

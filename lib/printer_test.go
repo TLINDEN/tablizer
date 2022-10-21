@@ -72,14 +72,14 @@ var tests = []struct {
 	column    int    // sort by this column, 0 == default first or NO Sort
 	desc      bool   // sort in descending order, default == ascending
 	nonum     bool   // hide numbering
-	mode      string // shell, orgtbl, etc. empty == default: ascii
+	mode      int    // shell, orgtbl, etc. empty == default: ascii
 	usecol    []int  // columns to display, empty == display all
 	usecolstr string // for testname, must match usecol
 	expect    string // rendered output we expect
 }{
 	// --------------------- Default settings mode tests ``
 	{
-		mode: "ascii",
+		mode: cfg.Ascii,
 		name: "default",
 		expect: `
 NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                    
@@ -89,7 +89,7 @@ ceta   	33d12h     	9       	06/Jan/2008 15:04:05 -0700`,
 	},
 	{
 		name: "default",
-		mode: "orgtbl",
+		mode: cfg.Orgtbl,
 		expect: `
 +---------+-------------+----------+----------------------------+
 | NAME(1) | DURATION(2) | COUNT(3) |          WHEN(4)           |
@@ -101,7 +101,7 @@ ceta   	33d12h     	9       	06/Jan/2008 15:04:05 -0700`,
 	},
 	{
 		name: "default",
-		mode: "markdown",
+		mode: cfg.Markdown,
 		expect: `
 | NAME(1) | DURATION(2) | COUNT(3) |          WHEN(4)           |
 |---------|-------------|----------|----------------------------|
@@ -111,7 +111,7 @@ ceta   	33d12h     	9       	06/Jan/2008 15:04:05 -0700`,
 	},
 	{
 		name:  "default",
-		mode:  "shell",
+		mode:  cfg.Shell,
 		nonum: true,
 		expect: `
 NAME="beta" DURATION="1d10h5m1s" COUNT="33" WHEN="3/1/2014"
@@ -120,7 +120,7 @@ NAME="ceta" DURATION="33d12h" COUNT="9" WHEN="06/Jan/2008 15:04:05 -0700"`,
 	},
 	{
 		name:  "default",
-		mode:  "yaml",
+		mode:  cfg.Yaml,
 		nonum: true,
 		expect: `
 entries:
@@ -139,7 +139,7 @@ entries:
 	},
 	{
 		name: "default",
-		mode: "extended",
+		mode: cfg.Extended,
 		expect: `
     NAME(1): beta
 DURATION(2): 1d10h5m1s
@@ -248,7 +248,7 @@ DURATION(2)	WHEN(4)
 
 func TestPrinter(t *testing.T) {
 	for _, tt := range tests {
-		testname := fmt.Sprintf("print-sortcol-%d-desc-%t-sortby-%s-mode-%s-usecolumns-%s",
+		testname := fmt.Sprintf("print-sortcol-%d-desc-%t-sortby-%s-mode-%d-usecolumns-%s",
 			tt.column, tt.desc, tt.sortby, tt.mode, tt.usecolstr)
 		t.Run(testname, func(t *testing.T) {
 			// replaces os.Stdout, but we ignore it

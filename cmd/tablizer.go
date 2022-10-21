@@ -8,24 +8,32 @@ SYNOPSIS
         Usage:
           tablizer [regex] [file, ...] [flags]
     
-        Flags:
+        Operational Flags:
           -c, --columns string     Only show the speficied columns (separated by ,)
-          -d, --debug              Enable debugging
-          -h, --help               help for tablizer
           -v, --invert-match       select non-matching rows
-          -m, --man                Display manual page
           -n, --no-numbering       Disable header numbering
           -N, --no-color           Disable pattern highlighting
-          -o, --output string      Output mode - one of: orgtbl, markdown, extended, yaml, ascii(default)
+          -s, --separator string   Custom field separator
+          -k, --sort-by int        Sort by column (default: 1)
+
+        Output Flags (mutually exclusive):
           -X, --extended           Enable extended output
           -M, --markdown           Enable markdown table output
           -O, --orgtbl             Enable org-mode table output
-          -s, --separator string   Custom field separator
+          -S, --shell              Enable shell evaluable ouput
+          -Y, --yaml               Enable yaml output
+          -A, --ascii              Default output mode, ascii tabular
+
+        Sort Mode Flags (mutually exclusive):
           -a, --sort-age           sort according to age (duration) string
-          -k, --sort-by int        Sort by column (default: 1)
           -D, --sort-desc          Sort in descending order (default: ascending)
           -i, --sort-numeric       sort according to string numerical value
           -t, --sort-time          sort according to time string
+
+        Other Flags:
+          -d, --debug              Enable debugging
+          -h, --help               help for tablizer
+          -m, --man                Display manual page
           -v, --version            Print program version
 
 DESCRIPTION
@@ -203,5 +211,40 @@ LICENSE
 
 AUTHORS
     Thomas von Dein tom AT vondein DOT org
+
+`
+var usage = `
+
+Usage:
+  tablizer [regex] [file, ...] [flags]
+
+Operational Flags:
+  -c, --columns string     Only show the speficied columns (separated by ,)
+  -v, --invert-match       select non-matching rows
+  -n, --no-numbering       Disable header numbering
+  -N, --no-color           Disable pattern highlighting
+  -s, --separator string   Custom field separator
+  -k, --sort-by int        Sort by column (default: 1)
+
+Output Flags (mutually exclusive):
+  -X, --extended           Enable extended output
+  -M, --markdown           Enable markdown table output
+  -O, --orgtbl             Enable org-mode table output
+  -S, --shell              Enable shell evaluable ouput
+  -Y, --yaml               Enable yaml output
+  -A, --ascii              Default output mode, ascii tabular
+
+Sort Mode Flags (mutually exclusive):
+  -a, --sort-age           sort according to age (duration) string
+  -D, --sort-desc          Sort in descending order (default: ascending)
+  -i, --sort-numeric       sort according to string numerical value
+  -t, --sort-time          sort according to time string
+
+Other Flags:
+  -d, --debug              Enable debugging
+  -h, --help               help for tablizer
+  -m, --man                Display manual page
+  -v, --version            Print program version
+
 
 `

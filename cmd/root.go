@@ -25,6 +25,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 func man() {
@@ -48,7 +49,6 @@ func Execute() {
 	var (
 		conf        cfg.Config
 		ShowManual  bool
-		Outputmode  string
 		ShowVersion bool
 		modeflag    cfg.Modeflag
 		sortmode    cfg.Sortmode
@@ -70,11 +70,7 @@ func Execute() {
 			}
 
 			// prepare flags
-			err := conf.PrepareModeFlags(modeflag, Outputmode)
-			if err != nil {
-				return err
-			}
-
+			conf.PrepareModeFlags(modeflag)
 			conf.PrepareSortFlags(sortmode)
 
 			// actual execution starts here
@@ -94,26 +90,23 @@ func Execute() {
 
 	// sort options
 	rootCmd.PersistentFlags().IntVarP(&conf.SortByColumn, "sort-by", "k", 0, "Sort by column (default: 1)")
+
+	// sort mode, only 1 allowed
 	rootCmd.PersistentFlags().BoolVarP(&conf.SortDescending, "sort-desc", "D", false, "Sort in descending order (default: ascending)")
 	rootCmd.PersistentFlags().BoolVarP(&sortmode.Numeric, "sort-numeric", "i", false, "sort according to string numerical value")
 	rootCmd.PersistentFlags().BoolVarP(&sortmode.Time, "sort-time", "t", false, "sort according to time string")
 	rootCmd.PersistentFlags().BoolVarP(&sortmode.Age, "sort-age", "a", false, "sort according to age (duration) string")
+	rootCmd.MarkFlagsMutuallyExclusive("sort-desc", "sort-numeric", "sort-time", "sort-age")
 
-	// output flags, only 1 allowed, hidden, since just short cuts
+	// output flags, only 1 allowed
 	rootCmd.PersistentFlags().BoolVarP(&modeflag.X, "extended", "X", false, "Enable extended output")
 	rootCmd.PersistentFlags().BoolVarP(&modeflag.M, "markdown", "M", false, "Enable markdown table output")
 	rootCmd.PersistentFlags().BoolVarP(&modeflag.O, "orgtbl", "O", false, "Enable org-mode table output")
 	rootCmd.PersistentFlags().BoolVarP(&modeflag.S, "shell", "S", false, "Enable shell mode output")
 	rootCmd.PersistentFlags().BoolVarP(&modeflag.Y, "yaml", "Y", false, "Enable yaml output")
 	rootCmd.MarkFlagsMutuallyExclusive("extended", "markdown", "orgtbl", "shell", "yaml")
-	_ = rootCmd.Flags().MarkHidden("extended")
-	_ = rootCmd.Flags().MarkHidden("orgtbl")
-	_ = rootCmd.Flags().MarkHidden("markdown")
-	_ = rootCmd.Flags().MarkHidden("shell")
-	_ = rootCmd.Flags().MarkHidden("yaml")
 
-	// same thing but more common, takes precedence over above group
-	rootCmd.PersistentFlags().StringVarP(&Outputmode, "output", "o", "", "Output mode - one of: orgtbl, markdown, extended, shell, ascii(default)")
+	rootCmd.SetUsageTemplate(strings.TrimSpace(usage) + "\n")
 
 	err := rootCmd.Execute()
 	if err != nil {

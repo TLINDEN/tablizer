@@ -17,15 +17,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cfg
 
 import (
-	"errors"
 	"fmt"
 	"github.com/gookit/color"
-	"regexp"
 )
 
 const DefaultSeparator string = `(\s\s+|\t)`
-const ValidOutputModes string = "(orgtbl|markdown|extended|ascii|yaml|shell)"
-const Version string = "v1.0.11"
+const Version string = "v1.0.12"
 
 var VERSION string // maintained by -x
 
@@ -35,7 +32,7 @@ type Config struct {
 	Columns     string
 	UseColumns  []int
 	Separator   string
-	OutputMode  string
+	OutputMode  int
 	InvertMatch bool
 	Pattern     string
 
@@ -63,6 +60,16 @@ type Modeflag struct {
 	Y bool
 	A bool
 }
+
+// used for switching printers
+const (
+	Extended = iota + 1
+	Orgtbl
+	Markdown
+	Shell
+	Yaml
+	Ascii
+)
 
 // various sort types
 type Sortmode struct {
@@ -97,39 +104,6 @@ func Getversion() string {
 	return fmt.Sprintf("This is tablizer version %s", VERSION)
 }
 
-func (conf *Config) PrepareModeFlags(flag Modeflag, mode string) error {
-	if len(mode) == 0 {
-		// associate short flags like -X with mode selector
-		switch {
-		case flag.X:
-			conf.OutputMode = "extended"
-		case flag.M:
-			conf.OutputMode = "markdown"
-		case flag.O:
-			conf.OutputMode = "orgtbl"
-		case flag.S:
-			conf.OutputMode = "shell"
-			conf.NoNumbering = true
-		case flag.Y:
-			conf.OutputMode = "yaml"
-			conf.NoNumbering = true
-		default:
-			conf.OutputMode = "ascii"
-		}
-	} else {
-		r, _ := regexp.Compile(ValidOutputModes) // hardcoded, no fail expected
-		match := r.MatchString(mode)
-
-		if !match {
-			return errors.New("Invalid output mode!")
-		}
-
-		conf.OutputMode = mode
-	}
-
-	return nil
-}
-
 func (conf *Config) PrepareSortFlags(flag Sortmode) {
 	switch {
 	case flag.Numeric:
@@ -140,5 +114,22 @@ func (conf *Config) PrepareSortFlags(flag Sortmode) {
 		conf.SortMode = "time"
 	default:
 		conf.SortMode = "string"
+	}
+}
+
+func (conf *Config) PrepareModeFlags(flag Modeflag) {
+	switch {
+	case flag.X:
+		conf.OutputMode = Extended
+	case flag.O:
+		conf.OutputMode = Orgtbl
+	case flag.M:
+		conf.OutputMode = Markdown
+	case flag.S:
+		conf.OutputMode = Shell
+	case flag.Y:
+		conf.OutputMode = Yaml
+	default:
+		conf.OutputMode = Ascii
 	}
 }
