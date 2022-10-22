@@ -209,6 +209,23 @@ more output modes available: B<orgtbl>  which prints an Emacs org-mode
 table and B<markdown> which prints a Markdown table and B<yaml>, which
 prints yaml encoding.
 
+=head2 ENVIRONMENT VARIABLES
+
+B<tablizer> supports  certain environment variables which  use can use
+to  influence   program  behavior.   Commandline  flags   have  always
+precedence over environment variables.
+
+=over
+
+=item <T_NO_HEADER_NUMBERING> - disable numbering of header fields, like B<-n>.
+
+=item <T_COLUMNS> - comma separated list of columns to output, like B<-c>
+
+=item <NO_COLORS> - disable colorization of matches, like B<-N>
+
+=back
+
+
 =head1 BUGS
 
 In order to report a bug, unexpected behavior, feature requests

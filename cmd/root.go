@@ -70,6 +70,7 @@ func Execute() {
 			}
 
 			// prepare flags
+			conf.CheckEnv()
 			conf.PrepareModeFlags(modeflag)
 			conf.PrepareSortFlags(sortmode)
 

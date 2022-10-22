@@ -19,6 +19,7 @@ package cfg
 import (
 	"fmt"
 	"github.com/gookit/color"
+	"os"
 )
 
 const DefaultSeparator string = `(\s\s+|\t)`
@@ -131,5 +132,23 @@ func (conf *Config) PrepareModeFlags(flag Modeflag) {
 		conf.OutputMode = Yaml
 	default:
 		conf.OutputMode = Ascii
+	}
+}
+
+func (c *Config) CheckEnv() {
+	// check for environment vars, command line flags have precedence,
+	// NO_COLOR is being checked by the color module itself.
+	if !c.NoNumbering {
+		_, set := os.LookupEnv("T_NO_HEADER_NUMBERING")
+		if set {
+			c.NoNumbering = true
+		}
+	}
+
+	if len(c.Columns) == 0 {
+		cols := os.Getenv("T_COLUMNS")
+		if len(cols) > 1 {
+			c.Columns = cols
+		}
 	}
 }

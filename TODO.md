@@ -2,8 +2,6 @@
 
 - rm printYamlData() log.Fatal(), maybe return error on all printers?
 
-- printShellData() checks Columns unnecessarily (compare to yaml or extended)
-
 ## Features to be implemented
 
 - add output mode csv
