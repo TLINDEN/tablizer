@@ -2,7 +2,11 @@
 
 - rm printYamlData() log.Fatal(), maybe return error on all printers?
 
+- refactor parser, there's some duplicate code
+
 ## Features to be implemented
+
+- add comment support (csf.NewReader().Comment = '#')
 
 - add output mode csv
 

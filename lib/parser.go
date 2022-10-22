@@ -19,6 +19,7 @@ package lib
 
 import (
 	"bufio"
+	"encoding/csv"
 	"errors"
 	"fmt"
 	"github.com/alecthomas/repr"
@@ -29,9 +30,68 @@ import (
 )
 
 /*
+   Parse CSV input.
+*/
+func parseCSV(c cfg.Config, input io.Reader, pattern string) (Tabdata, error) {
+	var content io.Reader = input
+	data := Tabdata{}
+
+	patternR, err := regexp.Compile(pattern)
+	if err != nil {
+		return data, errors.Unwrap(fmt.Errorf("Regexp pattern %s is invalid: %w", pattern, err))
+	}
+
+	if len(pattern) > 0 {
+		scanner := bufio.NewScanner(input)
+		lines := []string{}
+		for scanner.Scan() {
+			line := strings.TrimSpace(scanner.Text())
+			if patternR.MatchString(line) == c.InvertMatch {
+				// by default  -v is false, so if a  line does NOT
+				// match the pattern, we will ignore it. However,
+				// if the user specified -v, the matching is inverted,
+				// so we ignore all lines, which DO match.
+				continue
+			}
+			lines = append(lines, line)
+		}
+		content = strings.NewReader(strings.Join(lines, "\n"))
+	}
+
+	csvreader := csv.NewReader(content)
+	csvreader.Comma = rune(c.Separator[0])
+
+	records, err := csvreader.ReadAll()
+	if err != nil {
+		return data, errors.Unwrap(fmt.Errorf("Could not parse CSV input: %w", pattern, err))
+	}
+
+	if len(records) >= 1 {
+		data.headers = records[0]
+
+		for _, head := range data.headers {
+			// register widest header field
+			headerlen := len(head)
+			if headerlen > data.maxwidthHeader {
+				data.maxwidthHeader = headerlen
+			}
+		}
+
+		if len(records) > 1 {
+			data.entries = records[1:]
+		}
+	}
+
+	return data, nil
+}
+
+/*
    Parse tabular input.
 */
 func parseFile(c cfg.Config, input io.Reader, pattern string) (Tabdata, error) {
+	if len(c.Separator) == 1 {
+		return parseCSV(c, input, pattern)
+	}
 	data := Tabdata{}
 
 	var scanner *bufio.Scanner

@@ -189,6 +189,15 @@ DESCRIPTION
     markdown which prints a Markdown table and yaml, which prints yaml
     encoding.
 
+  ENVIRONMENT VARIABLES
+    tablizer supports certain environment variables which use can use to
+    influence program behavior. Commandline flags have always precedence
+    over environment variables.
+
+    <T_NO_HEADER_NUMBERING> - disable numbering of header fields, like -n.
+    <T_COLUMNS> - comma separated list of columns to output, like -c
+    <NO_COLORS> - disable colorization of matches, like -N
+
 BUGS
     In order to report a bug, unexpected behavior, feature requests or to
     submit a patch, please open an issue on github:
