@@ -60,6 +60,7 @@ type Modeflag struct {
 	S bool
 	Y bool
 	A bool
+	C bool
 }
 
 // used for switching printers
@@ -69,6 +70,7 @@ const (
 	Markdown
 	Shell
 	Yaml
+	CSV
 	Ascii
 )
 
@@ -130,6 +132,8 @@ func (conf *Config) PrepareModeFlags(flag Modeflag) {
 		conf.OutputMode = Shell
 	case flag.Y:
 		conf.OutputMode = Yaml
+	case flag.C:
+		conf.OutputMode = CSV
 	default:
 		conf.OutputMode = Ascii
 	}
@@ -150,5 +154,12 @@ func (c *Config) CheckEnv() {
 		if len(cols) > 1 {
 			c.Columns = cols
 		}
+	}
+}
+
+func (c *Config) ApplyDefaults() {
+	// mode specific defaults
+	if c.OutputMode == Yaml || c.OutputMode == CSV {
+		c.NoNumbering = true
 	}
 }

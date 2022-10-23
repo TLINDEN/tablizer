@@ -22,6 +22,7 @@ SYNOPSIS
           -O, --orgtbl             Enable org-mode table output
           -S, --shell              Enable shell evaluable ouput
           -Y, --yaml               Enable yaml output
+          -C, --csv                Enable CSV output
           -A, --ascii              Default output mode, ascii tabular
 
         Sort Mode Flags (mutually exclusive):
@@ -186,8 +187,8 @@ DESCRIPTION
 
     Beside normal ascii mode (the default) and extended mode there are more
     output modes available: orgtbl which prints an Emacs org-mode table and
-    markdown which prints a Markdown table and yaml, which prints yaml
-    encoding.
+    markdown which prints a Markdown table, yaml, which prints yaml encoding
+    and CSV mode, which prints a comma separated value file.
 
   ENVIRONMENT VARIABLES
     tablizer supports certain environment variables which use can use to
@@ -241,6 +242,7 @@ Output Flags (mutually exclusive):
   -O, --orgtbl             Enable org-mode table output
   -S, --shell              Enable shell evaluable ouput
   -Y, --yaml               Enable yaml output
+  -C, --csv                Enable CSV output
   -A, --ascii              Default output mode, ascii tabular
 
 Sort Mode Flags (mutually exclusive):

@@ -29,13 +29,7 @@ import (
 func newData() Tabdata {
 	return Tabdata{
 		maxwidthHeader: 8,
-		maxwidthPerCol: []int{
-			5,
-			9,
-			3,
-			26,
-		},
-		columns: 4,
+		columns:        4,
 		headers: []string{
 			"NAME",
 			"DURATION",
@@ -86,6 +80,15 @@ NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)
 beta   	1d10h5m1s  	33      	3/1/2014                  	
 alpha  	4h35m      	170     	2013-Feb-03               	
 ceta   	33d12h     	9       	06/Jan/2008 15:04:05 -0700`,
+	},
+	{
+		mode: cfg.CSV,
+		name: "csv",
+		expect: `
+NAME,DURATION,COUNT,WHEN
+beta,1d10h5m1s,33,3/1/2014
+alpha,4h35m,170,2013-Feb-03
+ceta,33d12h,9,06/Jan/2008 15:04:05 -0700`,
 	},
 	{
 		name: "default",
@@ -264,6 +267,8 @@ func TestPrinter(t *testing.T) {
 				UseColumns:     tt.usecol,
 				NoColor:        true,
 			}
+
+			c.ApplyDefaults()
 
 			// the test checks the len!
 			if len(tt.usecol) > 0 {

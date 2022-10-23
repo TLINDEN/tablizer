@@ -48,12 +48,7 @@ func TestContains(t *testing.T) {
 func TestPrepareColumns(t *testing.T) {
 	data := Tabdata{
 		maxwidthHeader: 5,
-		maxwidthPerCol: []int{
-			5,
-			5,
-			8,
-		},
-		columns: 3,
+		columns:        3,
 		headers: []string{
 			"ONE", "TWO", "THREE",
 		},

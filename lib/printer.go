@@ -18,6 +18,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package lib
 
 import (
+	"encoding/csv"
 	"fmt"
 	"github.com/gookit/color"
 	"github.com/olekukonko/tablewriter"
@@ -55,6 +56,8 @@ func printData(w io.Writer, c cfg.Config, data *Tabdata) {
 		printShellData(w, c, data)
 	case cfg.Yaml:
 		printYamlData(w, c, data)
+	case cfg.CSV:
+		printCSVData(w, c, data)
 	default:
 		printAsciiData(w, c, data)
 	}
@@ -186,7 +189,7 @@ func printShellData(w io.Writer, c cfg.Config, data *Tabdata) {
 		}
 	}
 
-	// no colrization here
+	// no colorization here
 	output(w, out)
 }
 
@@ -224,4 +227,24 @@ func printYamlData(w io.Writer, c cfg.Config, data *Tabdata) {
 	}
 
 	output(w, string(yamlstr))
+}
+
+func printCSVData(w io.Writer, c cfg.Config, data *Tabdata) {
+	csvout := csv.NewWriter(w)
+
+	if err := csvout.Write(data.headers); err != nil {
+		log.Fatalln("error writing record to csv:", err)
+	}
+
+	for _, entry := range data.entries {
+		if err := csvout.Write(entry); err != nil {
+			log.Fatalln("error writing record to csv:", err)
+		}
+	}
+
+	csvout.Flush()
+
+	if err := csvout.Error(); err != nil {
+		log.Fatal(err)
+	}
 }

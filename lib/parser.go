@@ -44,30 +44,36 @@ func parseCSV(c cfg.Config, input io.Reader, pattern string) (Tabdata, error) {
 	if len(pattern) > 0 {
 		scanner := bufio.NewScanner(input)
 		lines := []string{}
+		hadFirst := false
 		for scanner.Scan() {
 			line := strings.TrimSpace(scanner.Text())
-			if patternR.MatchString(line) == c.InvertMatch {
-				// by default  -v is false, so if a  line does NOT
-				// match the pattern, we will ignore it. However,
-				// if the user specified -v, the matching is inverted,
-				// so we ignore all lines, which DO match.
-				continue
+			if hadFirst {
+				// don't match 1st line, it's the header
+				if patternR.MatchString(line) == c.InvertMatch {
+					// by default  -v is false, so if a  line does NOT
+					// match the pattern, we will ignore it. However,
+					// if the user specified -v, the matching is inverted,
+					// so we ignore all lines, which DO match.
+					continue
+				}
 			}
 			lines = append(lines, line)
+			hadFirst = true
 		}
 		content = strings.NewReader(strings.Join(lines, "\n"))
 	}
-
+	fmt.Println(content)
 	csvreader := csv.NewReader(content)
 	csvreader.Comma = rune(c.Separator[0])
 
 	records, err := csvreader.ReadAll()
 	if err != nil {
-		return data, errors.Unwrap(fmt.Errorf("Could not parse CSV input: %w", pattern, err))
+		return data, errors.Unwrap(fmt.Errorf("Could not parse CSV input: %w", err))
 	}
 
 	if len(records) >= 1 {
 		data.headers = records[0]
+		data.columns = len(records)
 
 		for _, head := range data.headers {
 			// register widest header field
@@ -149,16 +155,6 @@ func parseFile(c cfg.Config, input io.Reader, pattern string) (Tabdata, error) {
 			idx := 0 // we cannot use the header index, because we could exclude columns
 			values := []string{}
 			for _, part := range parts {
-				width := len(strings.TrimSpace(part))
-
-				if len(data.maxwidthPerCol)-1 < idx {
-					data.maxwidthPerCol = append(data.maxwidthPerCol, width)
-				} else {
-					if width > data.maxwidthPerCol[idx] {
-						data.maxwidthPerCol[idx] = width
-					}
-				}
-
 				// if Debug {
 				// 	fmt.Printf("<%s> ", value)
 				// }
