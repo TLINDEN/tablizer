@@ -21,6 +21,7 @@ import (
 	"bufio"
 	"encoding/csv"
 	"errors"
+	"fmt"
 	"github.com/alecthomas/repr"
 	"github.com/tlinden/tablizer/cfg"
 	"io"

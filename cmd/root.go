@@ -73,6 +73,11 @@ func Execute() {
 			conf.CheckEnv()
 			conf.PrepareModeFlags(modeflag)
 			conf.PrepareSortFlags(sortmode)
+
+			if err := conf.PreparePattern(); err != nil {
+				return err
+			}
+
 			conf.ApplyDefaults()
 
 			// actual execution starts here

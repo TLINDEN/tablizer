@@ -17,9 +17,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cfg
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gookit/color"
 	"os"
+	"regexp"
 )
 
 const DefaultSeparator string = `(\s\s+|\t)`
@@ -36,6 +38,7 @@ type Config struct {
 	OutputMode  int
 	InvertMatch bool
 	Pattern     string
+	PatternR    *regexp.Regexp
 
 	SortMode       string
 	SortDescending bool
@@ -162,4 +165,16 @@ func (c *Config) ApplyDefaults() {
 	if c.OutputMode == Yaml || c.OutputMode == CSV {
 		c.NoNumbering = true
 	}
+}
+
+func (c *Config) PreparePattern() error {
+	PatternR, err := regexp.Compile(c.Pattern)
+
+	if err != nil {
+		return errors.Unwrap(fmt.Errorf("Regexp pattern %s is invalid: %w", c.Pattern, err))
+	}
+
+	c.PatternR = PatternR
+
+	return nil
 }
