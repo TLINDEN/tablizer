@@ -65,7 +65,7 @@ func printData(w io.Writer, c cfg.Config, data *Tabdata) {
 }
 
 func output(w io.Writer, str string) {
-	fmt.Fprint(w, str)
+	fmt.Fprint(w, unmaskParens(str))
 }
 
 /*

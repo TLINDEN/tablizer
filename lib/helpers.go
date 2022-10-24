@@ -152,10 +152,26 @@ func trimRow(row []string) []string {
 	return fixedrow
 }
 
+func maskParens(in string) string {
+	/*
+	   we need  to escape  brackets, because  the color  module treats
+	   text enclosed within  < and > as a color  tag and therefore the
+	   color tags don't work anymore.
+
+	   See https://github.com/gookit/color/issues/52 for details.
+	*/
+	return strings.ReplaceAll(strings.ReplaceAll(in, ">", "⦘"), "<", "⦗")
+}
+
+func unmaskParens(in string) string {
+	// does the reverse from above during actual output
+	return strings.ReplaceAll(strings.ReplaceAll(in, "⦘", ">"), "⦗", "<")
+}
+
 func colorizeData(c cfg.Config, output string) string {
 	if len(c.Pattern) > 0 && !c.NoColor && color.IsConsole(os.Stdout) {
 		r := regexp.MustCompile("(" + c.Pattern + ")")
-		return r.ReplaceAllString(output, "<bg="+c.MatchBG+";fg="+c.MatchFG+">$1</>")
+		return r.ReplaceAllString(maskParens(output), "<bg="+c.MatchBG+";fg="+c.MatchFG+">$1</>")
 	} else {
 		return output
 	}
