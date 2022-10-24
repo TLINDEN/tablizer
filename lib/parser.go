@@ -21,7 +21,6 @@ import (
 	"bufio"
 	"encoding/csv"
 	"errors"
-	"fmt"
 	"github.com/alecthomas/repr"
 	"github.com/tlinden/tablizer/cfg"
 	"io"
@@ -62,7 +61,7 @@ func parseCSV(c cfg.Config, input io.Reader, pattern string) (Tabdata, error) {
 		}
 		content = strings.NewReader(strings.Join(lines, "\n"))
 	}
-	fmt.Println(content)
+
 	csvreader := csv.NewReader(content)
 	csvreader.Comma = rune(c.Separator[0])
 
