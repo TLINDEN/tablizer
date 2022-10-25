@@ -74,15 +74,10 @@ func Execute() {
 			conf.PrepareModeFlags(modeflag)
 			conf.PrepareSortFlags(sortmode)
 			conf.DetermineColormode()
-
-			if err := conf.PreparePattern(); err != nil {
-				return err
-			}
-
 			conf.ApplyDefaults()
 
 			// actual execution starts here
-			return lib.ProcessFiles(conf, args)
+			return lib.ProcessFiles(&conf, args)
 		},
 	}
 

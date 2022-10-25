@@ -66,7 +66,7 @@ func TestParser(t *testing.T) {
 		t.Run(testname, func(t *testing.T) {
 			readFd := strings.NewReader(strings.TrimSpace(in.text))
 			c := cfg.Config{Separator: in.separator}
-			gotdata, err := parseFile(c, readFd, "")
+			gotdata, err := Parse(c, readFd)
 
 			if err != nil {
 				t.Errorf("Parser returned error: %s\nData processed so far: %+v", err, gotdata)
@@ -101,13 +101,6 @@ func TestParserPatternmatching(t *testing.T) {
 			pattern: "ig",
 			invert:  true,
 		},
-		{
-			entries: [][]string{
-				{"asd", "igig", "cxxxncnc"},
-			},
-			pattern: "[a-z",
-			want:    true,
-		},
 	}
 
 	for _, in := range input {
@@ -118,8 +111,10 @@ func TestParserPatternmatching(t *testing.T) {
 				c := cfg.Config{InvertMatch: tt.invert, Pattern: tt.pattern,
 					Separator: in.separator}
 
+				_ = c.PreparePattern(tt.pattern)
+
 				readFd := strings.NewReader(strings.TrimSpace(in.text))
-				gotdata, err := parseFile(c, readFd, tt.pattern)
+				gotdata, err := Parse(c, readFd)
 
 				if err != nil {
 					if !tt.want {
@@ -157,7 +152,7 @@ asd    igig
 
 	readFd := strings.NewReader(strings.TrimSpace(table))
 	c := cfg.Config{Separator: cfg.DefaultSeparator}
-	gotdata, err := parseFile(c, readFd, "")
+	gotdata, err := Parse(c, readFd)
 
 	if err != nil {
 		t.Errorf("Parser returned error: %s\nData processed so far: %+v", err, gotdata)

@@ -186,14 +186,15 @@ func (c *Config) ApplyDefaults() {
 	}
 }
 
-func (c *Config) PreparePattern() error {
-	PatternR, err := regexp.Compile(c.Pattern)
+func (c *Config) PreparePattern(pattern string) error {
+	PatternR, err := regexp.Compile(pattern)
 
 	if err != nil {
 		return errors.Unwrap(fmt.Errorf("Regexp pattern %s is invalid: %w", c.Pattern, err))
 	}
 
 	c.PatternR = PatternR
+	c.Pattern = pattern
 
 	return nil
 }

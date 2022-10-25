@@ -30,18 +30,24 @@ import (
 )
 
 /*
+   Parser switch
+*/
+func Parse(c cfg.Config, input io.Reader) (Tabdata, error) {
+	if len(c.Separator) == 1 {
+		return parseCSV(c, input)
+	}
+
+	return parseTabular(c, input)
+}
+
+/*
    Parse CSV input.
 */
-func parseCSV(c cfg.Config, input io.Reader, pattern string) (Tabdata, error) {
+func parseCSV(c cfg.Config, input io.Reader) (Tabdata, error) {
 	var content io.Reader = input
 	data := Tabdata{}
 
-	patternR, err := regexp.Compile(pattern)
-	if err != nil {
-		return data, errors.Unwrap(fmt.Errorf("Regexp pattern %s is invalid: %w", pattern, err))
-	}
-
-	if len(pattern) > 0 {
+	if len(c.Pattern) > 0 {
 		scanner := bufio.NewScanner(input)
 		lines := []string{}
 		hadFirst := false
@@ -49,7 +55,7 @@ func parseCSV(c cfg.Config, input io.Reader, pattern string) (Tabdata, error) {
 			line := strings.TrimSpace(scanner.Text())
 			if hadFirst {
 				// don't match 1st line, it's the header
-				if patternR.MatchString(line) == c.InvertMatch {
+				if c.PatternR.MatchString(line) == c.InvertMatch {
 					// by default  -v is false, so if a  line does NOT
 					// match the pattern, we will ignore it. However,
 					// if the user specified -v, the matching is inverted,
@@ -94,20 +100,13 @@ func parseCSV(c cfg.Config, input io.Reader, pattern string) (Tabdata, error) {
 /*
    Parse tabular input.
 */
-func parseFile(c cfg.Config, input io.Reader, pattern string) (Tabdata, error) {
-	if len(c.Separator) == 1 {
-		return parseCSV(c, input, pattern)
-	}
+func parseTabular(c cfg.Config, input io.Reader) (Tabdata, error) {
 	data := Tabdata{}
 
 	var scanner *bufio.Scanner
 
 	hadFirst := false
 	separate := regexp.MustCompile(c.Separator)
-	patternR, err := regexp.Compile(pattern)
-	if err != nil {
-		return data, errors.Unwrap(fmt.Errorf("Regexp pattern %s is invalid: %w", pattern, err))
-	}
 
 	scanner = bufio.NewScanner(input)
 
@@ -142,8 +141,8 @@ func parseFile(c cfg.Config, input io.Reader, pattern string) (Tabdata, error) {
 			}
 		} else {
 			// data processing
-			if len(pattern) > 0 {
-				if patternR.MatchString(line) == c.InvertMatch {
+			if len(c.Pattern) > 0 {
+				if c.PatternR.MatchString(line) == c.InvertMatch {
 					// by default  -v is false, so if a  line does NOT
 					// match the pattern, we will ignore it. However,
 					// if the user specified -v, the matching is inverted,

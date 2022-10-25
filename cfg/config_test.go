@@ -76,3 +76,28 @@ func TestPrepareSortFlags(t *testing.T) {
 		})
 	}
 }
+
+func TestPreparePattern(t *testing.T) {
+	var tests = []struct {
+		pattern string
+		wanterr bool
+	}{
+		{"[A-Z]+", false},
+		{"[a-z", true},
+	}
+
+	for _, tt := range tests {
+		testname := fmt.Sprintf("PreparePattern-pattern-%s-wanterr-%t", tt.pattern, tt.wanterr)
+		t.Run(testname, func(t *testing.T) {
+			c := Config{}
+
+			err := c.PreparePattern(tt.pattern)
+
+			if err != nil {
+				if !tt.wanterr {
+					t.Errorf("PreparePattern returned error: %s", err)
+				}
+			}
+		})
+	}
+}

@@ -24,25 +24,29 @@ import (
 	"os"
 )
 
-func ProcessFiles(c cfg.Config, args []string) error {
-	fds, pattern, err := determineIO(&c, args)
+func ProcessFiles(c *cfg.Config, args []string) error {
+	fds, pattern, err := determineIO(c, args)
 
 	if err != nil {
 		return err
 	}
 
+	if err := c.PreparePattern(pattern); err != nil {
+		return err
+	}
+
 	for _, fd := range fds {
-		data, err := parseFile(c, fd, pattern)
+		data, err := Parse(*c, fd)
 		if err != nil {
 			return err
 		}
 
-		err = PrepareColumns(&c, &data)
+		err = PrepareColumns(c, &data)
 		if err != nil {
 			return err
 		}
 
-		printData(os.Stdout, c, &data)
+		printData(os.Stdout, *c, &data)
 	}
 
 	return nil

@@ -4,6 +4,36 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org).
 
+## [v1.0.12](https://github.com/TLINDEN/tablizer/tree/v1.0.12) - 2022-10-25
+
+[Full Changelog](https://github.com/TLINDEN/tablizer/compare/v1.0.11...v1.0.12)
+
+### Added
+
+- Added support to parse CSV input
+
+- Added CSV output support
+
+- Added support for environment variables
+
+### Changed
+
+- We do not use the generated help message anymore, instead we use the
+  usage from the  manpage, which we have to maintain  anyway. It looks
+  better and has flag groups, which  cobra is still lacking as of this
+  writing.
+  
+-  More refactoring  and  re-organization,  runtime configuration  now
+  lives in the cfg module.
+  
+  
+### Fixed
+
+- Fixed  [Bug #5](https://github.com/TLINDEN/tablizer/issues/5), where
+  matches have not been highlighted correctly in some rare cases.
+
+
+
 ## [v1.0.11](https://github.com/TLINDEN/tablizer/tree/v1.0.11) - 2022-10-19
 
 [Full Changelog](https://github.com/TLINDEN/tablizer/compare/v1.0.10...v1.0.11)
