@@ -19,7 +19,6 @@ package lib
 
 import (
 	"errors"
-	"github.com/gookit/color"
 	"github.com/tlinden/tablizer/cfg"
 	"io"
 	"os"
@@ -31,8 +30,6 @@ func ProcessFiles(c cfg.Config, args []string) error {
 	if err != nil {
 		return err
 	}
-
-	determineColormode(&c)
 
 	for _, fd := range fds {
 		data, err := parseFile(c, fd, pattern)
@@ -49,18 +46,6 @@ func ProcessFiles(c cfg.Config, args []string) error {
 	}
 
 	return nil
-}
-
-// find supported color mode, modifies config based on constants
-func determineColormode(c *cfg.Config) {
-	if !isTerminal(os.Stdout) {
-		color.Disable()
-	} else {
-		level := color.TermColorLevel()
-		colors := cfg.Colors()
-		c.MatchFG = colors[level]["fg"]
-		c.MatchBG = colors[level]["bg"]
-	}
 }
 
 func determineIO(c *cfg.Config, args []string) ([]io.Reader, string, error) {

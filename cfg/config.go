@@ -46,12 +46,10 @@ type Config struct {
 
 	/*
 	 FIXME: make configurable somehow, config file or ENV
-	 see https://github.com/gookit/color will be set by
-	 io.ProcessFiles() according to currently supported
-	 color mode.
+	 see https://github.com/gookit/color.
 	*/
-	MatchFG string
-	MatchBG string
+	ColorStyle color.Style
+
 	NoColor bool
 }
 
@@ -84,19 +82,40 @@ type Sortmode struct {
 	Age     bool
 }
 
-func Colors() map[color.Level]map[string]string {
-	// default color schemes
-	return map[color.Level]map[string]string{
+// default color schemes
+func Colors() map[color.Level]map[string]color.Color {
+	return map[color.Level]map[string]color.Color{
 		color.Level16: {
-			"bg": "green", "fg": "black",
+			"bg": color.BgGreen, "fg": color.FgBlack,
 		},
 		color.Level256: {
-			"bg": "lightGreen", "fg": "black",
+			"bg": color.BgLightGreen, "fg": color.FgBlack,
 		},
 		color.LevelRgb: {
 			// FIXME: maybe use something nicer
-			"bg": "lightGreen", "fg": "black",
+			"bg": color.BgLightGreen, "fg": color.FgBlack,
 		},
+	}
+}
+
+// find supported color mode, modifies config based on constants
+func (c *Config) DetermineColormode() {
+	if !isTerminal(os.Stdout) {
+		color.Disable()
+	} else {
+		level := color.TermColorLevel()
+		colors := Colors()
+		c.ColorStyle = color.New(colors[level]["bg"], colors[level]["fg"])
+	}
+}
+
+// Return true if current terminal is interactive
+func isTerminal(f *os.File) bool {
+	o, _ := f.Stat()
+	if (o.Mode() & os.ModeCharDevice) == os.ModeCharDevice {
+		return true
+	} else {
+		return false
 	}
 }
 

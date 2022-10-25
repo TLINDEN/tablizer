@@ -69,10 +69,11 @@ func Execute() {
 				return nil
 			}
 
-			// prepare flags
+			// Setup
 			conf.CheckEnv()
 			conf.PrepareModeFlags(modeflag)
 			conf.PrepareSortFlags(sortmode)
+			conf.DetermineColormode()
 
 			if err := conf.PreparePattern(); err != nil {
 				return err
