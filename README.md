@@ -76,7 +76,7 @@ There are more output modes like org-mode (orgtbl) and markdown.
 
 There are multiple ways to install **tablizer**:
 
-- Go to the [latest release page](https://github.com/muesli/mango/releases/latest),
+- Go to the [latest release page](https://github.com/tlinden/tablizer/releases/latest),
   locate the binary for your operating system and platform.
   
   Download it and put it into some directory within your `$PATH` variable.
