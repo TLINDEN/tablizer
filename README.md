@@ -8,8 +8,6 @@ Tablizer  can   be  used   to  re-format   tabular  output   of  other
 programs. While you  could do this using standard unix  tools, in some
 cases it's a hard job.
 
-[![asciicast](https://asciinema.org/a/9FKc3HPnlg8D2X8otheleEa9t.svg)](https://asciinema.org/a/9FKc3HPnlg8D2X8otheleEa9t)
-
 Let's take this output:
 ```
 % kubectl get pods -o wide
@@ -73,6 +71,10 @@ repldepl-7bcd8d5b64-q2bf4    1/1      Running    1 (69m ago)    5h26m
 ```
 
 There are more output modes like org-mode (orgtbl) and markdown.
+
+## Demo
+
+[![asciicast](https://asciinema.org/a/9FKc3HPnlg8D2X8otheleEa9t.svg)](https://asciinema.org/a/9FKc3HPnlg8D2X8otheleEa9t)
 
 ## Installation
 
