@@ -1,0 +1,54 @@
+tables:
+# OUTPUTS
+  - flags: -A
+    table: table.demo1
+    msg: default output mode
+  - flags: -O
+    table: table.demo1
+    msg: orgmode output mode
+  - flags: -M
+    table: table.demo1
+    msg: markdown output mode
+  - flags: -S
+    table: table.demo1
+    msg: shell output mode
+  - flags: -X
+    table: table.demo1
+    msg: extended output mode
+  - flags: -Y
+    table: table.demo1
+    msg: yaml output mode
+  - flags: -C
+    table: table.demo1
+    msg: CSV output mode
+
+  # SORTS
+  - flags: -A -k 3
+    table: table.demo1
+    msg: sort by column 3
+  - flags: -A -k 4 -t
+    table: table.demo1
+    msg: sort by column 4 and sort type time
+  - flags: -A -k 2 -a
+    table: table.demo1
+    msg: sort by column 2 and sort type duration
+
+  # REDUCE
+  - flags: -A -c 1,3
+    table: table.demo1
+    msg: only display column 1 and 3
+  - flags: -A -c AM,RA
+    table: table.demo1
+    msg: only display columns matching /(RA|AM)/
+  - flags: -X -c 1,3
+    table: table.demo1
+    msg: only display column 1 and 3 in extended mode
+
+  # SEARCH
+  - flags: /20 -A
+    table: table.demo1
+    msg: only show rows matching /20
+  - flags: /20 -A -v
+    table: table.demo1
+    msg: only show rows NOT matching /20
+
