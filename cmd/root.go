@@ -108,6 +108,7 @@ func Execute() {
 	rootCmd.PersistentFlags().BoolVarP(&modeflag.S, "shell", "S", false, "Enable shell mode output")
 	rootCmd.PersistentFlags().BoolVarP(&modeflag.Y, "yaml", "Y", false, "Enable yaml output")
 	rootCmd.PersistentFlags().BoolVarP(&modeflag.C, "csv", "C", false, "Enable CSV output")
+	rootCmd.PersistentFlags().BoolVarP(&modeflag.A, "ascii", "A", false, "Enable ASCII output (default)")
 	rootCmd.MarkFlagsMutuallyExclusive("extended", "markdown", "orgtbl", "shell", "yaml", "csv")
 
 	rootCmd.SetUsageTemplate(strings.TrimSpace(usage) + "\n")
