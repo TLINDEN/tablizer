@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "TABLIZER 1"
-.TH TABLIZER 1 "2022-10-23" "1" "User Commands"
+.TH TABLIZER 1 "2022-10-31" "1" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -370,6 +370,63 @@ precedence over environment variables.
 .IP "<\s-1NO_COLORS\s0> \- disable colorization of matches, like \fB\-N\fR" 4
 .IX Item "<NO_COLORS> - disable colorization of matches, like -N"
 .PD
+.SS "\s-1COMPLETION\s0"
+.IX Subsection "COMPLETION"
+.IP "Bash:" 4
+.IX Item "Bash:"
+.Vb 1
+\&   source <(%[1]s completion bash)
+.Ve
+.Sp
+To load completions for each session, execute once:
+.Sp
+.Vb 2
+\&  # Linux:
+\&  $ tablizer completion bash > /etc/bash_completion.d/%[1]s
+\&
+\&  # macOS:
+\&  $ tablizer completion bash > $(brew \-\-prefix)/etc/bash_completion.d/%[1]s
+.Ve
+.IP "Zsh:" 4
+.IX Item "Zsh:"
+If shell completion is not already enabled in your environment,
+you will need to enable it.  You can execute the following once:
+.Sp
+.Vb 1
+\&  echo "autoload \-U compinit; compinit" >> ~/.zshrc
+.Ve
+.Sp
+To load completions for each session, execute once:
+.Sp
+.Vb 1
+\&  $ tablizer completion zsh > "${fpath[1]}/_%[1]s"
+.Ve
+.Sp
+You will need to start a new shell for this setup to take effect.
+.IP "fish:" 4
+.IX Item "fish:"
+.Vb 1
+\&   tablizer completion fish | source
+.Ve
+.Sp
+To load completions for each session, execute once:
+.Sp
+.Vb 1
+\&   tablizer completion fish > ~/.config/fish/completions/%[1]s.fish
+.Ve
+.IP "PowerShell:" 4
+.IX Item "PowerShell:"
+.Vb 1
+\&   tablizer completion powershell | Out\-String | Invoke\-Expression
+.Ve
+.Sp
+To load completions for every new session, run:
+.Sp
+.Vb 1
+\&   tablizer completion powershell > tablizer.ps1
+.Ve
+.Sp
+and source this file from your PowerShell profile.
 .SH "BUGS"
 .IX Header "BUGS"
 In order to report a bug, unexpected behavior, feature requests

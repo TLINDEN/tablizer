@@ -54,6 +54,26 @@ func Execute() {
 		sortmode    cfg.Sortmode
 	)
 
+	var completionCmd = &cobra.Command{
+		Use:                   "completion [bash|zsh|fish|powershell]",
+		Short:                 "Generate completion script",
+		DisableFlagsInUseLine: true,
+		ValidArgs:             []string{"bash", "zsh", "fish", "powershell"},
+		Args:                  cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
+		Run: func(cmd *cobra.Command, args []string) {
+			switch args[0] {
+			case "bash":
+				cmd.Root().GenBashCompletion(os.Stdout)
+			case "zsh":
+				cmd.Root().GenZshCompletion(os.Stdout)
+			case "fish":
+				cmd.Root().GenFishCompletion(os.Stdout, true)
+			case "powershell":
+				cmd.Root().GenPowerShellCompletionWithDesc(os.Stdout)
+			}
+		},
+	}
+
 	var rootCmd = &cobra.Command{
 		Use:   "tablizer [regex] [file, ...]",
 		Short: "[Re-]tabularize tabular data",
@@ -80,6 +100,8 @@ func Execute() {
 			return lib.ProcessFiles(&conf, args)
 		},
 	}
+
+	rootCmd.AddCommand(completionCmd)
 
 	// options
 	rootCmd.PersistentFlags().BoolVarP(&conf.Debug, "debug", "d", false, "Enable debugging")

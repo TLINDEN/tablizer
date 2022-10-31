@@ -199,6 +199,46 @@ DESCRIPTION
     <T_COLUMNS> - comma separated list of columns to output, like -c
     <NO_COLORS> - disable colorization of matches, like -N
 
+  COMPLETION
+    Bash:
+           source <(%[1]s completion bash)
+
+        To load completions for each session, execute once:
+
+          # Linux:
+          $ tablizer completion bash > /etc/bash_completion.d/%[1]s
+
+          # macOS:
+          $ tablizer completion bash > $(brew --prefix)/etc/bash_completion.d/%[1]s
+
+    Zsh:
+        If shell completion is not already enabled in your environment, you
+        will need to enable it. You can execute the following once:
+
+          echo "autoload -U compinit; compinit" >> ~/.zshrc
+
+        To load completions for each session, execute once:
+
+          $ tablizer completion zsh > "${fpath[1]}/_%[1]s"
+
+        You will need to start a new shell for this setup to take effect.
+
+    fish:
+           tablizer completion fish | source
+
+        To load completions for each session, execute once:
+
+           tablizer completion fish > ~/.config/fish/completions/%[1]s.fish
+
+    PowerShell:
+           tablizer completion powershell | Out-String | Invoke-Expression
+
+        To load completions for every new session, run:
+
+           tablizer completion powershell > tablizer.ps1
+
+        and source this file from your PowerShell profile.
+
 BUGS
     In order to report a bug, unexpected behavior, feature requests or to
     submit a patch, please open an issue on github:
