@@ -18,6 +18,7 @@ package cmd
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/tlinden/tablizer/cfg"
@@ -45,34 +46,32 @@ func man() {
 	}
 }
 
+func completion(cmd *cobra.Command, mode string) error {
+	switch mode {
+	case "bash":
+		cmd.Root().GenBashCompletion(os.Stdout)
+	case "zsh":
+		cmd.Root().GenZshCompletion(os.Stdout)
+	case "fish":
+		cmd.Root().GenFishCompletion(os.Stdout, true)
+	case "powershell":
+		cmd.Root().GenPowerShellCompletionWithDesc(os.Stdout)
+	default:
+		return errors.New("Invalid shell parameter! Valid ones: bash|zsh|fish|powershell")
+	}
+
+	return nil
+}
+
 func Execute() {
 	var (
-		conf        cfg.Config
-		ShowManual  bool
-		ShowVersion bool
-		modeflag    cfg.Modeflag
-		sortmode    cfg.Sortmode
+		conf           cfg.Config
+		ShowManual     bool
+		ShowVersion    bool
+		ShowCompletion string
+		modeflag       cfg.Modeflag
+		sortmode       cfg.Sortmode
 	)
-
-	var completionCmd = &cobra.Command{
-		Use:                   "completion [bash|zsh|fish|powershell]",
-		Short:                 "Generate completion script",
-		DisableFlagsInUseLine: true,
-		ValidArgs:             []string{"bash", "zsh", "fish", "powershell"},
-		Args:                  cobra.MatchAll(cobra.ExactArgs(1), cobra.OnlyValidArgs),
-		Run: func(cmd *cobra.Command, args []string) {
-			switch args[0] {
-			case "bash":
-				cmd.Root().GenBashCompletion(os.Stdout)
-			case "zsh":
-				cmd.Root().GenZshCompletion(os.Stdout)
-			case "fish":
-				cmd.Root().GenFishCompletion(os.Stdout, true)
-			case "powershell":
-				cmd.Root().GenPowerShellCompletionWithDesc(os.Stdout)
-			}
-		},
-	}
 
 	var rootCmd = &cobra.Command{
 		Use:   "tablizer [regex] [file, ...]",
@@ -89,6 +88,10 @@ func Execute() {
 				return nil
 			}
 
+			if len(ShowCompletion) > 0 {
+				return completion(cmd, ShowCompletion)
+			}
+
 			// Setup
 			conf.CheckEnv()
 			conf.PrepareModeFlags(modeflag)
@@ -101,8 +104,6 @@ func Execute() {
 		},
 	}
 
-	rootCmd.AddCommand(completionCmd)
-
 	// options
 	rootCmd.PersistentFlags().BoolVarP(&conf.Debug, "debug", "d", false, "Enable debugging")
 	rootCmd.PersistentFlags().BoolVarP(&conf.NoNumbering, "no-numbering", "n", false, "Disable header numbering")
@@ -110,6 +111,7 @@ func Execute() {
 	rootCmd.PersistentFlags().BoolVarP(&ShowVersion, "version", "V", false, "Print program version")
 	rootCmd.PersistentFlags().BoolVarP(&conf.InvertMatch, "invert-match", "v", false, "select non-matching rows")
 	rootCmd.PersistentFlags().BoolVarP(&ShowManual, "man", "m", false, "Display manual page")
+	rootCmd.PersistentFlags().StringVarP(&ShowCompletion, "completion", "", "", "Display completion code")
 	rootCmd.PersistentFlags().StringVarP(&conf.Separator, "separator", "s", cfg.DefaultSeparator, "Custom field separator")
 	rootCmd.PersistentFlags().StringVarP(&conf.Columns, "columns", "c", "", "Only show the speficied columns (separated by ,)")
 

@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "TABLIZER 1"
-.TH TABLIZER 1 "2022-10-31" "1" "User Commands"
+.TH TABLIZER 1 "2022-11-01" "1" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -170,6 +170,7 @@ tablizer \- Manipulate tabular output of other programs
 \&      \-t, \-\-sort\-time          sort according to time string
 \&
 \&    Other Flags:
+\&          \-\-completion <shell> Generate the autocompletion script for <shell>
 \&      \-d, \-\-debug              Enable debugging
 \&      \-h, \-\-help               help for tablizer
 \&      \-m, \-\-man                Display manual page
@@ -372,20 +373,25 @@ precedence over environment variables.
 .PD
 .SS "\s-1COMPLETION\s0"
 .IX Subsection "COMPLETION"
+Shell completion for command line options  can be enabled by using the
+\&\fB\-\-completion\fR  flag. The  required  parameter is  the  name of  your
+shell. Currently supported are: bash, zsh, fish and powershell.
+.PP
+Detailed instructions:
 .IP "Bash:" 4
 .IX Item "Bash:"
 .Vb 1
-\&   source <(%[1]s completion bash)
+\&   source <(tablizer \-\-completion bash)
 .Ve
 .Sp
 To load completions for each session, execute once:
 .Sp
 .Vb 2
 \&  # Linux:
-\&  $ tablizer completion bash > /etc/bash_completion.d/%[1]s
+\&  $ tablizer \-\-completion bash > /etc/bash_completion.d/tablizer
 \&
 \&  # macOS:
-\&  $ tablizer completion bash > $(brew \-\-prefix)/etc/bash_completion.d/%[1]s
+\&  $ tablizer \-\-completion bash > $(brew \-\-prefix)/etc/bash_completion.d/tablizer
 .Ve
 .IP "Zsh:" 4
 .IX Item "Zsh:"
@@ -399,31 +405,31 @@ you will need to enable it.  You can execute the following once:
 To load completions for each session, execute once:
 .Sp
 .Vb 1
-\&  $ tablizer completion zsh > "${fpath[1]}/_%[1]s"
+\&  $ tablizer \-\-completion zsh > "${fpath[1]}/_tablizer"
 .Ve
 .Sp
 You will need to start a new shell for this setup to take effect.
 .IP "fish:" 4
 .IX Item "fish:"
 .Vb 1
-\&   tablizer completion fish | source
+\&   tablizer \-\-completion fish | source
 .Ve
 .Sp
 To load completions for each session, execute once:
 .Sp
 .Vb 1
-\&   tablizer completion fish > ~/.config/fish/completions/%[1]s.fish
+\&   tablizer \-\-completion fish > ~/.config/fish/completions/tablizer.fish
 .Ve
 .IP "PowerShell:" 4
 .IX Item "PowerShell:"
 .Vb 1
-\&   tablizer completion powershell | Out\-String | Invoke\-Expression
+\&   tablizer \-\-completion powershell | Out\-String | Invoke\-Expression
 .Ve
 .Sp
 To load completions for every new session, run:
 .Sp
 .Vb 1
-\&   tablizer completion powershell > tablizer.ps1
+\&   tablizer \-\-completion powershell > tablizer.ps1
 .Ve
 .Sp
 and source this file from your PowerShell profile.

@@ -32,6 +32,7 @@ SYNOPSIS
           -t, --sort-time          sort according to time string
 
         Other Flags:
+              --completion <shell> Generate the autocompletion script for <shell>
           -d, --debug              Enable debugging
           -h, --help               help for tablizer
           -m, --man                Display manual page
@@ -200,16 +201,22 @@ DESCRIPTION
     <NO_COLORS> - disable colorization of matches, like -N
 
   COMPLETION
+    Shell completion for command line options can be enabled by using the
+    --completion flag. The required parameter is the name of your shell.
+    Currently supported are: bash, zsh, fish and powershell.
+
+    Detailed instructions:
+
     Bash:
-           source <(%[1]s completion bash)
+           source <(tablizer --completion bash)
 
         To load completions for each session, execute once:
 
           # Linux:
-          $ tablizer completion bash > /etc/bash_completion.d/%[1]s
+          $ tablizer --completion bash > /etc/bash_completion.d/tablizer
 
           # macOS:
-          $ tablizer completion bash > $(brew --prefix)/etc/bash_completion.d/%[1]s
+          $ tablizer --completion bash > $(brew --prefix)/etc/bash_completion.d/tablizer
 
     Zsh:
         If shell completion is not already enabled in your environment, you
@@ -219,23 +226,23 @@ DESCRIPTION
 
         To load completions for each session, execute once:
 
-          $ tablizer completion zsh > "${fpath[1]}/_%[1]s"
+          $ tablizer --completion zsh > "${fpath[1]}/_tablizer"
 
         You will need to start a new shell for this setup to take effect.
 
     fish:
-           tablizer completion fish | source
+           tablizer --completion fish | source
 
         To load completions for each session, execute once:
 
-           tablizer completion fish > ~/.config/fish/completions/%[1]s.fish
+           tablizer --completion fish > ~/.config/fish/completions/tablizer.fish
 
     PowerShell:
-           tablizer completion powershell | Out-String | Invoke-Expression
+           tablizer --completion powershell | Out-String | Invoke-Expression
 
         To load completions for every new session, run:
 
-           tablizer completion powershell > tablizer.ps1
+           tablizer --completion powershell > tablizer.ps1
 
         and source this file from your PowerShell profile.
 
@@ -292,6 +299,7 @@ Sort Mode Flags (mutually exclusive):
   -t, --sort-time          sort according to time string
 
 Other Flags:
+      --completion <shell> Generate the autocompletion script for <shell>
   -d, --debug              Enable debugging
   -h, --help               help for tablizer
   -m, --man                Display manual page
