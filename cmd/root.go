@@ -49,18 +49,16 @@ func man() {
 func completion(cmd *cobra.Command, mode string) error {
 	switch mode {
 	case "bash":
-		cmd.Root().GenBashCompletion(os.Stdout)
+		return cmd.Root().GenBashCompletion(os.Stdout)
 	case "zsh":
-		cmd.Root().GenZshCompletion(os.Stdout)
+		return cmd.Root().GenZshCompletion(os.Stdout)
 	case "fish":
-		cmd.Root().GenFishCompletion(os.Stdout, true)
+		return cmd.Root().GenFishCompletion(os.Stdout, true)
 	case "powershell":
-		cmd.Root().GenPowerShellCompletionWithDesc(os.Stdout)
+		return cmd.Root().GenPowerShellCompletionWithDesc(os.Stdout)
 	default:
 		return errors.New("Invalid shell parameter! Valid ones: bash|zsh|fish|powershell")
 	}
-
-	return nil
 }
 
 func Execute() {
