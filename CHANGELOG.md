@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org).
 
+## [v1.0.12](https://github.com/TLINDEN/tablizer/tree/v1.0.13) - 2022-11-03
+
+[Full Changelog](https://github.com/TLINDEN/tablizer/compare/v1.0.12...v1.0.13)
+
+### Added
+
+- Added command line flag to generate shell completion code
+
+- Added an animated demo gif to the README to demonstrate the tool
+
+### Fixed
+
+- The `-A` flag wasn't implemented (default output mode).
+
+
+
+
 ## [v1.0.12](https://github.com/TLINDEN/tablizer/tree/v1.0.12) - 2022-10-25
 
 [Full Changelog](https://github.com/TLINDEN/tablizer/compare/v1.0.11...v1.0.12)

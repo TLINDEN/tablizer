@@ -25,7 +25,7 @@ import (
 )
 
 const DefaultSeparator string = `(\s\s+|\t)`
-const Version string = "v1.0.12"
+const Version string = "v1.0.13"
 
 var VERSION string // maintained by -x
 
