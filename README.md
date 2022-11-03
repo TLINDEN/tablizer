@@ -74,7 +74,7 @@ There are more output modes like org-mode (orgtbl) and markdown.
 
 ## Demo
 
-[![asciicast](https://asciinema.org/a/9FKc3HPnlg8D2X8otheleEa9t.svg)](https://asciinema.org/a/9FKc3HPnlg8D2X8otheleEa9t)
+[![asciicast](demo/tablizer-demo.gif)](https://asciinema.org/a/9FKc3HPnlg8D2X8otheleEa9t)
 
 ## Installation
 
