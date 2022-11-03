@@ -18,7 +18,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 - The `-A` flag wasn't implemented (default output mode).
 
-
+- Fixed building from source on systems w/o perls pod tools,
+  which is not requrired anyway since I always commit the latest
+  manpage.
 
 
 ## [v1.0.12](https://github.com/TLINDEN/tablizer/tree/v1.0.12) - 2022-10-25
