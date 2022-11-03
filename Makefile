@@ -17,24 +17,27 @@
 
 #
 # no need to modify anything below
-tool    = tablizer
-version = $(shell egrep "= .v" cfg/config.go | cut -d'=' -f2 | cut -d'"' -f 2)
-archs   = android darwin freebsd linux netbsd openbsd windows
-PREFIX  = /usr/local
-UID     = root
-GID     = 0
-BRANCH  = $(shell git branch --show-current)
-COMMIT  = $(shell git rev-parse --short=8 HEAD)
-BUILD   = $(shell date +%Y.%m.%d.%H%M%S) 
-VERSION:= $(if $(filter $(BRANCH), development),$(version)-$(BRANCH)-$(COMMIT)-$(BUILD),$(version))
-
+tool		= tablizer
+version		= $(shell egrep "= .v" cfg/config.go | cut -d'=' -f2 | cut -d'"' -f 2)
+archs		= android darwin freebsd linux netbsd openbsd windows
+PREFIX		= /usr/local
+UID			= root
+GID			= 0
+BRANCH		= $(shell git branch --show-current)
+COMMIT		= $(shell git rev-parse --short=8 HEAD)
+BUILD		= $(shell date +%Y.%m.%d.%H%M%S) 
+VERSION    := $(if $(filter $(BRANCH), development),$(version)-$(BRANCH)-$(COMMIT)-$(BUILD),$(version))
+HAVE_POD   := $(shell pod2text -h 2>/dev/null)
 
 all: $(tool).1 cmd/$(tool).go buildlocal
 
 %.1: %.pod
+ifdef HAVE_POD
 	pod2man -c "User Commands" -r 1 -s 1 $*.pod > $*.1
+endif
 
 cmd/%.go: %.pod
+ifdef HAVE_POD
 	echo "package cmd" > cmd/$*.go
 	echo >> cmd/$*.go
 	echo "var manpage = \`" >> cmd/$*.go
@@ -44,6 +47,7 @@ cmd/%.go: %.pod
 	echo "var usage = \`" >> cmd/$*.go
 	awk '/SYNOPS/{f=1;next} /DESCR/{f=0} f' $*.pod  | sed 's/^    //' >> cmd/$*.go
 	echo "\`" >> cmd/$*.go
+endif
 
 buildlocal:
 	go build -ldflags "-X 'github.com/tlinden/tablizer/cfg.VERSION=$(VERSION)'"
