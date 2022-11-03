@@ -75,3 +75,15 @@ singletest:
 cover-report:
 	go test ./... -cover -coverprofile=coverage.out
 	go tool cover -html=coverage.out
+
+show-versions: buildlocal
+	@echo "### tablizer version:"
+	@./tablizer --version
+
+	@echo
+	@echo "### go module versions:"
+	@go list -m all
+
+	@echo
+	@echo "### go version used for building:"
+	@grep -m 1 go go.mod
