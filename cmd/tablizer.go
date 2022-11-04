@@ -257,7 +257,7 @@ LICENSE
 
     Copyright (c) 2022 by Thomas von Dein
 
-    This software uses the following GO libraries:
+    This software uses the following GO modules:
 
     repr (https://github.com/alecthomas/repr)
         Released under the MIT License, Copyright (c) 2016 Alec Thomas
@@ -265,6 +265,19 @@ LICENSE
     cobra (https://github.com/spf13/cobra)
         Released under the Apache 2.0 license, Copyright 2013-2022 The Cobra
         Authors
+
+    dateparse (github.com/araddon/dateparse)
+        Released under the MIT License, Copyright (c) 2015-2017 Aaron Raddon
+
+    color (github.com/gookit/color)
+        Released under the MIT License, Copyright (c) 2016 inhere
+
+    tablewriter (github.com/olekukonko/tablewriter)
+        Released under the MIT License, Copyright (c) 201 by Oleku Konko
+
+    yaml (gopkg.in/yaml.v3)
+        Released under the MIT License, Copyright (c) 2006-2011 Kirill
+        Simonov
 
 AUTHORS
     Thomas von Dein tom AT vondein DOT org
