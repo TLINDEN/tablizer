@@ -295,7 +295,7 @@ This software is licensed under the GNU GENERAL PUBLIC LICENSE version 3.
 
 Copyright (c) 2022 by Thomas von Dein
 
-This software uses the following GO libraries:
+This software uses the following GO modules:
 
 =over 4
 
@@ -306,6 +306,22 @@ Released under the MIT License, Copyright (c) 2016 Alec Thomas
 =item cobra (https://github.com/spf13/cobra)
 
 Released under the Apache 2.0 license, Copyright 2013-2022 The Cobra Authors
+
+=item dateparse (github.com/araddon/dateparse)
+
+Released under the MIT License, Copyright (c) 2015-2017 Aaron Raddon
+
+=item color (github.com/gookit/color)
+
+Released under the MIT License, Copyright (c) 2016 inhere
+
+=item tablewriter (github.com/olekukonko/tablewriter)
+
+Released under the MIT License, Copyright (c) 201 by Oleku Konko
+
+=item yaml (gopkg.in/yaml.v3)
+
+Released under the MIT License, Copyright (c) 2006-2011 Kirill Simonov
 
 =back
 

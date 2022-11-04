@@ -87,3 +87,6 @@ show-versions: buildlocal
 	@echo
 	@echo "### go version used for building:"
 	@grep -m 1 go go.mod
+
+goupdate:
+	go get -t -u ./...
