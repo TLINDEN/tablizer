@@ -55,40 +55,54 @@ func ProcessFiles(c *cfg.Config, args []string) error {
 func determineIO(c *cfg.Config, args []string) ([]io.Reader, string, error) {
 	var pattern string
 	var fds []io.Reader
-	var havefiles bool
+	var haveio bool
 
-	if len(args) > 0 {
-		// threre were args left, take a look
-		if _, err := os.Stat(args[0]); err != nil {
-			// first  one is  not a  file, consider  it as  regexp and
-			// shift arg list
+	stat, _ := os.Stdin.Stat()
+	if (stat.Mode() & os.ModeCharDevice) == 0 {
+		// we're reading from STDIN, which takes precedence over file args
+		fds = append(fds, os.Stdin)
+		if len(args) > 0 {
+			// ignore any args > 1
 			pattern = args[0]
 			c.Pattern = args[0] // used for colorization by printData()
-			args = args[1:]
 		}
-
+		haveio = true
+	} else {
 		if len(args) > 0 {
-			// only files
-			for _, file := range args {
-				fd, err := os.OpenFile(file, os.O_RDONLY, 0755)
-
-				if err != nil {
-					return nil, "", err
+			// threre were args left, take a look
+			if args[0] == "-" {
+				// in traditional unix programs a dash denotes STDIN (forced)
+				fds = append(fds, os.Stdin)
+				haveio = true
+			} else {
+				if _, err := os.Stat(args[0]); err != nil {
+					// first  one is  not a  file, consider  it as  regexp and
+					// shift arg list
+					pattern = args[0]
+					c.Pattern = args[0] // used for colorization by printData()
+					args = args[1:]
 				}
 
-				fds = append(fds, fd)
+				if len(args) > 0 {
+					// consider any other args as files
+					for _, file := range args {
+
+						fd, err := os.OpenFile(file, os.O_RDONLY, 0755)
+
+						if err != nil {
+							return nil, "", err
+						}
+
+						fds = append(fds, fd)
+						haveio = true
+					}
+				}
 			}
-			havefiles = true
 		}
 	}
 
-	if !havefiles {
-		stat, _ := os.Stdin.Stat()
-		if (stat.Mode() & os.ModeCharDevice) == 0 {
-			fds = append(fds, os.Stdin)
-		} else {
-			return nil, "", errors.New("No file specified and nothing to read on stdin!")
-		}
+	if !haveio {
+		return nil, "", errors.New("No file specified and nothing to read on stdin!")
 	}
 
 	return fds, pattern, nil
