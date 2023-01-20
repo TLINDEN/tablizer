@@ -121,7 +121,7 @@ func Execute() {
 	rootCmd.PersistentFlags().BoolVarP(&sortmode.Numeric, "sort-numeric", "i", false, "sort according to string numerical value")
 	rootCmd.PersistentFlags().BoolVarP(&sortmode.Time, "sort-time", "t", false, "sort according to time string")
 	rootCmd.PersistentFlags().BoolVarP(&sortmode.Age, "sort-age", "a", false, "sort according to age (duration) string")
-	rootCmd.MarkFlagsMutuallyExclusive("sort-desc", "sort-numeric", "sort-time", "sort-age")
+	rootCmd.MarkFlagsMutuallyExclusive("sort-numeric", "sort-time", "sort-age")
 
 	// output flags, only 1 allowed
 	rootCmd.PersistentFlags().BoolVarP(&modeflag.X, "extended", "X", false, "Enable extended output")
