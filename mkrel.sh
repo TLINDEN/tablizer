@@ -43,7 +43,7 @@ for D in $DIST; do
     tardir="${tool}-${os}-${arch}-${version}"
     tarfile="releases/${tool}-${os}-${arch}-${version}.tar.gz"
     set -x
-    GOOS=${os} GOARCH=${arch} go build -o ${binfile} -ldflags "-X 'github.com/tlinden/tablizer/lib.VERSION=${version}'"
+    GOOS=${os} GOARCH=${arch} go build -o ${binfile} -ldflags "-X 'github.com/tlinden/tablizer/cfg.VERSION=${version}'"
     mkdir -p ${tardir}
     cp ${binfile} README.md LICENSE ${tardir}/
     echo 'tool = tablizer
