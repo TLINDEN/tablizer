@@ -255,7 +255,7 @@ LICENSE
     This software is licensed under the GNU GENERAL PUBLIC LICENSE version
     3.
 
-    Copyright (c) 2022 by Thomas von Dein
+    Copyright (c) 2023 by Thomas von Dein
 
     This software uses the following GO modules:
 
