@@ -69,13 +69,15 @@ func output(w io.Writer, str string) {
 }
 
 /*
-   Emacs org-mode compatible table (also orgtbl-mode)
+Emacs org-mode compatible table (also orgtbl-mode)
 */
 func printOrgmodeData(w io.Writer, c cfg.Config, data *Tabdata) {
 	tableString := &strings.Builder{}
 	table := tablewriter.NewWriter(tableString)
 
-	table.SetHeader(data.headers)
+	if !c.NoHeaders {
+		table.SetHeader(data.headers)
+	}
 
 	for _, row := range data.entries {
 		table.Append(trimRow(row))
@@ -104,13 +106,15 @@ func printOrgmodeData(w io.Writer, c cfg.Config, data *Tabdata) {
 }
 
 /*
-   Markdown table
+Markdown table
 */
 func printMarkdownData(w io.Writer, c cfg.Config, data *Tabdata) {
 	tableString := &strings.Builder{}
 	table := tablewriter.NewWriter(tableString)
 
-	table.SetHeader(data.headers)
+	if !c.NoHeaders {
+		table.SetHeader(data.headers)
+	}
 
 	for _, row := range data.entries {
 		table.Append(trimRow(row))
@@ -124,18 +128,16 @@ func printMarkdownData(w io.Writer, c cfg.Config, data *Tabdata) {
 }
 
 /*
-   Simple ASCII table without any borders etc, just like the input we expect
+Simple ASCII table without any borders etc, just like the input we expect
 */
 func printAsciiData(w io.Writer, c cfg.Config, data *Tabdata) {
 	tableString := &strings.Builder{}
 	table := tablewriter.NewWriter(tableString)
 
-	table.SetHeader(data.headers)
+	if !c.NoHeaders {
+		table.SetHeader(data.headers)
+	}
 	table.AppendBulk(data.entries)
-
-	// for _, row := range data.entries {
-	// 	table.Append(trimRow(row))
-	// }
 
 	table.SetAutoWrapText(false)
 	table.SetAutoFormatHeaders(true)
@@ -154,7 +156,7 @@ func printAsciiData(w io.Writer, c cfg.Config, data *Tabdata) {
 }
 
 /*
-   We simulate the \x command of psql (the PostgreSQL client)
+We simulate the \x command of psql (the PostgreSQL client)
 */
 func printExtendedData(w io.Writer, c cfg.Config, data *Tabdata) {
 	// needed for data output
@@ -174,7 +176,7 @@ func printExtendedData(w io.Writer, c cfg.Config, data *Tabdata) {
 }
 
 /*
-   Shell output, ready to be eval'd. Just like FreeBSD stat(1)
+Shell output, ready to be eval'd. Just like FreeBSD stat(1)
 */
 func printShellData(w io.Writer, c cfg.Config, data *Tabdata) {
 	out := ""
