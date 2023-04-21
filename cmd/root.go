@@ -105,6 +105,7 @@ func Execute() {
 	// options
 	rootCmd.PersistentFlags().BoolVarP(&conf.Debug, "debug", "d", false, "Enable debugging")
 	rootCmd.PersistentFlags().BoolVarP(&conf.NoNumbering, "no-numbering", "n", false, "Disable header numbering")
+	rootCmd.PersistentFlags().BoolVarP(&conf.NoHeaders, "no-headers", "", false, "Disable header display")
 	rootCmd.PersistentFlags().BoolVarP(&conf.NoColor, "no-color", "N", false, "Disable pattern highlighting")
 	rootCmd.PersistentFlags().BoolVarP(&ShowVersion, "version", "V", false, "Print program version")
 	rootCmd.PersistentFlags().BoolVarP(&conf.InvertMatch, "invert-match", "v", false, "select non-matching rows")

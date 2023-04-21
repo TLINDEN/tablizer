@@ -25,13 +25,14 @@ import (
 )
 
 const DefaultSeparator string = `(\s\s+|\t)`
-const Version string = "v1.0.14"
+const Version string = "v1.0.15"
 
 var VERSION string // maintained by -x
 
 type Config struct {
 	Debug       bool
 	NoNumbering bool
+	NoHeaders   bool
 	Columns     string
 	UseColumns  []int
 	Separator   string
