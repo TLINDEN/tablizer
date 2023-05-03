@@ -19,13 +19,14 @@ package cfg
 import (
 	"errors"
 	"fmt"
-	"github.com/gookit/color"
 	"os"
 	"regexp"
+
+	"github.com/gookit/color"
 )
 
 const DefaultSeparator string = `(\s\s+|\t)`
-const Version string = "v1.0.15"
+const Version string = "v1.0.16"
 
 var VERSION string // maintained by -x
 
