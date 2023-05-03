@@ -13,7 +13,7 @@ SYNOPSIS
           -v, --invert-match       select non-matching rows
           -n, --no-numbering       Disable header numbering
           -N, --no-color           Disable pattern highlighting
-              --no-headers         Disable headers display
+          -H, --no-headers         Disable headers display
           -s, --separator string   Custom field separator
           -k, --sort-by int        Sort by column (default: 1)
 
@@ -89,9 +89,9 @@ DESCRIPTION
     The numbering can be suppressed by using the -n option.
 
     By default tablizer shows a header containing the names of each column.
-    This can be disabled using the --no-headers option. Be aware that this
-    only affects tabular output modes. Shell, Extended, Yaml and CSV output
-    modes always use the column names.
+    This can be disabled using the -H option. Be aware that this only
+    affects tabular output modes. Shell, Extended, Yaml and CSV output modes
+    always use the column names.
 
     By default, if a pattern has been speficied, matches will be
     highlighted. You can disable this behavior with the -N option.
@@ -299,7 +299,7 @@ Operational Flags:
   -v, --invert-match       select non-matching rows
   -n, --no-numbering       Disable header numbering
   -N, --no-color           Disable pattern highlighting
-      --no-headers         Disable headers display
+  -H, --no-headers         Disable headers display
   -s, --separator string   Custom field separator
   -k, --sort-by int        Sort by column (default: 1)
 

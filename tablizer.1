@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "TABLIZER 1"
-.TH TABLIZER 1 "2023-04-21" "1" "User Commands"
+.TH TABLIZER 1 "2023-05-03" "1" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -151,7 +151,7 @@ tablizer \- Manipulate tabular output of other programs
 \&      \-v, \-\-invert\-match       select non\-matching rows
 \&      \-n, \-\-no\-numbering       Disable header numbering
 \&      \-N, \-\-no\-color           Disable pattern highlighting
-\&          \-\-no\-headers         Disable headers display
+\&      \-H, \-\-no\-headers         Disable headers display
 \&      \-s, \-\-separator string   Custom field separator
 \&      \-k, \-\-sort\-by int        Sort by column (default: 1)
 \&
@@ -236,9 +236,9 @@ the original order.
 The numbering can be suppressed by using the \fB\-n\fR option.
 .PP
 By  default tablizer  shows  a  header containing  the  names of  each
-column.  This  can be disabled  using the \fB\-\-no\-headers\fR  option.  Be
-aware that  this only affects  tabular output modes.  Shell, Extended,
-Yaml and \s-1CSV\s0 output modes always use the column names.
+column.  This can  be disabled using the \fB\-H\fR option.   Be aware that
+this only affects tabular output modes.  Shell, Extended, Yaml and \s-1CSV\s0
+output modes always use the column names.
 .PP
 By  default, if  a  \fBpattern\fR  has been  speficied,  matches will  be
 highlighted. You can disable this behavior with the \fB\-N\fR option.
