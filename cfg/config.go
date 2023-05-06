@@ -26,21 +26,22 @@ import (
 )
 
 const DefaultSeparator string = `(\s\s+|\t)`
-const Version string = "v1.0.16"
+const Version string = "v1.0.17"
 
 var VERSION string // maintained by -x
 
 type Config struct {
-	Debug       bool
-	NoNumbering bool
-	NoHeaders   bool
-	Columns     string
-	UseColumns  []int
-	Separator   string
-	OutputMode  int
-	InvertMatch bool
-	Pattern     string
-	PatternR    *regexp.Regexp
+	Debug          bool
+	NoNumbering    bool
+	NoHeaders      bool
+	Columns        string
+	UseColumns     []int
+	Separator      string
+	OutputMode     int
+	InvertMatch    bool
+	Pattern        string
+	PatternR       *regexp.Regexp
+	UseFuzzySearch bool
 
 	SortMode       string
 	SortDescending bool

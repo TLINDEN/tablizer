@@ -22,15 +22,33 @@ import (
 	"encoding/csv"
 	"errors"
 	"fmt"
-	"github.com/alecthomas/repr"
-	"github.com/tlinden/tablizer/cfg"
 	"io"
 	"regexp"
 	"strings"
+
+	"github.com/alecthomas/repr"
+	"github.com/lithammer/fuzzysearch/fuzzy"
+	"github.com/tlinden/tablizer/cfg"
 )
 
 /*
-   Parser switch
+ * [!]Match a  line, use fuzzy  search for normal pattern  strings and
+ * regexp otherwise.
+ */
+func matchPattern(c cfg.Config, line string) bool {
+	if len(c.Pattern) > 0 {
+		if c.UseFuzzySearch {
+			return fuzzy.MatchFold(c.Pattern, line)
+		} else {
+			return c.PatternR.MatchString(line)
+		}
+	}
+
+	return true
+}
+
+/*
+Parser switch
 */
 func Parse(c cfg.Config, input io.Reader) (Tabdata, error) {
 	if len(c.Separator) == 1 {
@@ -41,7 +59,7 @@ func Parse(c cfg.Config, input io.Reader) (Tabdata, error) {
 }
 
 /*
-   Parse CSV input.
+Parse CSV input.
 */
 func parseCSV(c cfg.Config, input io.Reader) (Tabdata, error) {
 	var content io.Reader = input
@@ -55,7 +73,7 @@ func parseCSV(c cfg.Config, input io.Reader) (Tabdata, error) {
 			line := strings.TrimSpace(scanner.Text())
 			if hadFirst {
 				// don't match 1st line, it's the header
-				if c.PatternR.MatchString(line) == c.InvertMatch {
+				if matchPattern(c, line) == c.InvertMatch {
 					// by default  -v is false, so if a  line does NOT
 					// match the pattern, we will ignore it. However,
 					// if the user specified -v, the matching is inverted,
@@ -98,7 +116,7 @@ func parseCSV(c cfg.Config, input io.Reader) (Tabdata, error) {
 }
 
 /*
-   Parse tabular input.
+Parse tabular input.
 */
 func parseTabular(c cfg.Config, input io.Reader) (Tabdata, error) {
 	data := Tabdata{}
@@ -141,14 +159,12 @@ func parseTabular(c cfg.Config, input io.Reader) (Tabdata, error) {
 			}
 		} else {
 			// data processing
-			if len(c.Pattern) > 0 {
-				if c.PatternR.MatchString(line) == c.InvertMatch {
-					// by default  -v is false, so if a  line does NOT
-					// match the pattern, we will ignore it. However,
-					// if the user specified -v, the matching is inverted,
-					// so we ignore all lines, which DO match.
-					continue
-				}
+			if matchPattern(c, line) == c.InvertMatch {
+				// by default  -v is false, so if a  line does NOT
+				// match the pattern, we will ignore it. However,
+				// if the user specified -v, the matching is inverted,
+				// so we ignore all lines, which DO match.
+				continue
 			}
 
 			idx := 0 // we cannot use the header index, because we could exclude columns

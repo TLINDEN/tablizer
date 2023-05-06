@@ -19,10 +19,11 @@ package lib
 
 import (
 	"fmt"
-	"github.com/tlinden/tablizer/cfg"
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/tlinden/tablizer/cfg"
 )
 
 var input = []struct {

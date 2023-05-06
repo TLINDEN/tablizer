@@ -16,6 +16,7 @@ SYNOPSIS
           -H, --no-headers         Disable headers display
           -s, --separator string   Custom field separator
           -k, --sort-by int        Sort by column (default: 1)
+          -z, --fuzzy              Use fuzzy seach [experimental]
 
         Output Flags (mutually exclusive):
           -X, --extended           Enable extended output
@@ -137,6 +138,10 @@ DESCRIPTION
     Example for a case insensitive search:
 
         kubectl get pods -A | tablizer "(?i)account"
+
+    You can use the experimental fuzzy seach feature by providing the option
+    -z, in which case the pattern is regarded as a fuzzy search term, not a
+    regexp.
 
   COLUMNS
     The parameter -c can be used to specify, which columns to display. By
@@ -302,6 +307,7 @@ Operational Flags:
   -H, --no-headers         Disable headers display
   -s, --separator string   Custom field separator
   -k, --sort-by int        Sort by column (default: 1)
+  -z, --fuzzy              Use fuzzy seach [experimental]
 
 Output Flags (mutually exclusive):
   -X, --extended           Enable extended output

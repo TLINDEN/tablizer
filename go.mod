@@ -12,13 +12,18 @@ require (
 )
 
 require (
+	github.com/lithammer/fuzzysearch v1.1.7 // indirect
+	golang.org/x/text v0.8.0 // indirect
+)
+
+require (
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 
-    // force release. > 0.4. doesnt build everywhere, see:
-    // https://github.com/TLINDEN/tablizer/actions/runs/3396457307/jobs/5647544615
-    github.com/rivo/uniseg v0.2.0 // indirect
+	// force release. > 0.4. doesnt build everywhere, see:
+	// https://github.com/TLINDEN/tablizer/actions/runs/3396457307/jobs/5647544615
+	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
-	golang.org/x/sys v0.1.0 // indirect
+	golang.org/x/sys v0.5.0 // indirect
 )
