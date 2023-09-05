@@ -167,6 +167,17 @@ func parseTabular(c cfg.Config, input io.Reader) (Tabdata, error) {
 				continue
 			}
 
+			accept, err := RunFilterHooks(c, line)
+			if err != nil {
+				return data, errors.Unwrap(fmt.Errorf("Failed to apply filter hook: %w", err))
+			}
+
+			if !accept {
+				//  IF there  are filter  hook[s] and  IF one  of them
+				// returns false on the current line, reject it
+				continue
+			}
+
 			idx := 0 // we cannot use the header index, because we could exclude columns
 			values := []string{}
 			for _, part := range parts {
