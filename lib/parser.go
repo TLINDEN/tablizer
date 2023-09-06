@@ -80,6 +80,18 @@ func parseCSV(c cfg.Config, input io.Reader) (Tabdata, error) {
 					// so we ignore all lines, which DO match.
 					continue
 				}
+
+				// apply user defined lisp filters, if any
+				accept, err := RunFilterHooks(c, line)
+				if err != nil {
+					return data, errors.Unwrap(fmt.Errorf("Failed to apply filter hook: %w", err))
+				}
+
+				if !accept {
+					//  IF there  are filter  hook[s] and  IF one  of them
+					// returns false on the current line, reject it
+					continue
+				}
 			}
 			lines = append(lines, line)
 			hadFirst = true
@@ -110,6 +122,15 @@ func parseCSV(c cfg.Config, input io.Reader) (Tabdata, error) {
 		if len(records) > 1 {
 			data.entries = records[1:]
 		}
+	}
+
+	// apply user defined lisp process hooks, if any
+	userdata, changed, err := RunProcessHooks(c, data)
+	if err != nil {
+		return data, errors.Unwrap(fmt.Errorf("Failed to apply filter hook: %w", err))
+	}
+	if changed {
+		data = userdata
 	}
 
 	return data, nil
@@ -167,6 +188,7 @@ func parseTabular(c cfg.Config, input io.Reader) (Tabdata, error) {
 				continue
 			}
 
+			// apply user defined lisp filters, if any
 			accept, err := RunFilterHooks(c, line)
 			if err != nil {
 				return data, errors.Unwrap(fmt.Errorf("Failed to apply filter hook: %w", err))
@@ -200,6 +222,15 @@ func parseTabular(c cfg.Config, input io.Reader) (Tabdata, error) {
 
 	if scanner.Err() != nil {
 		return data, errors.Unwrap(fmt.Errorf("Failed to read from io.Reader: %w", scanner.Err()))
+	}
+
+	// apply user defined lisp process hooks, if any
+	userdata, changed, err := RunProcessHooks(c, data)
+	if err != nil {
+		return data, errors.Unwrap(fmt.Errorf("Failed to apply filter hook: %w", err))
+	}
+	if changed {
+		data = userdata
 	}
 
 	if c.Debug {

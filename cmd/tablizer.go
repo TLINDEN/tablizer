@@ -326,7 +326,8 @@ Sort Mode Flags (mutually exclusive):
 
 Other Flags:
       --completion <shell> Generate the autocompletion script for <shell>
-  -l  --load-path <path>   Path to search for lisp plugins (*.zy files)
+  -l  --load-path <path>   Where to search for lisp plugins. Maybe a file or
+                           a directory containing files with *.zy extension
   -d, --debug              Enable debugging
   -h, --help               help for tablizer
   -m, --man                Display manual page
