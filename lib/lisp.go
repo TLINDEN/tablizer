@@ -128,7 +128,10 @@ func SetupLisp(c *cfg.Config) error {
 
 			for _, entry := range dir {
 				if !entry.IsDir() {
-					LoadFile(env, c.LispLoadPath+"/"+entry.Name())
+					err := LoadFile(env, c.LispLoadPath+"/"+entry.Name())
+					if err != nil {
+						return err
+					}
 				}
 			}
 		}
@@ -188,6 +191,8 @@ been modified.
 Replaces the  internal data structure  Tabdata with the  user supplied
 version.
 
+Only one process hook function is supported.
+
 The somewhat complicated code is being  caused by the fact, that we
 need to convert our internal structure  to a lisp variable and vice
 versa afterwards.
@@ -196,91 +201,93 @@ func RunProcessHooks(c cfg.Config, data Tabdata) (Tabdata, bool, error) {
 	var userdata Tabdata
 	lisplist := []zygo.Sexp{}
 
-	if len(Hooks["process"]) > 0 {
-		// there are hook[s] installed, convert the go data structure 'data to lisp
-		for _, row := range data.entries {
-			var entry zygo.SexpHash
+	if len(Hooks["process"]) == 0 {
+		return userdata, false, nil
+	}
 
-			for idx, cell := range row {
-				err := entry.HashSet(&zygo.SexpStr{S: data.headers[idx]}, &zygo.SexpStr{S: cell})
-				if err != nil {
-					return userdata, false, err
-				}
-			}
+	if len(Hooks["process"]) > 1 {
+		fmt.Println("Warning: only one process hook is allowed!")
+	}
 
-			lisplist = append(lisplist, &entry)
-		}
+	// there are hook[s] installed, convert the go data structure 'data to lisp
+	for _, row := range data.entries {
+		var entry zygo.SexpHash
 
-		// we need to add it to the env so that the function can use the struct directly
-		c.Lisp.AddGlobal("data", &zygo.SexpArray{Val: lisplist, Env: c.Lisp})
-
-		// execute the actual hooks
-		for _, hook := range Hooks["process"] {
-			var result bool
-
-			c.Lisp.Clear()
-
-			res, err := c.Lisp.EvalString(fmt.Sprintf("(%s data)", hook.Name()))
+		for idx, cell := range row {
+			err := entry.HashSet(&zygo.SexpStr{S: data.headers[idx]}, &zygo.SexpStr{S: cell})
 			if err != nil {
 				return userdata, false, err
 			}
-
-			// we expect (bool, array(hash)) as return from the function
-			switch t := res.(type) {
-			case *zygo.SexpPair:
-				switch th := t.Head.(type) {
-				case *zygo.SexpBool:
-					result = th.Val
-				default:
-					return userdata, false, errors.New("Expect (bool, array(hash)) as return value!")
-				}
-
-				switch tt := t.Tail.(type) {
-				case *zygo.SexpArray:
-					lisplist = tt.Val
-				default:
-					return userdata, false, errors.New("Expect (bool, array(hash)) as return value!")
-				}
-			default:
-				return userdata, false, errors.New("filter hook shall return array of hashes!")
-			}
-
-			if !result {
-				// the first hook which returns false leads to complete false
-				return userdata, result, nil
-			}
-
-			// finally convert lispdata back to Tabdata
-			for _, item := range lisplist {
-				row := []string{}
-
-				switch hash := item.(type) {
-				case *zygo.SexpHash:
-					for _, header := range data.headers {
-						entry, err := hash.HashGetDefault(c.Lisp, &zygo.SexpStr{S: header}, &zygo.SexpStr{S: ""})
-						if err != nil {
-							return userdata, false, err
-						}
-
-						switch t := entry.(type) {
-						case *zygo.SexpStr:
-							row = append(row, t.S)
-						default:
-							return userdata, false, errors.New("Hash values should be string!")
-						}
-					}
-				default:
-					return userdata, false, errors.New("Returned array should contain hashes!")
-				}
-
-				userdata.entries = append(userdata.entries, row)
-			}
-
-			userdata.headers = data.headers
-
-			return userdata, result, nil
 		}
+
+		lisplist = append(lisplist, &entry)
 	}
 
-	return userdata, false, nil
+	// we need to add it to the env so that the function can use the struct directly
+	c.Lisp.AddGlobal("data", &zygo.SexpArray{Val: lisplist, Env: c.Lisp})
+
+	// execute the actual hook
+	hook := Hooks["process"][0]
+	var result bool
+	c.Lisp.Clear()
+
+	res, err := c.Lisp.EvalString(fmt.Sprintf("(%s data)", hook.Name()))
+	if err != nil {
+		return userdata, false, err
+	}
+
+	// we expect (bool, array(hash)) as return from the function
+	switch t := res.(type) {
+	case *zygo.SexpPair:
+		switch th := t.Head.(type) {
+		case *zygo.SexpBool:
+			result = th.Val
+		default:
+			return userdata, false, errors.New("Expect (bool, array(hash)) as return value!")
+		}
+
+		switch tt := t.Tail.(type) {
+		case *zygo.SexpArray:
+			lisplist = tt.Val
+		default:
+			return userdata, false, errors.New("Expect (bool, array(hash)) as return value!")
+		}
+	default:
+		return userdata, false, errors.New("filter hook shall return array of hashes!")
+	}
+
+	if !result {
+		// no further processing required
+		return userdata, result, nil
+	}
+
+	// finally convert lispdata back to Tabdata
+	for _, item := range lisplist {
+		row := []string{}
+
+		switch hash := item.(type) {
+		case *zygo.SexpHash:
+			for _, header := range data.headers {
+				entry, err := hash.HashGetDefault(c.Lisp, &zygo.SexpStr{S: header}, &zygo.SexpStr{S: ""})
+				if err != nil {
+					return userdata, false, err
+				}
+
+				switch t := entry.(type) {
+				case *zygo.SexpStr:
+					row = append(row, t.S)
+				default:
+					return userdata, false, errors.New("Hash values should be string!")
+				}
+			}
+		default:
+			return userdata, false, errors.New("Returned array should contain hashes!")
+		}
+
+		userdata.entries = append(userdata.entries, row)
+	}
+
+	userdata.headers = data.headers
+
+	return userdata, result, nil
 }
