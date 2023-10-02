@@ -98,6 +98,12 @@ func Execute() {
 			conf.DetermineColormode()
 			conf.ApplyDefaults()
 
+			// setup lisp env, load plugins etc
+			err := lib.SetupLisp(&conf)
+			if err != nil {
+				return err
+			}
+
 			// actual execution starts here
 			return lib.ProcessFiles(&conf, args)
 		},
@@ -111,6 +117,7 @@ func Execute() {
 	rootCmd.PersistentFlags().BoolVarP(&ShowVersion, "version", "V", false, "Print program version")
 	rootCmd.PersistentFlags().BoolVarP(&conf.InvertMatch, "invert-match", "v", false, "select non-matching rows")
 	rootCmd.PersistentFlags().BoolVarP(&ShowManual, "man", "m", false, "Display manual page")
+	rootCmd.PersistentFlags().BoolVarP(&conf.UseFuzzySearch, "fuzzy", "z", false, "Use fuzzy searching")
 	rootCmd.PersistentFlags().StringVarP(&ShowCompletion, "completion", "", "", "Display completion code")
 	rootCmd.PersistentFlags().StringVarP(&conf.Separator, "separator", "s", cfg.DefaultSeparator, "Custom field separator")
 	rootCmd.PersistentFlags().StringVarP(&conf.Columns, "columns", "c", "", "Only show the speficied columns (separated by ,)")
@@ -134,6 +141,9 @@ func Execute() {
 	rootCmd.PersistentFlags().BoolVarP(&modeflag.C, "csv", "C", false, "Enable CSV output")
 	rootCmd.PersistentFlags().BoolVarP(&modeflag.A, "ascii", "A", false, "Enable ASCII output (default)")
 	rootCmd.MarkFlagsMutuallyExclusive("extended", "markdown", "orgtbl", "shell", "yaml", "csv")
+
+	// lisp options
+	rootCmd.PersistentFlags().StringVarP(&conf.LispLoadPath, "load-path", "l", cfg.DefaultLoadPath, "Load path for lisp plugins (expects *.zy files)")
 
 	rootCmd.SetUsageTemplate(strings.TrimSpace(usage) + "\n")
 

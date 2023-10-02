@@ -1,0 +1,10 @@
+/*
+Simple filter hook function. Splits the argument by whitespace,
+fetches the 2nd element, converts it to an int and returns true
+if it s larger than 5, false otherwise.
+*/
+(defn uselarge [line]
+  (cond (> (atoi (second (resplit line `\s+`))) 5) true false))
+
+/* Register the filter hook */
+(addhook %filter %uselarge)

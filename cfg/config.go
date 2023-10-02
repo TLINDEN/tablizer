@@ -22,25 +22,30 @@ import (
 	"os"
 	"regexp"
 
+
+	"github.com/glycerine/zygomys/zygo"
 	"github.com/gookit/color"
 )
 
 const DefaultSeparator string = `(\s\s+|\t)`
-const Version string = "v1.0.16"
+const Version string = "v1.0.17"
+
+var DefaultLoadPath string = os.Getenv("HOME") + "/.config/tablizer/lisp"
 
 var VERSION string // maintained by -x
 
 type Config struct {
-	Debug       bool
-	NoNumbering bool
-	NoHeaders   bool
-	Columns     string
-	UseColumns  []int
-	Separator   string
-	OutputMode  int
-	InvertMatch bool
-	Pattern     string
-	PatternR    *regexp.Regexp
+	Debug          bool
+	NoNumbering    bool
+	NoHeaders      bool
+	Columns        string
+	UseColumns     []int
+	Separator      string
+	OutputMode     int
+	InvertMatch    bool
+	Pattern        string
+	PatternR       *regexp.Regexp
+	UseFuzzySearch bool
 
 	SortMode       string
 	SortDescending bool
@@ -53,6 +58,13 @@ type Config struct {
 	ColorStyle color.Style
 
 	NoColor bool
+
+	// special  case: we use the  config struct to transport  the lisp
+	// env trough the program
+	Lisp *zygo.Zlisp
+
+	// a path containing lisp scripts to be loaded on startup
+	LispLoadPath string
 }
 
 // maps outputmode short flags to output mode, ie. -O => -o orgtbl
@@ -83,6 +95,9 @@ type Sortmode struct {
 	Time    bool
 	Age     bool
 }
+
+// valid lisp hooks
+var ValidHooks []string
 
 // default color schemes
 func Colors() map[color.Level]map[string]color.Color {
@@ -186,6 +201,8 @@ func (c *Config) ApplyDefaults() {
 	if c.OutputMode == Yaml || c.OutputMode == CSV {
 		c.NoNumbering = true
 	}
+
+	ValidHooks = []string{"filter", "process", "transpose", "append"}
 }
 
 func (c *Config) PreparePattern(pattern string) error {
