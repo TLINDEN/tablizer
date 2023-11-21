@@ -104,17 +104,17 @@ var ValidHooks []string
 func Colors() map[color.Level]map[string]color.Color {
 	return map[color.Level]map[string]color.Color{
 		color.Level16: {
-			"bg": color.BgGreen, "fg": color.FgBlack,
+			"bg": color.BgGreen, "fg": color.FgWhite,
 			"hlbg": color.BgGray, "hlfg": color.FgWhite,
 		},
 		color.Level256: {
-			"bg": color.BgLightGreen, "fg": color.FgBlack,
-			"hlbg": color.BgGray, "hlfg": color.FgWhite,
+			"bg": color.BgLightGreen, "fg": color.FgWhite,
+			"hlbg": color.BgLightBlue, "hlfg": color.FgWhite,
 		},
 		color.LevelRgb: {
 			// FIXME: maybe use something nicer
-			"bg": color.BgLightGreen, "fg": color.FgBlack,
-			"hlbg": color.BgGray, "hlfg": color.FgWhite,
+			"bg": color.BgLightGreen, "fg": color.FgWhite,
+			"hlbg": color.BgBlue, "hlfg": color.FgWhite,
 		},
 	}
 }
