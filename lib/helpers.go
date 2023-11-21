@@ -20,13 +20,14 @@ package lib
 import (
 	"errors"
 	"fmt"
-	"github.com/gookit/color"
-	"github.com/tlinden/tablizer/cfg"
 	"os"
 	"regexp"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/gookit/color"
+	"github.com/tlinden/tablizer/cfg"
 )
 
 func contains(s []int, e int) bool {
@@ -155,9 +156,25 @@ func trimRow(row []string) []string {
 func colorizeData(c cfg.Config, output string) string {
 	if len(c.Pattern) > 0 && !c.NoColor && color.IsConsole(os.Stdout) {
 		r := regexp.MustCompile("(" + c.Pattern + ")")
-		return r.ReplaceAllStringFunc(output, func(in string) string {
-			return c.ColorStyle.Sprint(in)
-		})
+		highlight := true
+		colorized := ""
+
+		for _, line := range strings.Split(output, "\n") {
+			if c.UseHighlight {
+				if highlight {
+					line = c.HighlightStyle.Sprint(line)
+				}
+				highlight = !highlight
+			} else {
+				line = r.ReplaceAllStringFunc(line, func(in string) string {
+					return c.ColorStyle.Sprint(in)
+				})
+			}
+
+			colorized += line + "\n"
+		}
+
+		return colorized
 	} else {
 		return output
 	}

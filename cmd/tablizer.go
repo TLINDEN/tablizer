@@ -22,10 +22,11 @@ SYNOPSIS
           -X, --extended           Enable extended output
           -M, --markdown           Enable markdown table output
           -O, --orgtbl             Enable org-mode table output
-          -S, --shell              Enable shell evaluable ouput
+          -S, --shell              Enable shell evaluable output
           -Y, --yaml               Enable yaml output
           -C, --csv                Enable CSV output
           -A, --ascii              Default output mode, ascii tabular
+          -L, --hightlight-lines   Use alternating background colors for tables
 
         Sort Mode Flags (mutually exclusive):
           -a, --sort-age           sort according to age (duration) string
@@ -38,7 +39,7 @@ SYNOPSIS
           -d, --debug              Enable debugging
           -h, --help               help for tablizer
           -m, --man                Display manual page
-          -v, --version            Print program version
+          -V, --version            Print program version
 
 DESCRIPTION
     Many programs generate tabular output. But sometimes you need to
@@ -313,10 +314,11 @@ Output Flags (mutually exclusive):
   -X, --extended           Enable extended output
   -M, --markdown           Enable markdown table output
   -O, --orgtbl             Enable org-mode table output
-  -S, --shell              Enable shell evaluable ouput
+  -S, --shell              Enable shell evaluable output
   -Y, --yaml               Enable yaml output
   -C, --csv                Enable CSV output
   -A, --ascii              Default output mode, ascii tabular
+  -L, --hightlight-lines   Use alternating background colors for tables
 
 Sort Mode Flags (mutually exclusive):
   -a, --sort-age           sort according to age (duration) string
@@ -326,12 +328,10 @@ Sort Mode Flags (mutually exclusive):
 
 Other Flags:
       --completion <shell> Generate the autocompletion script for <shell>
-  -l  --load-path <path>   Where to search for lisp plugins. Maybe a file or
-                           a directory containing files with *.zy extension
   -d, --debug              Enable debugging
   -h, --help               help for tablizer
   -m, --man                Display manual page
-  -v, --version            Print program version
+  -V, --version            Print program version
 
 
 `

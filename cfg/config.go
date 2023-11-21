@@ -22,7 +22,6 @@ import (
 	"os"
 	"regexp"
 
-
 	"github.com/glycerine/zygomys/zygo"
 	"github.com/gookit/color"
 )
@@ -46,6 +45,7 @@ type Config struct {
 	Pattern        string
 	PatternR       *regexp.Regexp
 	UseFuzzySearch bool
+	UseHighlight   bool
 
 	SortMode       string
 	SortDescending bool
@@ -55,7 +55,8 @@ type Config struct {
 	 FIXME: make configurable somehow, config file or ENV
 	 see https://github.com/gookit/color.
 	*/
-	ColorStyle color.Style
+	ColorStyle     color.Style
+	HighlightStyle color.Style
 
 	NoColor bool
 
@@ -104,13 +105,16 @@ func Colors() map[color.Level]map[string]color.Color {
 	return map[color.Level]map[string]color.Color{
 		color.Level16: {
 			"bg": color.BgGreen, "fg": color.FgBlack,
+			"hlbg": color.BgGray, "hlfg": color.FgWhite,
 		},
 		color.Level256: {
 			"bg": color.BgLightGreen, "fg": color.FgBlack,
+			"hlbg": color.BgGray, "hlfg": color.FgWhite,
 		},
 		color.LevelRgb: {
 			// FIXME: maybe use something nicer
 			"bg": color.BgLightGreen, "fg": color.FgBlack,
+			"hlbg": color.BgGray, "hlfg": color.FgWhite,
 		},
 	}
 }
@@ -123,6 +127,7 @@ func (c *Config) DetermineColormode() {
 		level := color.TermColorLevel()
 		colors := Colors()
 		c.ColorStyle = color.New(colors[level]["bg"], colors[level]["fg"])
+		c.HighlightStyle = color.New(colors[level]["hlbg"], colors[level]["hlfg"])
 	}
 }
 
