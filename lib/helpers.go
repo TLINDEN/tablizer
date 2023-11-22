@@ -154,24 +154,42 @@ func trimRow(row []string) []string {
 }
 
 func colorizeData(c cfg.Config, output string) string {
-	if len(c.Pattern) > 0 && !c.NoColor && color.IsConsole(os.Stdout) {
-		r := regexp.MustCompile("(" + c.Pattern + ")")
-		return r.ReplaceAllStringFunc(output, func(in string) string {
-			return c.ColorStyle.Sprint(in)
-		})
-	} else if c.UseHighlight && color.IsConsole(os.Stdout) {
+	if c.UseHighlight && color.IsConsole(os.Stdout) {
 		highlight := true
 		colorized := ""
+		first := true
 
 		for _, line := range strings.Split(output, "\n") {
 			if highlight {
-				line = c.HighlightStyle.Sprint(line)
+				if first {
+					// we  need to add  two spaces to the  header line
+					//  because tablewriter omits them for some reason
+					//  in pprint mode. This doesn't matter as long as
+					//  we don't use colorization. But with colors the
+					// missing spaces can be seen.
+					if c.OutputMode == cfg.Ascii {
+						line = line + "  "
+					}
+
+					line = c.HighlightHdrStyle.Sprint(line)
+					first = false
+				} else {
+					line = c.HighlightStyle.Sprint(line)
+				}
+			} else {
+				line = c.NoHighlightStyle.Sprint(line)
 			}
 			highlight = !highlight
+
 			colorized += line + "\n"
 		}
 
 		return colorized
+	} else if len(c.Pattern) > 0 && !c.NoColor && color.IsConsole(os.Stdout) {
+		r := regexp.MustCompile("(" + c.Pattern + ")")
+		return r.ReplaceAllStringFunc(output, func(in string) string {
+			return c.ColorStyle.Sprint(in)
+		})
 	} else {
 		return output
 	}

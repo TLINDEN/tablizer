@@ -55,8 +55,10 @@ type Config struct {
 	 FIXME: make configurable somehow, config file or ENV
 	 see https://github.com/gookit/color.
 	*/
-	ColorStyle     color.Style
-	HighlightStyle color.Style
+	ColorStyle        color.Style
+	HighlightStyle    color.Style
+	NoHighlightStyle  color.Style
+	HighlightHdrStyle color.Style
 
 	NoColor bool
 
@@ -114,7 +116,9 @@ func Colors() map[color.Level]map[string]color.Color {
 		color.LevelRgb: {
 			// FIXME: maybe use something nicer
 			"bg": color.BgLightGreen, "fg": color.FgWhite,
-			"hlbg": color.BgBlue, "hlfg": color.FgWhite,
+			"hlbg": color.BgHiGreen, "hlfg": color.FgWhite,
+			"nohlbg": color.BgWhite, "nohlfg": color.FgLightGreen,
+			"hdrbg": color.BgBlue, "hdrfg": color.FgWhite,
 		},
 	}
 }
@@ -128,6 +132,8 @@ func (c *Config) DetermineColormode() {
 		colors := Colors()
 		c.ColorStyle = color.New(colors[level]["bg"], colors[level]["fg"])
 		c.HighlightStyle = color.New(colors[level]["hlbg"], colors[level]["hlfg"])
+		c.NoHighlightStyle = color.New(colors[level]["nohlbg"], colors[level]["nohlfg"])
+		c.HighlightHdrStyle = color.New(colors[level]["hdrbg"], colors[level]["hdrfg"])
 	}
 }
 
