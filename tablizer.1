@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "TABLIZER 1"
-.TH TABLIZER 1 "2023-05-06" "1" "User Commands"
+.TH TABLIZER 1 "2023-11-22" "1" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -160,10 +160,11 @@ tablizer \- Manipulate tabular output of other programs
 \&      \-X, \-\-extended           Enable extended output
 \&      \-M, \-\-markdown           Enable markdown table output
 \&      \-O, \-\-orgtbl             Enable org\-mode table output
-\&      \-S, \-\-shell              Enable shell evaluable ouput
+\&      \-S, \-\-shell              Enable shell evaluable output
 \&      \-Y, \-\-yaml               Enable yaml output
 \&      \-C, \-\-csv                Enable CSV output
 \&      \-A, \-\-ascii              Default output mode, ascii tabular
+\&      \-L, \-\-hightlight\-lines   Use alternating background colors for tables
 \&
 \&    Sort Mode Flags (mutually exclusive):
 \&      \-a, \-\-sort\-age           sort according to age (duration) string
@@ -173,10 +174,11 @@ tablizer \- Manipulate tabular output of other programs
 \&
 \&    Other Flags:
 \&          \-\-completion <shell> Generate the autocompletion script for <shell>
+\&      \-f, \-\-config <file>      Configuration file (default: ~/.config/tablizer/config)
 \&      \-d, \-\-debug              Enable debugging
 \&      \-h, \-\-help               help for tablizer
 \&      \-m, \-\-man                Display manual page
-\&      \-v, \-\-version            Print program version
+\&      \-V, \-\-version            Print program version
 .Ve
 .SH "DESCRIPTION"
 .IX Header "DESCRIPTION"
@@ -444,6 +446,38 @@ To load completions for every new session, run:
 .Ve
 .Sp
 and source this file from your PowerShell profile.
+.SH "CONFIGURATION AND COLORS"
+.IX Header "CONFIGURATION AND COLORS"
+YOu can put certain configuration values into a configuration file in
+\&\s-1HCL\s0 format. By default tablizer looks for
+\&\f(CW\*(C`$HOME/.config/tablizer/config\*(C'\fR, but you can provide one using the
+parameter \f(CW\*(C`\-f\*(C'\fR.
+.PP
+In the configuration the following variables can be defined:
+.PP
+.Vb 8
+\&    BG             = "lightGreen"
+\&    FG             = "white"
+\&    HighlightBG    = "lightGreen"
+\&    HighlightFG    = "white"
+\&    NoHighlightBG  = "white"
+\&    NoHighlightFG  = "lightGreen"
+\&    HighlightHdrBG = "red"
+\&    HighlightHdrFG = "white"
+.Ve
+.PP
+The following color definitions are available:
+.PP
+black, blue,  cyan, darkGray, default, green,  lightBlue, lightCyan,
+lightGreen,   lightMagenta,   lightRed,   lightWhite,   lightYellow,
+magenta, red, white, yellow
+.PP
+The Variables \fB\s-1FG\s0\fR and \fB\s-1BG\s0\fR are being used to highlight matches. The
+other *FG and *BG variables are for colored table output (enabled with
+the \f(CW\*(C`\-L\*(C'\fR parameter).
+.PP
+Colorization can be turned off completely either by setting the
+parameter \f(CW\*(C`\-N\*(C'\fR or the environment variable \fB\s-1NO_COLOR\s0\fR to a true value.
 .SH "BUGS"
 .IX Header "BUGS"
 In order to report a bug, unexpected behavior, feature requests

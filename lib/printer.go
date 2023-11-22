@@ -20,15 +20,16 @@ package lib
 import (
 	"encoding/csv"
 	"fmt"
-	"github.com/gookit/color"
-	"github.com/olekukonko/tablewriter"
-	"github.com/tlinden/tablizer/cfg"
-	"gopkg.in/yaml.v3"
 	"io"
 	"log"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/gookit/color"
+	"github.com/olekukonko/tablewriter"
+	"github.com/tlinden/tablizer/cfg"
+	"gopkg.in/yaml.v3"
 )
 
 func printData(w io.Writer, c cfg.Config, data *Tabdata) {
@@ -148,8 +149,14 @@ func printAsciiData(w io.Writer, c cfg.Config, data *Tabdata) {
 	table.SetRowSeparator("")
 	table.SetHeaderLine(false)
 	table.SetBorder(false)
-	table.SetTablePadding("\t") // pad with tabs
 	table.SetNoWhiteSpace(true)
+
+	if !c.UseHighlight {
+		// the tabs destroy the highlighting
+		table.SetTablePadding("\t") // pad with tabs
+	} else {
+		table.SetTablePadding("   ")
+	}
 
 	table.Render()
 	output(w, color.Sprint(colorizeData(c, tableString.String())))

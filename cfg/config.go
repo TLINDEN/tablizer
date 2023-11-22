@@ -19,21 +19,36 @@ package cfg
 import (
 	"errors"
 	"fmt"
+	"log"
 	"os"
 	"regexp"
 
-
 	"github.com/glycerine/zygomys/zygo"
 	"github.com/gookit/color"
+	"github.com/hashicorp/hcl/v2/hclsimple"
 )
 
 const DefaultSeparator string = `(\s\s+|\t)`
-const Version string = "v1.0.17"
+const Version string = "v1.1.0"
 
 var DefaultLoadPath string = os.Getenv("HOME") + "/.config/tablizer/lisp"
+var DefaultConfigfile string = os.Getenv("HOME") + "/.config/tablizer/config"
 
 var VERSION string // maintained by -x
 
+// public config, set via config file or using defaults
+type Configuration struct {
+	FG             string `hcl:"FG"`
+	BG             string `hcl:"BG"`
+	HighlightFG    string `hcl:"HighlightFG"`
+	HighlightBG    string `hcl:"HighlightBG"`
+	NoHighlightFG  string `hcl:"NoHighlightFG"`
+	NoHighlightBG  string `hcl:"NoHighlightBG"`
+	HighlightHdrFG string `hcl:"HighlightHdrFG"`
+	HighlightHdrBG string `hcl:"HighlightHdrBG"`
+}
+
+// internal config
 type Config struct {
 	Debug          bool
 	NoNumbering    bool
@@ -46,6 +61,7 @@ type Config struct {
 	Pattern        string
 	PatternR       *regexp.Regexp
 	UseFuzzySearch bool
+	UseHighlight   bool
 
 	SortMode       string
 	SortDescending bool
@@ -55,7 +71,10 @@ type Config struct {
 	 FIXME: make configurable somehow, config file or ENV
 	 see https://github.com/gookit/color.
 	*/
-	ColorStyle color.Style
+	ColorStyle        color.Style
+	HighlightStyle    color.Style
+	NoHighlightStyle  color.Style
+	HighlightHdrStyle color.Style
 
 	NoColor bool
 
@@ -65,6 +84,11 @@ type Config struct {
 
 	// a path containing lisp scripts to be loaded on startup
 	LispLoadPath string
+
+	// config file, optional
+	Configfile string
+
+	Configuration Configuration
 }
 
 // maps outputmode short flags to output mode, ie. -O => -o orgtbl
@@ -100,19 +124,73 @@ type Sortmode struct {
 var ValidHooks []string
 
 // default color schemes
-func Colors() map[color.Level]map[string]color.Color {
-	return map[color.Level]map[string]color.Color{
+func (c *Config) Colors() map[color.Level]map[string]color.Color {
+	colors := map[color.Level]map[string]color.Color{
 		color.Level16: {
-			"bg": color.BgGreen, "fg": color.FgBlack,
+			"bg": color.BgGreen, "fg": color.FgWhite,
+			"hlbg": color.BgGray, "hlfg": color.FgWhite,
 		},
 		color.Level256: {
-			"bg": color.BgLightGreen, "fg": color.FgBlack,
+			"bg": color.BgLightGreen, "fg": color.FgWhite,
+			"hlbg": color.BgLightBlue, "hlfg": color.FgWhite,
 		},
 		color.LevelRgb: {
-			// FIXME: maybe use something nicer
-			"bg": color.BgLightGreen, "fg": color.FgBlack,
+			"bg": color.BgLightGreen, "fg": color.FgWhite,
+			"hlbg": color.BgHiGreen, "hlfg": color.FgWhite,
+			"nohlbg": color.BgWhite, "nohlfg": color.FgLightGreen,
+			"hdrbg": color.BgBlue, "hdrfg": color.FgWhite,
 		},
 	}
+
+	if len(c.Configuration.BG) > 0 {
+		colors[color.Level16]["bg"] = ColorStringToBGColor(c.Configuration.BG)
+		colors[color.Level256]["bg"] = ColorStringToBGColor(c.Configuration.BG)
+		colors[color.LevelRgb]["bg"] = ColorStringToBGColor(c.Configuration.BG)
+	}
+
+	if len(c.Configuration.FG) > 0 {
+		colors[color.Level16]["fg"] = ColorStringToColor(c.Configuration.FG)
+		colors[color.Level256]["fg"] = ColorStringToColor(c.Configuration.FG)
+		colors[color.LevelRgb]["fg"] = ColorStringToColor(c.Configuration.FG)
+	}
+
+	if len(c.Configuration.HighlightBG) > 0 {
+		colors[color.Level16]["hlbg"] = ColorStringToBGColor(c.Configuration.HighlightBG)
+		colors[color.Level256]["hlbg"] = ColorStringToBGColor(c.Configuration.HighlightBG)
+		colors[color.LevelRgb]["hlbg"] = ColorStringToBGColor(c.Configuration.HighlightBG)
+	}
+
+	if len(c.Configuration.HighlightFG) > 0 {
+		colors[color.Level16]["hlfg"] = ColorStringToColor(c.Configuration.HighlightFG)
+		colors[color.Level256]["hlfg"] = ColorStringToColor(c.Configuration.HighlightFG)
+		colors[color.LevelRgb]["hlfg"] = ColorStringToColor(c.Configuration.HighlightFG)
+	}
+
+	if len(c.Configuration.NoHighlightBG) > 0 {
+		colors[color.Level16]["nohlbg"] = ColorStringToBGColor(c.Configuration.NoHighlightBG)
+		colors[color.Level256]["nohlbg"] = ColorStringToBGColor(c.Configuration.NoHighlightBG)
+		colors[color.LevelRgb]["nohlbg"] = ColorStringToBGColor(c.Configuration.NoHighlightBG)
+	}
+
+	if len(c.Configuration.NoHighlightFG) > 0 {
+		colors[color.Level16]["nohlfg"] = ColorStringToColor(c.Configuration.NoHighlightFG)
+		colors[color.Level256]["nohlfg"] = ColorStringToColor(c.Configuration.NoHighlightFG)
+		colors[color.LevelRgb]["nohlfg"] = ColorStringToColor(c.Configuration.NoHighlightFG)
+	}
+
+	if len(c.Configuration.HighlightHdrBG) > 0 {
+		colors[color.Level16]["hdrbg"] = ColorStringToBGColor(c.Configuration.HighlightHdrBG)
+		colors[color.Level256]["hdrbg"] = ColorStringToBGColor(c.Configuration.HighlightHdrBG)
+		colors[color.LevelRgb]["hdrbg"] = ColorStringToBGColor(c.Configuration.HighlightHdrBG)
+	}
+
+	if len(c.Configuration.HighlightHdrFG) > 0 {
+		colors[color.Level16]["hdrfg"] = ColorStringToColor(c.Configuration.HighlightHdrFG)
+		colors[color.Level256]["hdrfg"] = ColorStringToColor(c.Configuration.HighlightHdrFG)
+		colors[color.LevelRgb]["hdrfg"] = ColorStringToColor(c.Configuration.HighlightHdrFG)
+	}
+
+	return colors
 }
 
 // find supported color mode, modifies config based on constants
@@ -121,8 +199,12 @@ func (c *Config) DetermineColormode() {
 		color.Disable()
 	} else {
 		level := color.TermColorLevel()
-		colors := Colors()
+		colors := c.Colors()
+
 		c.ColorStyle = color.New(colors[level]["bg"], colors[level]["fg"])
+		c.HighlightStyle = color.New(colors[level]["hlbg"], colors[level]["hlfg"])
+		c.NoHighlightStyle = color.New(colors[level]["nohlbg"], colors[level]["nohlfg"])
+		c.HighlightHdrStyle = color.New(colors[level]["hdrbg"], colors[level]["hdrfg"])
 	}
 }
 
@@ -216,4 +298,59 @@ func (c *Config) PreparePattern(pattern string) error {
 	c.Pattern = pattern
 
 	return nil
+}
+
+func (c *Config) ParseConfigfile() error {
+	if path, err := os.Stat(c.Configfile); !os.IsNotExist(err) {
+		if !path.IsDir() {
+			configstring, err := os.ReadFile(path.Name())
+			if err != nil {
+				return err
+			}
+
+			err = hclsimple.Decode(
+				path.Name(), []byte(configstring),
+				nil, &c.Configuration,
+			)
+			if err != nil {
+				log.Fatalf("Failed to load configuration: %s", err)
+			}
+		}
+	}
+
+	return nil
+}
+
+// translate color string to internal color value
+func ColorStringToColor(colorname string) color.Color {
+	for name, color := range color.FgColors {
+		if name == colorname {
+			return color
+		}
+	}
+
+	for name, color := range color.ExFgColors {
+		if name == colorname {
+			return color
+		}
+	}
+
+	return color.Normal
+}
+
+// same, for background colors
+func ColorStringToBGColor(colorname string) color.Color {
+	for name, color := range color.BgColors {
+		if name == colorname {
+			return color
+		}
+	}
+
+	for name, color := range color.ExBgColors {
+		if name == colorname {
+			return color
+		}
+	}
+
+	return color.Normal
 }

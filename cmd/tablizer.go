@@ -22,10 +22,11 @@ SYNOPSIS
           -X, --extended           Enable extended output
           -M, --markdown           Enable markdown table output
           -O, --orgtbl             Enable org-mode table output
-          -S, --shell              Enable shell evaluable ouput
+          -S, --shell              Enable shell evaluable output
           -Y, --yaml               Enable yaml output
           -C, --csv                Enable CSV output
           -A, --ascii              Default output mode, ascii tabular
+          -L, --hightlight-lines   Use alternating background colors for tables
 
         Sort Mode Flags (mutually exclusive):
           -a, --sort-age           sort according to age (duration) string
@@ -35,10 +36,11 @@ SYNOPSIS
 
         Other Flags:
               --completion <shell> Generate the autocompletion script for <shell>
+          -f, --config <file>      Configuration file (default: ~/.config/tablizer/config)
           -d, --debug              Enable debugging
           -h, --help               help for tablizer
           -m, --man                Display manual page
-          -v, --version            Print program version
+          -V, --version            Print program version
 
 DESCRIPTION
     Many programs generate tabular output. But sometimes you need to
@@ -257,6 +259,36 @@ DESCRIPTION
 
         and source this file from your PowerShell profile.
 
+CONFIGURATION AND COLORS
+    YOu can put certain configuration values into a configuration file in
+    HCL format. By default tablizer looks for
+    "$HOME/.config/tablizer/config", but you can provide one using the
+    parameter "-f".
+
+    In the configuration the following variables can be defined:
+
+        BG             = "lightGreen"
+        FG             = "white"
+        HighlightBG    = "lightGreen"
+        HighlightFG    = "white"
+        NoHighlightBG  = "white"
+        NoHighlightFG  = "lightGreen"
+        HighlightHdrBG = "red"
+        HighlightHdrFG = "white"
+
+    The following color definitions are available:
+
+    black, blue, cyan, darkGray, default, green, lightBlue, lightCyan,
+    lightGreen, lightMagenta, lightRed, lightWhite, lightYellow, magenta,
+    red, white, yellow
+
+    The Variables FG and BG are being used to highlight matches. The other
+    *FG and *BG variables are for colored table output (enabled with the
+    "-L" parameter).
+
+    Colorization can be turned off completely either by setting the
+    parameter "-N" or the environment variable NO_COLOR to a true value.
+
 BUGS
     In order to report a bug, unexpected behavior, feature requests or to
     submit a patch, please open an issue on github:
@@ -313,10 +345,11 @@ Output Flags (mutually exclusive):
   -X, --extended           Enable extended output
   -M, --markdown           Enable markdown table output
   -O, --orgtbl             Enable org-mode table output
-  -S, --shell              Enable shell evaluable ouput
+  -S, --shell              Enable shell evaluable output
   -Y, --yaml               Enable yaml output
   -C, --csv                Enable CSV output
   -A, --ascii              Default output mode, ascii tabular
+  -L, --hightlight-lines   Use alternating background colors for tables
 
 Sort Mode Flags (mutually exclusive):
   -a, --sort-age           sort according to age (duration) string
@@ -326,12 +359,11 @@ Sort Mode Flags (mutually exclusive):
 
 Other Flags:
       --completion <shell> Generate the autocompletion script for <shell>
-  -l  --load-path <path>   Where to search for lisp plugins. Maybe a file or
-                           a directory containing files with *.zy extension
+  -f, --config <file>      Configuration file (default: ~/.config/tablizer/config)
   -d, --debug              Enable debugging
   -h, --help               help for tablizer
   -m, --man                Display manual page
-  -v, --version            Print program version
+  -V, --version            Print program version
 
 
 `
