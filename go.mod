@@ -14,8 +14,6 @@ require (
 	gopkg.in/yaml.v3 v3.0.1
 )
 
-require github.com/zclconf/go-cty v1.13.2 // indirect
-
 require (
 	github.com/agext/levenshtein v1.2.1 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
@@ -38,6 +36,7 @@ require (
 	github.com/tinylib/msgp v1.1.9 // indirect
 	github.com/ugorji/go/codec v1.2.11 // indirect
 	github.com/xo/terminfo v0.0.0-20210125001918-ca9a967f8778 // indirect
+	github.com/zclconf/go-cty v1.13.0 // indirect
 	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/text v0.11.0 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect

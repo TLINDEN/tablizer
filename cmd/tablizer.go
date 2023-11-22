@@ -259,6 +259,36 @@ DESCRIPTION
 
         and source this file from your PowerShell profile.
 
+CONFIGURATION AND COLORS
+    YOu can put certain configuration values into a configuration file in
+    HCL format. By default tablizer looks for
+    "$HOME/.config/tablizer/config", but you can provide one using the
+    parameter "-f".
+
+    In the configuration the following variables can be defined:
+
+        BG             = "lightGreen"
+        FG             = "white"
+        HighlightBG    = "lightGreen"
+        HighlightFG    = "white"
+        NoHighlightBG  = "white"
+        NoHighlightFG  = "lightGreen"
+        HighlightHdrBG = "red"
+        HighlightHdrFG = "white"
+
+    The following color definitions are available:
+
+    black, blue, cyan, darkGray, default, green, lightBlue, lightCyan,
+    lightGreen, lightMagenta, lightRed, lightWhite, lightYellow, magenta,
+    red, white, yellow
+
+    The Variables FG and BG are being used to highlight matches. The other
+    *FG and *BG variables are for colored table output (enabled with the
+    "-L" parameter).
+
+    Colorization can be turned off completely either by setting the
+    parameter "-N" or the environment variable NO_COLOR to a true value.
+
 BUGS
     In order to report a bug, unexpected behavior, feature requests or to
     submit a patch, please open an issue on github:
