@@ -36,6 +36,7 @@ SYNOPSIS
 
         Other Flags:
               --completion <shell> Generate the autocompletion script for <shell>
+          -f, --config <file>      Configuration file (default: ~/.config/tablizer/config)
           -d, --debug              Enable debugging
           -h, --help               help for tablizer
           -m, --man                Display manual page
@@ -328,6 +329,7 @@ Sort Mode Flags (mutually exclusive):
 
 Other Flags:
       --completion <shell> Generate the autocompletion script for <shell>
+  -f, --config <file>      Configuration file (default: ~/.config/tablizer/config)
   -d, --debug              Enable debugging
   -h, --help               help for tablizer
   -m, --man                Display manual page

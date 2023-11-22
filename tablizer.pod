@@ -35,6 +35,7 @@ tablizer - Manipulate tabular output of other programs
 
     Other Flags:
           --completion <shell> Generate the autocompletion script for <shell>
+      -f, --config <file>      Configuration file (default: ~/.config/tablizer/config)
       -d, --debug              Enable debugging
       -h, --help               help for tablizer
       -m, --man                Display manual page
@@ -293,6 +294,37 @@ To load completions for every new session, run:
 and source this file from your PowerShell profile.
 
 =back
+
+=head1 CONFIGURATION AND COLORS
+
+YOu can put certain configuration values into a configuration file in
+HCL format. By default tablizer looks for
+C<$HOME/.config/tablizer/config>, but you can provide one using the
+parameter C<-f>.
+
+In the configuration the following variables can be defined:
+
+    BG             = "lightGreen"
+    FG             = "white"
+    HighlightBG    = "lightGreen"
+    HighlightFG    = "white"
+    NoHighlightBG  = "white"
+    NoHighlightFG  = "lightGreen"
+    HighlightHdrBG = "red"
+    HighlightHdrFG = "white"
+
+The following color definitions are available:
+
+black, blue,  cyan, darkGray, default, green,  lightBlue, lightCyan,
+lightGreen,   lightMagenta,   lightRed,   lightWhite,   lightYellow,
+magenta, red, white, yellow
+
+The Variables B<FG> and B<BG> are being used to highlight matches. The
+other *FG and *BG variables are for colored table output (enabled with
+the C<-L> parameter).
+
+Colorization can be turned off completely either by setting the
+parameter C<-N> or the environment variable B<NO_COLOR> to a true value.
 
 =head1 BUGS
 

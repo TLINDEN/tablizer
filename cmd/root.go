@@ -92,6 +92,11 @@ func Execute() {
 			}
 
 			// Setup
+			err := conf.ParseConfigfile()
+			if err != nil {
+				return err
+			}
+
 			conf.CheckEnv()
 			conf.PrepareModeFlags(modeflag)
 			conf.PrepareSortFlags(sortmode)
@@ -99,7 +104,7 @@ func Execute() {
 			conf.ApplyDefaults()
 
 			// setup lisp env, load plugins etc
-			err := lib.SetupLisp(&conf)
+			err = lib.SetupLisp(&conf)
 			if err != nil {
 				return err
 			}
@@ -145,6 +150,9 @@ func Execute() {
 
 	// lisp options
 	rootCmd.PersistentFlags().StringVarP(&conf.LispLoadPath, "load-path", "l", cfg.DefaultLoadPath, "Load path for lisp plugins (expects *.zy files)")
+
+	// config file
+	rootCmd.PersistentFlags().StringVarP(&conf.Configfile, "config", "f", cfg.DefaultConfigfile, "config file (default: ~/.config/tablizer/config)")
 
 	rootCmd.SetUsageTemplate(strings.TrimSpace(usage) + "\n")
 
