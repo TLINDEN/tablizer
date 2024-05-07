@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 Thomas von Dein
+Copyright © 2022-2024 Thomas von Dein
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,4 +23,14 @@ type Tabdata struct {
 	columns        int      // count
 	headers        []string // [ "ID", "NAME", ...]
 	entries        [][]string
+}
+
+func (data *Tabdata) CloneEmpty() Tabdata {
+	new := Tabdata{
+		maxwidthHeader: data.maxwidthHeader,
+		columns:        data.columns,
+		headers:        data.headers,
+	}
+
+	return new
 }

@@ -1,0 +1,164 @@
+/*
+Copyright © 2024 Thomas von Dein
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+package lib
+
+import (
+	"fmt"
+	"reflect"
+	"testing"
+
+	"github.com/tlinden/tablizer/cfg"
+)
+
+func TestMatchPattern(t *testing.T) {
+	var input = []struct {
+		name    string
+		fuzzy   bool
+		pattern string
+		line    string
+	}{
+		{
+			name:    "normal",
+			pattern: "haus",
+			line:    "hausparty",
+		},
+		{
+			name:    "fuzzy",
+			pattern: "hpt",
+			line:    "haus-party-termin",
+			fuzzy:   true,
+		},
+	}
+
+	for _, in := range input {
+		testname := fmt.Sprintf("match-pattern-%s", in.name)
+
+		t.Run(testname, func(t *testing.T) {
+			c := cfg.Config{}
+
+			if in.fuzzy {
+				c.UseFuzzySearch = true
+			}
+
+			err := c.PreparePattern(in.pattern)
+			if err != nil {
+				t.Errorf("PreparePattern returned error: %s", err)
+			}
+
+			if !matchPattern(c, in.line) {
+				t.Errorf("matchPattern() did not match\nExp: true\nGot: false\n")
+			}
+		})
+	}
+
+}
+
+func TestFilterByFields(t *testing.T) {
+	data := Tabdata{
+		headers: []string{
+			"ONE", "TWO", "THREE",
+		},
+		entries: [][]string{
+			{"asd", "igig", "cxxxncnc"},
+			{"19191", "EDD 1", "x"},
+			{"8d8", "AN 1", "y"},
+		},
+	}
+
+	var input = []struct {
+		name   string
+		filter []string
+		expect Tabdata
+		invert bool
+	}{
+		{
+			name:   "one-field",
+			filter: []string{"one=19"},
+			expect: Tabdata{
+				headers: []string{
+					"ONE", "TWO", "THREE",
+				},
+				entries: [][]string{
+					{"19191", "EDD 1", "x"},
+				},
+			},
+		},
+
+		{
+			name:   "one-field-inverted",
+			filter: []string{"one=19"},
+			invert: true,
+			expect: Tabdata{
+				headers: []string{
+					"ONE", "TWO", "THREE",
+				},
+				entries: [][]string{
+					{"asd", "igig", "cxxxncnc"},
+					{"8d8", "AN 1", "y"},
+				},
+			},
+		},
+
+		{
+			name:   "many-fields",
+			filter: []string{"one=19", "two=DD"},
+			expect: Tabdata{
+				headers: []string{
+					"ONE", "TWO", "THREE",
+				},
+				entries: [][]string{
+					{"19191", "EDD 1", "x"},
+				},
+			},
+		},
+
+		{
+			name:   "many-fields-inverted",
+			filter: []string{"one=19", "two=DD"},
+			invert: true,
+			expect: Tabdata{
+				headers: []string{
+					"ONE", "TWO", "THREE",
+				},
+				entries: [][]string{
+					{"asd", "igig", "cxxxncnc"},
+					{"8d8", "AN 1", "y"},
+				},
+			},
+		},
+	}
+
+	for _, in := range input {
+		testname := fmt.Sprintf("filter-by-fields-%s", in.name)
+
+		t.Run(testname, func(t *testing.T) {
+			c := cfg.Config{Rawfilters: in.filter, InvertMatch: in.invert}
+
+			err := c.PrepareFilters()
+			if err != nil {
+				t.Errorf("PrepareFilters returned error: %s", err)
+			}
+
+			data, _, _ := FilterByFields(c, data)
+			if !reflect.DeepEqual(data, in.expect) {
+				t.Errorf("Filtered data does not match expected data:\ngot: %+v\nexp: %+v", data, in.expect)
+			}
+		})
+	}
+
+}

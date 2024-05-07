@@ -17,6 +17,7 @@ SYNOPSIS
           -s, --separator string   Custom field separator
           -k, --sort-by int        Sort by column (default: 1)
           -z, --fuzzy              Use fuzzy seach [experimental]
+          -F, --filter field=reg   Filter given field with regex, can be used multiple times
 
         Output Flags (mutually exclusive):
           -X, --extended           Enable extended output
@@ -117,7 +118,7 @@ DESCRIPTION
     Finally the -d option enables debugging output which is mostly useful
     for the developer.
 
-  PATTERNS
+  PATTERNS AND FILTERING
     You can reduce the rows being displayed by using a regular expression
     pattern. The regexp is PCRE compatible, refer to the syntax cheat sheet
     here: <https://github.com/google/re2/wiki/Syntax>. If you want to read a
@@ -144,6 +145,19 @@ DESCRIPTION
     You can use the experimental fuzzy seach feature by providing the option
     -z, in which case the pattern is regarded as a fuzzy search term, not a
     regexp.
+
+    Sometimes you want to filter by one or more columns. You can do that
+    using the -F option. The option can be specified multiple times and has
+    the following format:
+
+        fieldname=regexp
+
+    Fieldnames (== columns headers) are case insensitive.
+
+    If you specify more than one filter, both filters have to match (AND
+    operation).
+
+    If the option -v is specified, the filtering is inverted.
 
   COLUMNS
     The parameter -c can be used to specify, which columns to display. By
@@ -298,7 +312,7 @@ LICENSE
     This software is licensed under the GNU GENERAL PUBLIC LICENSE version
     3.
 
-    Copyright (c) 2023 by Thomas von Dein
+    Copyright (c) 2022-2024 by Thomas von Dein
 
     This software uses the following GO modules:
 
@@ -340,6 +354,7 @@ Operational Flags:
   -s, --separator string   Custom field separator
   -k, --sort-by int        Sort by column (default: 1)
   -z, --fuzzy              Use fuzzy seach [experimental]
+  -F, --filter field=reg   Filter given field with regex, can be used multiple times
 
 Output Flags (mutually exclusive):
   -X, --extended           Enable extended output

@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 Thomas von Dein
+Copyright © 2022-2024 Thomas von Dein
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -100,6 +100,11 @@ func Execute() {
 			conf.CheckEnv()
 			conf.PrepareModeFlags(modeflag)
 			conf.PrepareSortFlags(sortmode)
+
+			if err = conf.PrepareFilters(); err != nil {
+				return err
+			}
+
 			conf.DetermineColormode()
 			conf.ApplyDefaults()
 
@@ -149,10 +154,15 @@ func Execute() {
 	rootCmd.MarkFlagsMutuallyExclusive("extended", "markdown", "orgtbl", "shell", "yaml", "csv")
 
 	// lisp options
-	rootCmd.PersistentFlags().StringVarP(&conf.LispLoadPath, "load-path", "l", cfg.DefaultLoadPath, "Load path for lisp plugins (expects *.zy files)")
+	rootCmd.PersistentFlags().StringVarP(&conf.LispLoadPath, "load-path", "l", cfg.DefaultLoadPath,
+		"Load path for lisp plugins (expects *.zy files)")
 
 	// config file
-	rootCmd.PersistentFlags().StringVarP(&conf.Configfile, "config", "f", cfg.DefaultConfigfile, "config file (default: ~/.config/tablizer/config)")
+	rootCmd.PersistentFlags().StringVarP(&conf.Configfile, "config", "f", cfg.DefaultConfigfile,
+		"config file (default: ~/.config/tablizer/config)")
+
+	// filters
+	rootCmd.PersistentFlags().StringArrayVarP(&conf.Rawfilters, "filter", "F", nil, "Filter by field (field=regexp)")
 
 	rootCmd.SetUsageTemplate(strings.TrimSpace(usage) + "\n")
 

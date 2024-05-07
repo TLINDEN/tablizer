@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 Thomas von Dein
+Copyright © 2022-2024 Thomas von Dein
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"strings"
 
 	"github.com/glycerine/zygomys/zygo"
 	"github.com/gookit/color"
@@ -29,7 +30,7 @@ import (
 )
 
 const DefaultSeparator string = `(\s\s+|\t)`
-const Version string = "v1.1.0"
+const Version string = "v1.2.0"
 
 var DefaultLoadPath string = os.Getenv("HOME") + "/.config/tablizer/lisp"
 var DefaultConfigfile string = os.Getenv("HOME") + "/.config/tablizer/config"
@@ -89,6 +90,10 @@ type Config struct {
 	Configfile string
 
 	Configuration Configuration
+
+	// used for field filtering
+	Rawfilters []string
+	Filters    map[string]*regexp.Regexp
 }
 
 // maps outputmode short flags to output mode, ie. -O => -o orgtbl
@@ -258,6 +263,26 @@ func (conf *Config) PrepareModeFlags(flag Modeflag) {
 	default:
 		conf.OutputMode = Ascii
 	}
+}
+
+func (conf *Config) PrepareFilters() error {
+	conf.Filters = make(map[string]*regexp.Regexp, len(conf.Rawfilters))
+
+	for _, filter := range conf.Rawfilters {
+		parts := strings.Split(filter, "=")
+		if len(parts) != 2 {
+			return errors.New("filter field and value must be separated by =")
+		}
+
+		reg, err := regexp.Compile(parts[1])
+		if err != nil {
+			return err
+		}
+
+		conf.Filters[strings.ToLower(parts[0])] = reg
+	}
+
+	return nil
 }
 
 func (c *Config) CheckEnv() {
