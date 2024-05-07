@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 Thomas von Dein
+Copyright © 2022-2024 Thomas von Dein
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,25 +27,8 @@ import (
 	"strings"
 
 	"github.com/alecthomas/repr"
-	"github.com/lithammer/fuzzysearch/fuzzy"
 	"github.com/tlinden/tablizer/cfg"
 )
-
-/*
- * [!]Match a  line, use fuzzy  search for normal pattern  strings and
- * regexp otherwise.
- */
-func matchPattern(c cfg.Config, line string) bool {
-	if len(c.Pattern) > 0 {
-		if c.UseFuzzySearch {
-			return fuzzy.MatchFold(c.Pattern, line)
-		} else {
-			return c.PatternR.MatchString(line)
-		}
-	}
-
-	return true
-}
 
 /*
 Parser switch
@@ -73,7 +56,7 @@ func parseCSV(c cfg.Config, input io.Reader) (Tabdata, error) {
 			line := strings.TrimSpace(scanner.Text())
 			if hadFirst {
 				// don't match 1st line, it's the header
-				if matchPattern(c, line) == c.InvertMatch {
+				if c.Pattern != "" && matchPattern(c, line) == c.InvertMatch {
 					// by default  -v is false, so if a  line does NOT
 					// match the pattern, we will ignore it. However,
 					// if the user specified -v, the matching is inverted,
@@ -180,7 +163,7 @@ func parseTabular(c cfg.Config, input io.Reader) (Tabdata, error) {
 			}
 		} else {
 			// data processing
-			if matchPattern(c, line) == c.InvertMatch {
+			if c.Pattern != "" && matchPattern(c, line) == c.InvertMatch {
 				// by default  -v is false, so if a  line does NOT
 				// match the pattern, we will ignore it. However,
 				// if the user specified -v, the matching is inverted,
@@ -222,6 +205,15 @@ func parseTabular(c cfg.Config, input io.Reader) (Tabdata, error) {
 
 	if scanner.Err() != nil {
 		return data, errors.Unwrap(fmt.Errorf("Failed to read from io.Reader: %w", scanner.Err()))
+	}
+
+	// filter by field filters, if any
+	filtereddata, changed, err := FilterByFields(c, data)
+	if err != nil {
+		return data, fmt.Errorf("Failed to filter fields: %w", err)
+	}
+	if changed {
+		data = filtereddata
 	}
 
 	// apply user defined lisp process hooks, if any
