@@ -20,10 +20,10 @@ package lib
 import (
 	"bytes"
 	"fmt"
-	//"github.com/alecthomas/repr"
-	"github.com/tlinden/tablizer/cfg"
 	"strings"
 	"testing"
+
+	"github.com/tlinden/tablizer/cfg"
 )
 
 func newData() Tabdata {
@@ -73,7 +73,7 @@ var tests = []struct {
 }{
 	// --------------------- Default settings mode tests ``
 	{
-		mode: cfg.Ascii,
+		mode: cfg.ASCII,
 		name: "default",
 		expect: `
 NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                    
@@ -250,39 +250,39 @@ DURATION(2)	WHEN(4)
 }
 
 func TestPrinter(t *testing.T) {
-	for _, tt := range tests {
+	for _, testdata := range tests {
 		testname := fmt.Sprintf("print-sortcol-%d-desc-%t-sortby-%s-mode-%d-usecolumns-%s",
-			tt.column, tt.desc, tt.sortby, tt.mode, tt.usecolstr)
+			testdata.column, testdata.desc, testdata.sortby, testdata.mode, testdata.usecolstr)
 		t.Run(testname, func(t *testing.T) {
 			// replaces os.Stdout, but we ignore it
-			var w bytes.Buffer
+			var writer bytes.Buffer
 
 			// cmd flags
-			c := cfg.Config{
-				SortByColumn:   tt.column,
-				SortDescending: tt.desc,
-				SortMode:       tt.sortby,
-				OutputMode:     tt.mode,
-				NoNumbering:    tt.nonum,
-				UseColumns:     tt.usecol,
+			conf := cfg.Config{
+				SortByColumn:   testdata.column,
+				SortDescending: testdata.desc,
+				SortMode:       testdata.sortby,
+				OutputMode:     testdata.mode,
+				NoNumbering:    testdata.nonum,
+				UseColumns:     testdata.usecol,
 				NoColor:        true,
 			}
 
-			c.ApplyDefaults()
+			conf.ApplyDefaults()
 
 			// the test checks the len!
-			if len(tt.usecol) > 0 {
-				c.Columns = "yes"
+			if len(testdata.usecol) > 0 {
+				conf.Columns = "yes"
 			} else {
-				c.Columns = ""
+				conf.Columns = ""
 			}
 
-			testdata := newData()
-			exp := strings.TrimSpace(tt.expect)
+			data := newData()
+			exp := strings.TrimSpace(testdata.expect)
 
-			printData(&w, c, &testdata)
+			printData(&writer, conf, &data)
 
-			got := strings.TrimSpace(w.String())
+			got := strings.TrimSpace(writer.String())
 
 			if got != exp {
 				t.Errorf("not rendered correctly:\n+++ got:\n%s\n+++ want:\n%s",

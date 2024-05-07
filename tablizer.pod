@@ -15,7 +15,8 @@ tablizer - Manipulate tabular output of other programs
       -H, --no-headers         Disable headers display
       -s, --separator string   Custom field separator
       -k, --sort-by int        Sort by column (default: 1)
-      -z, --fuzzy              Use fuzzy seach [experimental]
+      -z, --fuzzy              Use fuzzy search [experimental]
+      -F, --filter field=reg   Filter given field with regex, can be used multiple times
 
     Output Flags (mutually exclusive):
       -X, --extended           Enable extended output
@@ -128,7 +129,7 @@ Sorts timestamps.
 Finally the  B<-d> option  enables debugging  output which  is mostly
 useful for the developer.
 
-=head2 PATTERNS
+=head2 PATTERNS AND FILTERING
 
 You can reduce the rows being  displayed by using a regular expression
 pattern.  The  regexp is  PCRE compatible, refer  to the  syntax cheat
@@ -155,9 +156,23 @@ Example for a case insensitive search:
 
     kubectl get pods -A | tablizer "(?i)account"
 
-You  can use  the experimental  fuzzy seach  feature by  providing the
+You  can use  the experimental  fuzzy search  feature by  providing the
 option B<-z>, in which case the  pattern is regarded as a fuzzy search
 term, not a regexp.
+
+Sometimes you want to  filter by one or more columns.  You can do that
+using the B<-F> option. The option can be specified multiple times and
+has the following format:
+
+    fieldname=regexp
+
+Fieldnames (== columns headers) are case insensitive.
+
+If you specify more than one filter, both filters have to match (AND
+operation).
+
+If the option B<-v> is specified, the filtering is inverted.
+
 
 =head2 COLUMNS
 
@@ -336,7 +351,7 @@ L<https://github.com/TLINDEN/tablizer/issues>.
 
 This software is licensed under the GNU GENERAL PUBLIC LICENSE version 3.
 
-Copyright (c) 2023 by Thomas von Dein
+Copyright (c) 2022-2024 by Thomas von Dein
 
 This software uses the following GO modules:
 

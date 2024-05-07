@@ -34,18 +34,18 @@ func TestPrepareModeFlags(t *testing.T) {
 		{Modeflag{O: true}, Orgtbl},
 		{Modeflag{Y: true}, Yaml},
 		{Modeflag{M: true}, Markdown},
-		{Modeflag{}, Ascii},
+		{Modeflag{}, ASCII},
 	}
 
 	// FIXME: use a map for easier printing
-	for _, tt := range tests {
-		testname := fmt.Sprintf("PrepareModeFlags-expect-%d", tt.expect)
+	for _, testdata := range tests {
+		testname := fmt.Sprintf("PrepareModeFlags-expect-%d", testdata.expect)
 		t.Run(testname, func(t *testing.T) {
-			c := Config{}
+			conf := Config{}
 
-			c.PrepareModeFlags(tt.flag)
-			if c.OutputMode != tt.expect {
-				t.Errorf("got: %d, expect: %d", c.OutputMode, tt.expect)
+			conf.PrepareModeFlags(testdata.flag)
+			if conf.OutputMode != testdata.expect {
+				t.Errorf("got: %d, expect: %d", conf.OutputMode, testdata.expect)
 			}
 		})
 	}
@@ -63,15 +63,15 @@ func TestPrepareSortFlags(t *testing.T) {
 		{Sortmode{}, "string"},
 	}
 
-	for _, tt := range tests {
-		testname := fmt.Sprintf("PrepareSortFlags-expect-%s", tt.expect)
+	for _, testdata := range tests {
+		testname := fmt.Sprintf("PrepareSortFlags-expect-%s", testdata.expect)
 		t.Run(testname, func(t *testing.T) {
-			c := Config{}
+			conf := Config{}
 
-			c.PrepareSortFlags(tt.flag)
+			conf.PrepareSortFlags(testdata.flag)
 
-			if c.SortMode != tt.expect {
-				t.Errorf("got: %s, expect: %s", c.SortMode, tt.expect)
+			if conf.SortMode != testdata.expect {
+				t.Errorf("got: %s, expect: %s", conf.SortMode, testdata.expect)
 			}
 		})
 	}
@@ -86,15 +86,16 @@ func TestPreparePattern(t *testing.T) {
 		{"[a-z", true},
 	}
 
-	for _, tt := range tests {
-		testname := fmt.Sprintf("PreparePattern-pattern-%s-wanterr-%t", tt.pattern, tt.wanterr)
+	for _, testdata := range tests {
+		testname := fmt.Sprintf("PreparePattern-pattern-%s-wanterr-%t",
+			testdata.pattern, testdata.wanterr)
 		t.Run(testname, func(t *testing.T) {
-			c := Config{}
+			conf := Config{}
 
-			err := c.PreparePattern(tt.pattern)
+			err := conf.PreparePattern(testdata.pattern)
 
 			if err != nil {
-				if !tt.wanterr {
+				if !testdata.wanterr {
 					t.Errorf("PreparePattern returned error: %s", err)
 				}
 			}

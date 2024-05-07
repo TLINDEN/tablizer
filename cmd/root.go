@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 Thomas von Dein
+Copyright © 2022-2024 Thomas von Dein
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,11 +33,12 @@ import (
 func man() {
 	man := exec.Command("less", "-")
 
-	var b bytes.Buffer
-	b.Write([]byte(manpage))
+	var buffer bytes.Buffer
+
+	buffer.Write([]byte(manpage))
 
 	man.Stdout = os.Stdout
-	man.Stdin = &b
+	man.Stdin = &buffer
 	man.Stderr = os.Stderr
 
 	err := man.Run()
@@ -58,7 +59,7 @@ func completion(cmd *cobra.Command, mode string) error {
 	case "powershell":
 		return cmd.Root().GenPowerShellCompletionWithDesc(os.Stdout)
 	default:
-		return errors.New("Invalid shell parameter! Valid ones: bash|zsh|fish|powershell")
+		return errors.New("invalid shell parameter! Valid ones: bash|zsh|fish|powershell")
 	}
 }
 
@@ -79,11 +80,13 @@ func Execute() {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if ShowVersion {
 				fmt.Println(cfg.Getversion())
+
 				return nil
 			}
 
 			if ShowManual {
 				man()
+
 				return nil
 			}
 
@@ -100,6 +103,11 @@ func Execute() {
 			conf.CheckEnv()
 			conf.PrepareModeFlags(modeflag)
 			conf.PrepareSortFlags(sortmode)
+
+			if err = conf.PrepareFilters(); err != nil {
+				return err
+			}
+
 			conf.DetermineColormode()
 			conf.ApplyDefaults()
 
@@ -115,41 +123,75 @@ func Execute() {
 	}
 
 	// options
-	rootCmd.PersistentFlags().BoolVarP(&conf.Debug, "debug", "d", false, "Enable debugging")
-	rootCmd.PersistentFlags().BoolVarP(&conf.NoNumbering, "no-numbering", "n", false, "Disable header numbering")
-	rootCmd.PersistentFlags().BoolVarP(&conf.NoHeaders, "no-headers", "H", false, "Disable header display")
-	rootCmd.PersistentFlags().BoolVarP(&conf.NoColor, "no-color", "N", false, "Disable pattern highlighting")
-	rootCmd.PersistentFlags().BoolVarP(&ShowVersion, "version", "V", false, "Print program version")
-	rootCmd.PersistentFlags().BoolVarP(&conf.InvertMatch, "invert-match", "v", false, "select non-matching rows")
-	rootCmd.PersistentFlags().BoolVarP(&ShowManual, "man", "m", false, "Display manual page")
-	rootCmd.PersistentFlags().BoolVarP(&conf.UseFuzzySearch, "fuzzy", "z", false, "Use fuzzy searching")
-	rootCmd.PersistentFlags().BoolVarP(&conf.UseHighlight, "highlight-lines", "L", false, "Use alternating background colors")
-	rootCmd.PersistentFlags().StringVarP(&ShowCompletion, "completion", "", "", "Display completion code")
-	rootCmd.PersistentFlags().StringVarP(&conf.Separator, "separator", "s", cfg.DefaultSeparator, "Custom field separator")
-	rootCmd.PersistentFlags().StringVarP(&conf.Columns, "columns", "c", "", "Only show the speficied columns (separated by ,)")
+	rootCmd.PersistentFlags().BoolVarP(&conf.Debug, "debug", "d", false,
+		"Enable debugging")
+	rootCmd.PersistentFlags().BoolVarP(&conf.NoNumbering, "no-numbering", "n", false,
+		"Disable header numbering")
+	rootCmd.PersistentFlags().BoolVarP(&conf.NoHeaders, "no-headers", "H", false,
+		"Disable header display")
+	rootCmd.PersistentFlags().BoolVarP(&conf.NoColor, "no-color", "N", false,
+		"Disable pattern highlighting")
+	rootCmd.PersistentFlags().BoolVarP(&ShowVersion, "version", "V", false,
+		"Print program version")
+	rootCmd.PersistentFlags().BoolVarP(&conf.InvertMatch, "invert-match", "v", false,
+		"select non-matching rows")
+	rootCmd.PersistentFlags().BoolVarP(&ShowManual, "man", "m", false,
+		"Display manual page")
+	rootCmd.PersistentFlags().BoolVarP(&conf.UseFuzzySearch, "fuzzy", "z", false,
+		"Use fuzzy searching")
+	rootCmd.PersistentFlags().BoolVarP(&conf.UseHighlight, "highlight-lines", "L", false,
+		"Use alternating background colors")
+	rootCmd.PersistentFlags().StringVarP(&ShowCompletion, "completion", "", "",
+		"Display completion code")
+	rootCmd.PersistentFlags().StringVarP(&conf.Separator, "separator", "s", cfg.DefaultSeparator,
+		"Custom field separator")
+	rootCmd.PersistentFlags().StringVarP(&conf.Columns, "columns", "c", "",
+		"Only show the speficied columns (separated by ,)")
 
 	// sort options
-	rootCmd.PersistentFlags().IntVarP(&conf.SortByColumn, "sort-by", "k", 0, "Sort by column (default: 1)")
+	rootCmd.PersistentFlags().IntVarP(&conf.SortByColumn, "sort-by", "k", 0,
+		"Sort by column (default: 1)")
 
 	// sort mode, only 1 allowed
-	rootCmd.PersistentFlags().BoolVarP(&conf.SortDescending, "sort-desc", "D", false, "Sort in descending order (default: ascending)")
-	rootCmd.PersistentFlags().BoolVarP(&sortmode.Numeric, "sort-numeric", "i", false, "sort according to string numerical value")
-	rootCmd.PersistentFlags().BoolVarP(&sortmode.Time, "sort-time", "t", false, "sort according to time string")
-	rootCmd.PersistentFlags().BoolVarP(&sortmode.Age, "sort-age", "a", false, "sort according to age (duration) string")
-	rootCmd.MarkFlagsMutuallyExclusive("sort-numeric", "sort-time", "sort-age")
+	rootCmd.PersistentFlags().BoolVarP(&conf.SortDescending, "sort-desc", "D", false,
+		"Sort in descending order (default: ascending)")
+	rootCmd.PersistentFlags().BoolVarP(&sortmode.Numeric, "sort-numeric", "i", false,
+		"sort according to string numerical value")
+	rootCmd.PersistentFlags().BoolVarP(&sortmode.Time, "sort-time", "t", false,
+		"sort according to time string")
+	rootCmd.PersistentFlags().BoolVarP(&sortmode.Age, "sort-age", "a", false,
+		"sort according to age (duration) string")
+	rootCmd.MarkFlagsMutuallyExclusive("sort-numeric", "sort-time",
+		"sort-age")
 
 	// output flags, only 1 allowed
-	rootCmd.PersistentFlags().BoolVarP(&modeflag.X, "extended", "X", false, "Enable extended output")
-	rootCmd.PersistentFlags().BoolVarP(&modeflag.M, "markdown", "M", false, "Enable markdown table output")
-	rootCmd.PersistentFlags().BoolVarP(&modeflag.O, "orgtbl", "O", false, "Enable org-mode table output")
-	rootCmd.PersistentFlags().BoolVarP(&modeflag.S, "shell", "S", false, "Enable shell mode output")
-	rootCmd.PersistentFlags().BoolVarP(&modeflag.Y, "yaml", "Y", false, "Enable yaml output")
-	rootCmd.PersistentFlags().BoolVarP(&modeflag.C, "csv", "C", false, "Enable CSV output")
-	rootCmd.PersistentFlags().BoolVarP(&modeflag.A, "ascii", "A", false, "Enable ASCII output (default)")
-	rootCmd.MarkFlagsMutuallyExclusive("extended", "markdown", "orgtbl", "shell", "yaml", "csv")
+	rootCmd.PersistentFlags().BoolVarP(&modeflag.X, "extended", "X", false,
+		"Enable extended output")
+	rootCmd.PersistentFlags().BoolVarP(&modeflag.M, "markdown", "M", false,
+		"Enable markdown table output")
+	rootCmd.PersistentFlags().BoolVarP(&modeflag.O, "orgtbl", "O", false,
+		"Enable org-mode table output")
+	rootCmd.PersistentFlags().BoolVarP(&modeflag.S, "shell", "S", false,
+		"Enable shell mode output")
+	rootCmd.PersistentFlags().BoolVarP(&modeflag.Y, "yaml", "Y", false,
+		"Enable yaml output")
+	rootCmd.PersistentFlags().BoolVarP(&modeflag.C, "csv", "C", false,
+		"Enable CSV output")
+	rootCmd.PersistentFlags().BoolVarP(&modeflag.A, "ascii", "A", false,
+		"Enable ASCII output (default)")
+	rootCmd.MarkFlagsMutuallyExclusive("extended", "markdown", "orgtbl",
+		"shell", "yaml", "csv")
 
 	// lisp options
-	rootCmd.PersistentFlags().StringVarP(&conf.LispLoadPath, "load-path", "l", cfg.DefaultLoadPath, "Load path for lisp plugins (expects *.zy files)")
+	rootCmd.PersistentFlags().StringVarP(&conf.LispLoadPath, "load-path", "l", cfg.DefaultLoadPath,
+		"Load path for lisp plugins (expects *.zy files)")
+
+	// config file
+	rootCmd.PersistentFlags().StringVarP(&conf.Configfile, "config", "f", cfg.DefaultConfigfile,
+		"config file (default: ~/.config/tablizer/config)")
+
+	// filters
+	rootCmd.PersistentFlags().StringArrayVarP(&conf.Rawfilters, "filter", "F", nil, "Filter by field (field=regexp)")
 
 	// config file
 	rootCmd.PersistentFlags().StringVarP(&conf.Configfile, "config", "f", cfg.DefaultConfigfile, "config file (default: ~/.config/tablizer/config)")

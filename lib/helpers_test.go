@@ -19,9 +19,10 @@ package lib
 
 import (
 	"fmt"
-	"github.com/tlinden/tablizer/cfg"
 	"reflect"
 	"testing"
+
+	"github.com/tlinden/tablizer/cfg"
 )
 
 func TestContains(t *testing.T) {
@@ -71,18 +72,18 @@ func TestPrepareColumns(t *testing.T) {
 		{"[a-z,4,5", []int{4, 5}, true}, // invalid regexp
 	}
 
-	for _, tt := range tests {
-		testname := fmt.Sprintf("PrepareColumns-%s-%t", tt.input, tt.wanterror)
+	for _, testdata := range tests {
+		testname := fmt.Sprintf("PrepareColumns-%s-%t", testdata.input, testdata.wanterror)
 		t.Run(testname, func(t *testing.T) {
-			c := cfg.Config{Columns: tt.input}
-			err := PrepareColumns(&c, &data)
+			conf := cfg.Config{Columns: testdata.input}
+			err := PrepareColumns(&conf, &data)
 			if err != nil {
-				if !tt.wanterror {
+				if !testdata.wanterror {
 					t.Errorf("got error: %v", err)
 				}
 			} else {
-				if !reflect.DeepEqual(c.UseColumns, tt.exp) {
-					t.Errorf("got: %v, expected: %v", c.UseColumns, tt.exp)
+				if !reflect.DeepEqual(conf.UseColumns, testdata.exp) {
+					t.Errorf("got: %v, expected: %v", conf.UseColumns, testdata.exp)
 				}
 			}
 		})
@@ -114,14 +115,16 @@ func TestReduceColumns(t *testing.T) {
 
 	input := [][]string{{"a", "b", "c"}}
 
-	for _, tt := range tests {
-		testname := fmt.Sprintf("reduce-columns-by-%+v", tt.columns)
+	for _, testdata := range tests {
+		testname := fmt.Sprintf("reduce-columns-by-%+v", testdata.columns)
+
 		t.Run(testname, func(t *testing.T) {
-			c := cfg.Config{Columns: "x", UseColumns: tt.columns}
+			c := cfg.Config{Columns: "x", UseColumns: testdata.columns}
 			data := Tabdata{entries: input}
 			reduceColumns(c, &data)
-			if !reflect.DeepEqual(data.entries, tt.expect) {
-				t.Errorf("reduceColumns returned invalid data:\ngot: %+v\nexp: %+v", data.entries, tt.expect)
+			if !reflect.DeepEqual(data.entries, testdata.expect) {
+				t.Errorf("reduceColumns returned invalid data:\ngot: %+v\nexp: %+v",
+					data.entries, testdata.expect)
 			}
 		})
 	}
@@ -142,15 +145,17 @@ func TestNumberizeHeaders(t *testing.T) {
 		{[]string{"ONE", "TWO"}, []int{1, 2}, true},
 	}
 
-	for _, tt := range tests {
-		testname := fmt.Sprintf("numberize-headers-columns-%+v-nonum-%t", tt.columns, tt.nonum)
+	for _, testdata := range tests {
+		testname := fmt.Sprintf("numberize-headers-columns-%+v-nonum-%t",
+			testdata.columns, testdata.nonum)
+
 		t.Run(testname, func(t *testing.T) {
-			c := cfg.Config{Columns: "x", UseColumns: tt.columns, NoNumbering: tt.nonum}
+			conf := cfg.Config{Columns: "x", UseColumns: testdata.columns, NoNumbering: testdata.nonum}
 			usedata := data
-			numberizeAndReduceHeaders(c, &usedata)
-			if !reflect.DeepEqual(usedata.headers, tt.expect) {
+			numberizeAndReduceHeaders(conf, &usedata)
+			if !reflect.DeepEqual(usedata.headers, testdata.expect) {
 				t.Errorf("numberizeAndReduceHeaders returned invalid data:\ngot: %+v\nexp: %+v",
-					usedata.headers, tt.expect)
+					usedata.headers, testdata.expect)
 			}
 		})
 	}

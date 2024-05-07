@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 Thomas von Dein
+Copyright © 2022-2024 Thomas von Dein
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,6 +22,7 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"strings"
 
 	"github.com/glycerine/zygomys/zygo"
 	"github.com/gookit/color"
@@ -29,15 +30,16 @@ import (
 )
 
 const DefaultSeparator string = `(\s\s+|\t)`
-const Version string = "v1.1.0"
+const Version string = "v1.2.0"
+const MAXPARTS = 2
 
-var DefaultLoadPath string = os.Getenv("HOME") + "/.config/tablizer/lisp"
-var DefaultConfigfile string = os.Getenv("HOME") + "/.config/tablizer/config"
+var DefaultLoadPath = os.Getenv("HOME") + "/.config/tablizer/lisp"
+var DefaultConfigfile = os.Getenv("HOME") + "/.config/tablizer/config"
 
 var VERSION string // maintained by -x
 
 // public config, set via config file or using defaults
-type Configuration struct {
+type Settings struct {
 	FG             string `hcl:"FG"`
 	BG             string `hcl:"BG"`
 	HighlightFG    string `hcl:"HighlightFG"`
@@ -88,7 +90,11 @@ type Config struct {
 	// config file, optional
 	Configfile string
 
-	Configuration Configuration
+	Settings Settings
+
+	// used for field filtering
+	Rawfilters []string
+	Filters    map[string]*regexp.Regexp
 }
 
 // maps outputmode short flags to output mode, ie. -O => -o orgtbl
@@ -110,7 +116,7 @@ const (
 	Shell
 	Yaml
 	CSV
-	Ascii
+	ASCII
 )
 
 // various sort types
@@ -124,7 +130,7 @@ type Sortmode struct {
 var ValidHooks []string
 
 // default color schemes
-func (c *Config) Colors() map[color.Level]map[string]color.Color {
+func (conf *Config) Colors() map[color.Level]map[string]color.Color {
 	colors := map[color.Level]map[string]color.Color{
 		color.Level16: {
 			"bg": color.BgGreen, "fg": color.FgWhite,
@@ -142,89 +148,86 @@ func (c *Config) Colors() map[color.Level]map[string]color.Color {
 		},
 	}
 
-	if len(c.Configuration.BG) > 0 {
-		colors[color.Level16]["bg"] = ColorStringToBGColor(c.Configuration.BG)
-		colors[color.Level256]["bg"] = ColorStringToBGColor(c.Configuration.BG)
-		colors[color.LevelRgb]["bg"] = ColorStringToBGColor(c.Configuration.BG)
+	if len(conf.Settings.BG) > 0 {
+		colors[color.Level16]["bg"] = ColorStringToBGColor(conf.Settings.BG)
+		colors[color.Level256]["bg"] = ColorStringToBGColor(conf.Settings.BG)
+		colors[color.LevelRgb]["bg"] = ColorStringToBGColor(conf.Settings.BG)
 	}
 
-	if len(c.Configuration.FG) > 0 {
-		colors[color.Level16]["fg"] = ColorStringToColor(c.Configuration.FG)
-		colors[color.Level256]["fg"] = ColorStringToColor(c.Configuration.FG)
-		colors[color.LevelRgb]["fg"] = ColorStringToColor(c.Configuration.FG)
+	if len(conf.Settings.FG) > 0 {
+		colors[color.Level16]["fg"] = ColorStringToColor(conf.Settings.FG)
+		colors[color.Level256]["fg"] = ColorStringToColor(conf.Settings.FG)
+		colors[color.LevelRgb]["fg"] = ColorStringToColor(conf.Settings.FG)
 	}
 
-	if len(c.Configuration.HighlightBG) > 0 {
-		colors[color.Level16]["hlbg"] = ColorStringToBGColor(c.Configuration.HighlightBG)
-		colors[color.Level256]["hlbg"] = ColorStringToBGColor(c.Configuration.HighlightBG)
-		colors[color.LevelRgb]["hlbg"] = ColorStringToBGColor(c.Configuration.HighlightBG)
+	if len(conf.Settings.HighlightBG) > 0 {
+		colors[color.Level16]["hlbg"] = ColorStringToBGColor(conf.Settings.HighlightBG)
+		colors[color.Level256]["hlbg"] = ColorStringToBGColor(conf.Settings.HighlightBG)
+		colors[color.LevelRgb]["hlbg"] = ColorStringToBGColor(conf.Settings.HighlightBG)
 	}
 
-	if len(c.Configuration.HighlightFG) > 0 {
-		colors[color.Level16]["hlfg"] = ColorStringToColor(c.Configuration.HighlightFG)
-		colors[color.Level256]["hlfg"] = ColorStringToColor(c.Configuration.HighlightFG)
-		colors[color.LevelRgb]["hlfg"] = ColorStringToColor(c.Configuration.HighlightFG)
+	if len(conf.Settings.HighlightFG) > 0 {
+		colors[color.Level16]["hlfg"] = ColorStringToColor(conf.Settings.HighlightFG)
+		colors[color.Level256]["hlfg"] = ColorStringToColor(conf.Settings.HighlightFG)
+		colors[color.LevelRgb]["hlfg"] = ColorStringToColor(conf.Settings.HighlightFG)
 	}
 
-	if len(c.Configuration.NoHighlightBG) > 0 {
-		colors[color.Level16]["nohlbg"] = ColorStringToBGColor(c.Configuration.NoHighlightBG)
-		colors[color.Level256]["nohlbg"] = ColorStringToBGColor(c.Configuration.NoHighlightBG)
-		colors[color.LevelRgb]["nohlbg"] = ColorStringToBGColor(c.Configuration.NoHighlightBG)
+	if len(conf.Settings.NoHighlightBG) > 0 {
+		colors[color.Level16]["nohlbg"] = ColorStringToBGColor(conf.Settings.NoHighlightBG)
+		colors[color.Level256]["nohlbg"] = ColorStringToBGColor(conf.Settings.NoHighlightBG)
+		colors[color.LevelRgb]["nohlbg"] = ColorStringToBGColor(conf.Settings.NoHighlightBG)
 	}
 
-	if len(c.Configuration.NoHighlightFG) > 0 {
-		colors[color.Level16]["nohlfg"] = ColorStringToColor(c.Configuration.NoHighlightFG)
-		colors[color.Level256]["nohlfg"] = ColorStringToColor(c.Configuration.NoHighlightFG)
-		colors[color.LevelRgb]["nohlfg"] = ColorStringToColor(c.Configuration.NoHighlightFG)
+	if len(conf.Settings.NoHighlightFG) > 0 {
+		colors[color.Level16]["nohlfg"] = ColorStringToColor(conf.Settings.NoHighlightFG)
+		colors[color.Level256]["nohlfg"] = ColorStringToColor(conf.Settings.NoHighlightFG)
+		colors[color.LevelRgb]["nohlfg"] = ColorStringToColor(conf.Settings.NoHighlightFG)
 	}
 
-	if len(c.Configuration.HighlightHdrBG) > 0 {
-		colors[color.Level16]["hdrbg"] = ColorStringToBGColor(c.Configuration.HighlightHdrBG)
-		colors[color.Level256]["hdrbg"] = ColorStringToBGColor(c.Configuration.HighlightHdrBG)
-		colors[color.LevelRgb]["hdrbg"] = ColorStringToBGColor(c.Configuration.HighlightHdrBG)
+	if len(conf.Settings.HighlightHdrBG) > 0 {
+		colors[color.Level16]["hdrbg"] = ColorStringToBGColor(conf.Settings.HighlightHdrBG)
+		colors[color.Level256]["hdrbg"] = ColorStringToBGColor(conf.Settings.HighlightHdrBG)
+		colors[color.LevelRgb]["hdrbg"] = ColorStringToBGColor(conf.Settings.HighlightHdrBG)
 	}
 
-	if len(c.Configuration.HighlightHdrFG) > 0 {
-		colors[color.Level16]["hdrfg"] = ColorStringToColor(c.Configuration.HighlightHdrFG)
-		colors[color.Level256]["hdrfg"] = ColorStringToColor(c.Configuration.HighlightHdrFG)
-		colors[color.LevelRgb]["hdrfg"] = ColorStringToColor(c.Configuration.HighlightHdrFG)
+	if len(conf.Settings.HighlightHdrFG) > 0 {
+		colors[color.Level16]["hdrfg"] = ColorStringToColor(conf.Settings.HighlightHdrFG)
+		colors[color.Level256]["hdrfg"] = ColorStringToColor(conf.Settings.HighlightHdrFG)
+		colors[color.LevelRgb]["hdrfg"] = ColorStringToColor(conf.Settings.HighlightHdrFG)
 	}
 
 	return colors
 }
 
 // find supported color mode, modifies config based on constants
-func (c *Config) DetermineColormode() {
+func (conf *Config) DetermineColormode() {
 	if !isTerminal(os.Stdout) {
 		color.Disable()
 	} else {
 		level := color.TermColorLevel()
-		colors := c.Colors()
+		colors := conf.Colors()
 
-		c.ColorStyle = color.New(colors[level]["bg"], colors[level]["fg"])
-		c.HighlightStyle = color.New(colors[level]["hlbg"], colors[level]["hlfg"])
-		c.NoHighlightStyle = color.New(colors[level]["nohlbg"], colors[level]["nohlfg"])
-		c.HighlightHdrStyle = color.New(colors[level]["hdrbg"], colors[level]["hdrfg"])
+		conf.ColorStyle = color.New(colors[level]["bg"], colors[level]["fg"])
+		conf.HighlightStyle = color.New(colors[level]["hlbg"], colors[level]["hlfg"])
+		conf.NoHighlightStyle = color.New(colors[level]["nohlbg"], colors[level]["nohlfg"])
+		conf.HighlightHdrStyle = color.New(colors[level]["hdrbg"], colors[level]["hdrfg"])
 	}
 }
 
 // Return true if current terminal is interactive
 func isTerminal(f *os.File) bool {
 	o, _ := f.Stat()
-	if (o.Mode() & os.ModeCharDevice) == os.ModeCharDevice {
-		return true
-	} else {
-		return false
-	}
+
+	return (o.Mode() & os.ModeCharDevice) == os.ModeCharDevice
 }
 
+// main program version
+// generated  version string, used  by -v contains  lib.Version on
+//
+//	main branch, and lib.Version-$branch-$lastcommit-$date on
+//
+// development branch
 func Getversion() string {
-	// main program version
-
-	// generated  version string, used  by -v contains  lib.Version on
-	//  main  branch,   and  lib.Version-$branch-$lastcommit-$date  on
-	// development branch
-
 	return fmt.Sprintf("This is tablizer version %s", VERSION)
 }
 
@@ -256,66 +259,94 @@ func (conf *Config) PrepareModeFlags(flag Modeflag) {
 	case flag.C:
 		conf.OutputMode = CSV
 	default:
-		conf.OutputMode = Ascii
+		conf.OutputMode = ASCII
 	}
 }
 
-func (c *Config) CheckEnv() {
+func (conf *Config) PrepareFilters() error {
+	conf.Filters = make(map[string]*regexp.Regexp, len(conf.Rawfilters))
+
+	for _, filter := range conf.Rawfilters {
+		parts := strings.Split(filter, "=")
+		if len(parts) != MAXPARTS {
+			return errors.New("filter field and value must be separated by =")
+		}
+
+		reg, err := regexp.Compile(parts[1])
+		if err != nil {
+			return fmt.Errorf("failed to compile filter regex for field %s: %w",
+				parts[0], err)
+		}
+
+		conf.Filters[strings.ToLower(parts[0])] = reg
+	}
+
+	return nil
+}
+
+func (conf *Config) CheckEnv() {
 	// check for environment vars, command line flags have precedence,
 	// NO_COLOR is being checked by the color module itself.
-	if !c.NoNumbering {
+	if !conf.NoNumbering {
 		_, set := os.LookupEnv("T_NO_HEADER_NUMBERING")
 		if set {
-			c.NoNumbering = true
+			conf.NoNumbering = true
 		}
 	}
 
-	if len(c.Columns) == 0 {
+	if len(conf.Columns) == 0 {
 		cols := os.Getenv("T_COLUMNS")
 		if len(cols) > 1 {
-			c.Columns = cols
+			conf.Columns = cols
 		}
 	}
 }
 
-func (c *Config) ApplyDefaults() {
+func (conf *Config) ApplyDefaults() {
 	// mode specific defaults
-	if c.OutputMode == Yaml || c.OutputMode == CSV {
-		c.NoNumbering = true
+	if conf.OutputMode == Yaml || conf.OutputMode == CSV {
+		conf.NoNumbering = true
 	}
 
 	ValidHooks = []string{"filter", "process", "transpose", "append"}
 }
 
-func (c *Config) PreparePattern(pattern string) error {
+func (conf *Config) PreparePattern(pattern string) error {
 	PatternR, err := regexp.Compile(pattern)
 
 	if err != nil {
-		return errors.Unwrap(fmt.Errorf("Regexp pattern %s is invalid: %w", c.Pattern, err))
+		return fmt.Errorf("regexp pattern %s is invalid: %w", conf.Pattern, err)
 	}
 
-	c.PatternR = PatternR
-	c.Pattern = pattern
+	conf.PatternR = PatternR
+	conf.Pattern = pattern
 
 	return nil
 }
 
-func (c *Config) ParseConfigfile() error {
-	if path, err := os.Stat(c.Configfile); !os.IsNotExist(err) {
-		if !path.IsDir() {
-			configstring, err := os.ReadFile(path.Name())
-			if err != nil {
-				return err
-			}
+// Parse config file.  Ignore if the file doesn't exist  but return an
+// error if it exists but fails to read or parse
+func (conf *Config) ParseConfigfile() error {
+	path, err := os.Stat(conf.Configfile)
 
-			err = hclsimple.Decode(
-				path.Name(), []byte(configstring),
-				nil, &c.Configuration,
-			)
-			if err != nil {
-				log.Fatalf("Failed to load configuration: %s", err)
-			}
-		}
+	if os.IsNotExist(err) || path.IsDir() {
+		// ignore non-existent or dirs
+		return nil
+	}
+
+	configstring, err := os.ReadFile(path.Name())
+	if err != nil {
+		return fmt.Errorf("failed to read config file %s: %w", path.Name(), err)
+	}
+
+	err = hclsimple.Decode(
+		path.Name(),
+		configstring,
+		nil,
+		&conf.Settings)
+	if err != nil {
+		return fmt.Errorf("failed to load configuration file %s: %w",
+			path.Name(), err)
 	}
 
 	return nil

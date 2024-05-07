@@ -70,6 +70,17 @@ NAME(1)                      READY(2) STATUS(3)  RESTARTS(4)    AGE(5)
 repldepl-7bcd8d5b64-q2bf4    1/1      Running    1 (69m ago)    5h26m
 ```
 
+Sometimes a filter regex is to broad  and you wish to filter only on a
+particular column. This is possible using `-F`:
+```
+% kubectl get pods | tablizer -n -Fname=2
+NAME                            READY   STATUS  RESTARTS        AGE
+repldepl-7bcd8d5b64-q2bf4       1/1     Running 1 (69m ago)     5h26m
+```
+
+Here we filtered  the `NAME` column for `2`, which  would have matched
+otherwise on all rows.
+
 There are more output modes like org-mode (orgtbl) and markdown.
 
 ## Demo
