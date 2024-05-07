@@ -193,9 +193,6 @@ func Execute() {
 	// filters
 	rootCmd.PersistentFlags().StringArrayVarP(&conf.Rawfilters, "filter", "F", nil, "Filter by field (field=regexp)")
 
-	// config file
-	rootCmd.PersistentFlags().StringVarP(&conf.Configfile, "config", "f", cfg.DefaultConfigfile, "config file (default: ~/.config/tablizer/config)")
-
 	rootCmd.SetUsageTemplate(strings.TrimSpace(usage) + "\n")
 
 	err := rootCmd.Execute()

@@ -19,7 +19,6 @@ package cfg
 import (
 	"errors"
 	"fmt"
-	"log"
 	"os"
 	"regexp"
 	"strings"
