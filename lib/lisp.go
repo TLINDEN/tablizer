@@ -52,19 +52,19 @@ func AddHook(env *zygo.Zlisp, name string, args []zygo.Sexp) (zygo.Sexp, error) 
 		}
 		hookname = t.Name()
 	default:
-		return zygo.SexpNull, errors.New("hook name must be a symbol!")
+		return zygo.SexpNull, errors.New("hook name must be a symbol ")
 	}
 
-	switch t := args[1].(type) {
+	switch sexptype := args[1].(type) {
 	case *zygo.SexpSymbol:
 		_, exists := Hooks[hookname]
 		if !exists {
-			Hooks[hookname] = []*zygo.SexpSymbol{t}
+			Hooks[hookname] = []*zygo.SexpSymbol{sexptype}
 		} else {
-			Hooks[hookname] = append(Hooks[hookname], t)
+			Hooks[hookname] = append(Hooks[hookname], sexptype)
 		}
 	default:
-		return zygo.SexpNull, errors.New("hook function must be a symbol!")
+		return zygo.SexpNull, errors.New("hook function must be a symbol ")
 	}
 
 	return zygo.SexpNull, nil
@@ -86,7 +86,7 @@ func HookExists(key string) bool {
 /*
  * Basic sanity checks and load lisp file
  */
-func LoadFile(env *zygo.Zlisp, path string) error {
+func LoadAndEvalFile(env *zygo.Zlisp, path string) error {
 	if strings.HasSuffix(path, `.zy`) {
 		code, err := os.ReadFile(path)
 		if err != nil {
@@ -106,32 +106,39 @@ func LoadFile(env *zygo.Zlisp, path string) error {
 /*
  * Setup lisp interpreter environment
  */
-func SetupLisp(c *cfg.Config) error {
+func SetupLisp(conf *cfg.Config) error {
+	// iterate over load-path and evaluate all *.zy files there, if any
+	// we ignore if load-path does not exist, which is the default anyway
+	path, err := os.Stat(conf.LispLoadPath)
+	if os.IsNotExist(err) {
+		return nil
+	}
+
+	// init global hooks
 	Hooks = make(map[string][]*zygo.SexpSymbol)
 
+	// init sandbox
 	env := zygo.NewZlispSandbox()
 	env.AddFunction("addhook", AddHook)
 
-	// iterate over load-path and evaluate all *.zy files there, if any
-	// we ignore if load-path does not exist, which is the default anyway
-	if path, err := os.Stat(c.LispLoadPath); !os.IsNotExist(err) {
-		if !path.IsDir() {
-			err := LoadFile(env, c.LispLoadPath)
-			if err != nil {
-				return err
-			}
-		} else {
-			dir, err := os.ReadDir(c.LispLoadPath)
-			if err != nil {
-				return err
-			}
+	if !path.IsDir() {
+		// load single lisp file
+		err = LoadAndEvalFile(env, conf.LispLoadPath)
+		if err != nil {
+			return err
+		}
+	} else {
+		// load all lisp file in load dir
+		dir, err := os.ReadDir(conf.LispLoadPath)
+		if err != nil {
+			return err
+		}
 
-			for _, entry := range dir {
-				if !entry.IsDir() {
-					err := LoadFile(env, c.LispLoadPath+"/"+entry.Name())
-					if err != nil {
-						return err
-					}
+		for _, entry := range dir {
+			if !entry.IsDir() {
+				err := LoadAndEvalFile(env, conf.LispLoadPath+"/"+entry.Name())
+				if err != nil {
+					return err
 				}
 			}
 		}
@@ -139,7 +146,7 @@ func SetupLisp(c *cfg.Config) error {
 
 	RegisterLib(env)
 
-	c.Lisp = env
+	conf.Lisp = env
 	return nil
 }
 
@@ -155,11 +162,11 @@ returning false wins,  that is if each function returns  true the line
 will  be kept,  if at  least one  of them  returns false,  it will  be
 skipped.
 */
-func RunFilterHooks(c cfg.Config, line string) (bool, error) {
+func RunFilterHooks(conf cfg.Config, line string) (bool, error) {
 	for _, hook := range Hooks["filter"] {
 		var result bool
-		c.Lisp.Clear()
-		res, err := c.Lisp.EvalString(fmt.Sprintf("(%s `%s`)", hook.Name(), line))
+		conf.Lisp.Clear()
+		res, err := conf.Lisp.EvalString(fmt.Sprintf("(%s `%s`)", hook.Name(), line))
 		if err != nil {
 			return false, err
 		}
@@ -197,7 +204,7 @@ The somewhat complicated code is being  caused by the fact, that we
 need to convert our internal structure  to a lisp variable and vice
 versa afterwards.
 */
-func RunProcessHooks(c cfg.Config, data Tabdata) (Tabdata, bool, error) {
+func RunProcessHooks(conf cfg.Config, data Tabdata) (Tabdata, bool, error) {
 	var userdata Tabdata
 	lisplist := []zygo.Sexp{}
 
@@ -224,14 +231,14 @@ func RunProcessHooks(c cfg.Config, data Tabdata) (Tabdata, bool, error) {
 	}
 
 	// we need to add it to the env so that the function can use the struct directly
-	c.Lisp.AddGlobal("data", &zygo.SexpArray{Val: lisplist, Env: c.Lisp})
+	conf.Lisp.AddGlobal("data", &zygo.SexpArray{Val: lisplist, Env: conf.Lisp})
 
 	// execute the actual hook
 	hook := Hooks["process"][0]
 	var result bool
-	c.Lisp.Clear()
+	conf.Lisp.Clear()
 
-	res, err := c.Lisp.EvalString(fmt.Sprintf("(%s data)", hook.Name()))
+	res, err := conf.Lisp.EvalString(fmt.Sprintf("(%s data)", hook.Name()))
 	if err != nil {
 		return userdata, false, err
 	}
@@ -243,17 +250,17 @@ func RunProcessHooks(c cfg.Config, data Tabdata) (Tabdata, bool, error) {
 		case *zygo.SexpBool:
 			result = th.Val
 		default:
-			return userdata, false, errors.New("Expect (bool, array(hash)) as return value!")
+			return userdata, false, errors.New("xpect (bool, array(hash)) as return value")
 		}
 
 		switch tt := t.Tail.(type) {
 		case *zygo.SexpArray:
 			lisplist = tt.Val
 		default:
-			return userdata, false, errors.New("Expect (bool, array(hash)) as return value!")
+			return userdata, false, errors.New("expect (bool, array(hash)) as return value ")
 		}
 	default:
-		return userdata, false, errors.New("filter hook shall return array of hashes!")
+		return userdata, false, errors.New("filter hook shall return array of hashes ")
 	}
 
 	if !result {
@@ -268,7 +275,7 @@ func RunProcessHooks(c cfg.Config, data Tabdata) (Tabdata, bool, error) {
 		switch hash := item.(type) {
 		case *zygo.SexpHash:
 			for _, header := range data.headers {
-				entry, err := hash.HashGetDefault(c.Lisp, &zygo.SexpStr{S: header}, &zygo.SexpStr{S: ""})
+				entry, err := hash.HashGetDefault(conf.Lisp, &zygo.SexpStr{S: header}, &zygo.SexpStr{S: ""})
 				if err != nil {
 					return userdata, false, err
 				}
@@ -277,11 +284,11 @@ func RunProcessHooks(c cfg.Config, data Tabdata) (Tabdata, bool, error) {
 				case *zygo.SexpStr:
 					row = append(row, t.S)
 				default:
-					return userdata, false, errors.New("Hash values should be string!")
+					return userdata, false, errors.New("hsh values should be string ")
 				}
 			}
 		default:
-			return userdata, false, errors.New("Returned array should contain hashes!")
+			return userdata, false, errors.New("rturned array should contain hashes ")
 		}
 
 		userdata.entries = append(userdata.entries, row)

@@ -28,12 +28,12 @@ import (
  * [!]Match a  line, use fuzzy  search for normal pattern  strings and
  * regexp otherwise.
  */
-func matchPattern(c cfg.Config, line string) bool {
-	if c.UseFuzzySearch {
-		return fuzzy.MatchFold(c.Pattern, line)
+func matchPattern(conf cfg.Config, line string) bool {
+	if conf.UseFuzzySearch {
+		return fuzzy.MatchFold(conf.Pattern, line)
 	}
 
-	return c.PatternR.MatchString(line)
+	return conf.PatternR.MatchString(line)
 }
 
 /*

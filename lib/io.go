@@ -19,40 +19,41 @@ package lib
 
 import (
 	"errors"
-	"github.com/tlinden/tablizer/cfg"
 	"io"
 	"os"
+
+	"github.com/tlinden/tablizer/cfg"
 )
 
-func ProcessFiles(c *cfg.Config, args []string) error {
-	fds, pattern, err := determineIO(c, args)
+func ProcessFiles(conf *cfg.Config, args []string) error {
+	fds, pattern, err := determineIO(conf, args)
 
 	if err != nil {
 		return err
 	}
 
-	if err := c.PreparePattern(pattern); err != nil {
+	if err := conf.PreparePattern(pattern); err != nil {
 		return err
 	}
 
 	for _, fd := range fds {
-		data, err := Parse(*c, fd)
+		data, err := Parse(*conf, fd)
 		if err != nil {
 			return err
 		}
 
-		err = PrepareColumns(c, &data)
+		err = PrepareColumns(conf, &data)
 		if err != nil {
 			return err
 		}
 
-		printData(os.Stdout, *c, &data)
+		printData(os.Stdout, *conf, &data)
 	}
 
 	return nil
 }
 
-func determineIO(c *cfg.Config, args []string) ([]io.Reader, string, error) {
+func determineIO(conf *cfg.Config, args []string) ([]io.Reader, string, error) {
 	var pattern string
 	var fds []io.Reader
 	var haveio bool
@@ -64,45 +65,43 @@ func determineIO(c *cfg.Config, args []string) ([]io.Reader, string, error) {
 		if len(args) > 0 {
 			// ignore any args > 1
 			pattern = args[0]
-			c.Pattern = args[0] // used for colorization by printData()
+			conf.Pattern = args[0] // used for colorization by printData()
 		}
 		haveio = true
-	} else {
-		if len(args) > 0 {
-			// threre were args left, take a look
-			if args[0] == "-" {
-				// in traditional unix programs a dash denotes STDIN (forced)
-				fds = append(fds, os.Stdin)
-				haveio = true
-			} else {
-				if _, err := os.Stat(args[0]); err != nil {
-					// first  one is  not a  file, consider  it as  regexp and
-					// shift arg list
-					pattern = args[0]
-					c.Pattern = args[0] // used for colorization by printData()
-					args = args[1:]
-				}
+	} else if len(args) > 0 {
+		// threre were args left, take a look
+		if args[0] == "-" {
+			// in traditional unix programs a dash denotes STDIN (forced)
+			fds = append(fds, os.Stdin)
+			haveio = true
+		} else {
+			if _, err := os.Stat(args[0]); err != nil {
+				// first  one is  not a  file, consider  it as  regexp and
+				// shift arg list
+				pattern = args[0]
+				conf.Pattern = args[0] // used for colorization by printData()
+				args = args[1:]
+			}
 
-				if len(args) > 0 {
-					// consider any other args as files
-					for _, file := range args {
+			if len(args) > 0 {
+				// consider any other args as files
+				for _, file := range args {
 
-						fd, err := os.OpenFile(file, os.O_RDONLY, 0755)
+					fd, err := os.OpenFile(file, os.O_RDONLY, 0755)
 
-						if err != nil {
-							return nil, "", err
-						}
-
-						fds = append(fds, fd)
-						haveio = true
+					if err != nil {
+						return nil, "", err
 					}
+
+					fds = append(fds, fd)
+					haveio = true
 				}
 			}
 		}
 	}
 
 	if !haveio {
-		return nil, "", errors.New("No file specified and nothing to read on stdin!")
+		return nil, "", errors.New("no file specified and nothing to read on stdin")
 	}
 
 	return fds, pattern, nil

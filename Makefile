@@ -91,3 +91,10 @@ show-versions: buildlocal
 
 goupdate:
 	go get -t -u=patch ./...
+
+lint:
+	golangci-lint run
+
+lint-full:
+	golangci-lint run --enable-all --exclude-use-default --disable exhaustivestruct,exhaustruct,depguard,interfacer,deadcode,golint,structcheck,scopelint,varcheck,ifshort,maligned,nosnakecase,godot,funlen,gofumpt,cyclop,noctx,gochecknoglobals,paralleltest,forbidigo,gci,godox,goimports,ireturn
+	gocritic check -enableAll *.go

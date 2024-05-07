@@ -20,7 +20,6 @@ package lib
 import (
 	"bufio"
 	"encoding/csv"
-	"errors"
 	"fmt"
 	"io"
 	"regexp"
@@ -33,22 +32,22 @@ import (
 /*
 Parser switch
 */
-func Parse(c cfg.Config, input io.Reader) (Tabdata, error) {
-	if len(c.Separator) == 1 {
-		return parseCSV(c, input)
+func Parse(conf cfg.Config, input io.Reader) (Tabdata, error) {
+	if len(conf.Separator) == 1 {
+		return parseCSV(conf, input)
 	}
 
-	return parseTabular(c, input)
+	return parseTabular(conf, input)
 }
 
 /*
 Parse CSV input.
 */
-func parseCSV(c cfg.Config, input io.Reader) (Tabdata, error) {
-	var content io.Reader = input
+func parseCSV(conf cfg.Config, input io.Reader) (Tabdata, error) {
+	var content = input
 	data := Tabdata{}
 
-	if len(c.Pattern) > 0 {
+	if len(conf.Pattern) > 0 {
 		scanner := bufio.NewScanner(input)
 		lines := []string{}
 		hadFirst := false
@@ -56,7 +55,7 @@ func parseCSV(c cfg.Config, input io.Reader) (Tabdata, error) {
 			line := strings.TrimSpace(scanner.Text())
 			if hadFirst {
 				// don't match 1st line, it's the header
-				if c.Pattern != "" && matchPattern(c, line) == c.InvertMatch {
+				if conf.Pattern != "" && matchPattern(conf, line) == conf.InvertMatch {
 					// by default  -v is false, so if a  line does NOT
 					// match the pattern, we will ignore it. However,
 					// if the user specified -v, the matching is inverted,
@@ -65,9 +64,9 @@ func parseCSV(c cfg.Config, input io.Reader) (Tabdata, error) {
 				}
 
 				// apply user defined lisp filters, if any
-				accept, err := RunFilterHooks(c, line)
+				accept, err := RunFilterHooks(conf, line)
 				if err != nil {
-					return data, errors.Unwrap(fmt.Errorf("Failed to apply filter hook: %w", err))
+					return data, fmt.Errorf("failed to apply filter hook: %w", err)
 				}
 
 				if !accept {
@@ -83,11 +82,11 @@ func parseCSV(c cfg.Config, input io.Reader) (Tabdata, error) {
 	}
 
 	csvreader := csv.NewReader(content)
-	csvreader.Comma = rune(c.Separator[0])
+	csvreader.Comma = rune(conf.Separator[0])
 
 	records, err := csvreader.ReadAll()
 	if err != nil {
-		return data, errors.Unwrap(fmt.Errorf("Could not parse CSV input: %w", err))
+		return data, fmt.Errorf("could not parse CSV input: %w", err)
 	}
 
 	if len(records) >= 1 {
@@ -108,9 +107,9 @@ func parseCSV(c cfg.Config, input io.Reader) (Tabdata, error) {
 	}
 
 	// apply user defined lisp process hooks, if any
-	userdata, changed, err := RunProcessHooks(c, data)
+	userdata, changed, err := RunProcessHooks(conf, data)
 	if err != nil {
-		return data, errors.Unwrap(fmt.Errorf("Failed to apply filter hook: %w", err))
+		return data, fmt.Errorf("failed to apply filter hook: %w", err)
 	}
 	if changed {
 		data = userdata
@@ -122,13 +121,13 @@ func parseCSV(c cfg.Config, input io.Reader) (Tabdata, error) {
 /*
 Parse tabular input.
 */
-func parseTabular(c cfg.Config, input io.Reader) (Tabdata, error) {
+func parseTabular(conf cfg.Config, input io.Reader) (Tabdata, error) {
 	data := Tabdata{}
 
 	var scanner *bufio.Scanner
 
 	hadFirst := false
-	separate := regexp.MustCompile(c.Separator)
+	separate := regexp.MustCompile(conf.Separator)
 
 	scanner = bufio.NewScanner(input)
 
@@ -163,7 +162,7 @@ func parseTabular(c cfg.Config, input io.Reader) (Tabdata, error) {
 			}
 		} else {
 			// data processing
-			if c.Pattern != "" && matchPattern(c, line) == c.InvertMatch {
+			if conf.Pattern != "" && matchPattern(conf, line) == conf.InvertMatch {
 				// by default  -v is false, so if a  line does NOT
 				// match the pattern, we will ignore it. However,
 				// if the user specified -v, the matching is inverted,
@@ -172,9 +171,9 @@ func parseTabular(c cfg.Config, input io.Reader) (Tabdata, error) {
 			}
 
 			// apply user defined lisp filters, if any
-			accept, err := RunFilterHooks(c, line)
+			accept, err := RunFilterHooks(conf, line)
 			if err != nil {
-				return data, errors.Unwrap(fmt.Errorf("Failed to apply filter hook: %w", err))
+				return data, fmt.Errorf("failed to apply filter hook: %w", err)
 			}
 
 			if !accept {
@@ -204,28 +203,28 @@ func parseTabular(c cfg.Config, input io.Reader) (Tabdata, error) {
 	}
 
 	if scanner.Err() != nil {
-		return data, errors.Unwrap(fmt.Errorf("Failed to read from io.Reader: %w", scanner.Err()))
+		return data, fmt.Errorf("failed to read from io.Reader: %w", scanner.Err())
 	}
 
 	// filter by field filters, if any
-	filtereddata, changed, err := FilterByFields(c, data)
+	filtereddata, changed, err := FilterByFields(conf, data)
 	if err != nil {
-		return data, fmt.Errorf("Failed to filter fields: %w", err)
+		return data, fmt.Errorf("failed to filter fields: %w", err)
 	}
 	if changed {
 		data = filtereddata
 	}
 
 	// apply user defined lisp process hooks, if any
-	userdata, changed, err := RunProcessHooks(c, data)
+	userdata, changed, err := RunProcessHooks(conf, data)
 	if err != nil {
-		return data, errors.Unwrap(fmt.Errorf("Failed to apply filter hook: %w", err))
+		return data, fmt.Errorf("failed to apply filter hook: %w", err)
 	}
 	if changed {
 		data = userdata
 	}
 
-	if c.Debug {
+	if conf.Debug {
 		repr.Print(data)
 	}
 

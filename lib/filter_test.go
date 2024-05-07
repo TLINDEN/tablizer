@@ -45,22 +45,22 @@ func TestMatchPattern(t *testing.T) {
 		},
 	}
 
-	for _, in := range input {
-		testname := fmt.Sprintf("match-pattern-%s", in.name)
+	for _, inputdata := range input {
+		testname := fmt.Sprintf("match-pattern-%s", inputdata.name)
 
 		t.Run(testname, func(t *testing.T) {
-			c := cfg.Config{}
+			conf := cfg.Config{}
 
-			if in.fuzzy {
-				c.UseFuzzySearch = true
+			if inputdata.fuzzy {
+				conf.UseFuzzySearch = true
 			}
 
-			err := c.PreparePattern(in.pattern)
+			err := conf.PreparePattern(inputdata.pattern)
 			if err != nil {
 				t.Errorf("PreparePattern returned error: %s", err)
 			}
 
-			if !matchPattern(c, in.line) {
+			if !matchPattern(conf, inputdata.line) {
 				t.Errorf("matchPattern() did not match\nExp: true\nGot: false\n")
 			}
 		})
@@ -143,20 +143,20 @@ func TestFilterByFields(t *testing.T) {
 		},
 	}
 
-	for _, in := range input {
-		testname := fmt.Sprintf("filter-by-fields-%s", in.name)
+	for _, inputdata := range input {
+		testname := fmt.Sprintf("filter-by-fields-%s", inputdata.name)
 
 		t.Run(testname, func(t *testing.T) {
-			c := cfg.Config{Rawfilters: in.filter, InvertMatch: in.invert}
+			conf := cfg.Config{Rawfilters: inputdata.filter, InvertMatch: inputdata.invert}
 
-			err := c.PrepareFilters()
+			err := conf.PrepareFilters()
 			if err != nil {
 				t.Errorf("PrepareFilters returned error: %s", err)
 			}
 
-			data, _, _ := FilterByFields(c, data)
-			if !reflect.DeepEqual(data, in.expect) {
-				t.Errorf("Filtered data does not match expected data:\ngot: %+v\nexp: %+v", data, in.expect)
+			data, _, _ := FilterByFields(conf, data)
+			if !reflect.DeepEqual(data, inputdata.expect) {
+				t.Errorf("Filtered data does not match expected data:\ngot: %+v\nexp: %+v", data, inputdata.expect)
 			}
 		})
 	}

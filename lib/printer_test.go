@@ -20,10 +20,10 @@ package lib
 import (
 	"bytes"
 	"fmt"
-	//"github.com/alecthomas/repr"
-	"github.com/tlinden/tablizer/cfg"
 	"strings"
 	"testing"
+
+	"github.com/tlinden/tablizer/cfg"
 )
 
 func newData() Tabdata {
@@ -73,7 +73,7 @@ var tests = []struct {
 }{
 	// --------------------- Default settings mode tests ``
 	{
-		mode: cfg.Ascii,
+		mode: cfg.ASCII,
 		name: "default",
 		expect: `
 NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                    

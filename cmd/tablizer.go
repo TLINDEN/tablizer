@@ -16,7 +16,7 @@ SYNOPSIS
           -H, --no-headers         Disable headers display
           -s, --separator string   Custom field separator
           -k, --sort-by int        Sort by column (default: 1)
-          -z, --fuzzy              Use fuzzy seach [experimental]
+          -z, --fuzzy              Use fuzzy search [experimental]
           -F, --filter field=reg   Filter given field with regex, can be used multiple times
 
         Output Flags (mutually exclusive):
@@ -142,9 +142,9 @@ DESCRIPTION
 
         kubectl get pods -A | tablizer "(?i)account"
 
-    You can use the experimental fuzzy seach feature by providing the option
-    -z, in which case the pattern is regarded as a fuzzy search term, not a
-    regexp.
+    You can use the experimental fuzzy search feature by providing the
+    option -z, in which case the pattern is regarded as a fuzzy search term,
+    not a regexp.
 
     Sometimes you want to filter by one or more columns. You can do that
     using the -F option. The option can be specified multiple times and has
@@ -353,7 +353,7 @@ Operational Flags:
   -H, --no-headers         Disable headers display
   -s, --separator string   Custom field separator
   -k, --sort-by int        Sort by column (default: 1)
-  -z, --fuzzy              Use fuzzy seach [experimental]
+  -z, --fuzzy              Use fuzzy search [experimental]
   -F, --filter field=reg   Filter given field with regex, can be used multiple times
 
 Output Flags (mutually exclusive):

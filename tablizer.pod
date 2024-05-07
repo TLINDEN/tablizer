@@ -15,7 +15,7 @@ tablizer - Manipulate tabular output of other programs
       -H, --no-headers         Disable headers display
       -s, --separator string   Custom field separator
       -k, --sort-by int        Sort by column (default: 1)
-      -z, --fuzzy              Use fuzzy seach [experimental]
+      -z, --fuzzy              Use fuzzy search [experimental]
       -F, --filter field=reg   Filter given field with regex, can be used multiple times
 
     Output Flags (mutually exclusive):
@@ -156,7 +156,7 @@ Example for a case insensitive search:
 
     kubectl get pods -A | tablizer "(?i)account"
 
-You  can use  the experimental  fuzzy seach  feature by  providing the
+You  can use  the experimental  fuzzy search  feature by  providing the
 option B<-z>, in which case the  pattern is regarded as a fuzzy search
 term, not a regexp.
 

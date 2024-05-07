@@ -18,21 +18,22 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package lib
 
 import (
-	"github.com/araddon/dateparse"
-	"github.com/tlinden/tablizer/cfg"
 	"regexp"
 	"sort"
 	"strconv"
+
+	"github.com/araddon/dateparse"
+	"github.com/tlinden/tablizer/cfg"
 )
 
-func sortTable(c cfg.Config, data *Tabdata) {
-	if c.SortByColumn <= 0 {
+func sortTable(conf cfg.Config, data *Tabdata) {
+	if conf.SortByColumn <= 0 {
 		// no sorting wanted
 		return
 	}
 
 	// slightly modified here to match internal array indicies
-	col := c.SortByColumn
+	col := conf.SortByColumn
 
 	col-- // ui starts counting by 1, but use 0 internally
 
@@ -48,38 +49,38 @@ func sortTable(c cfg.Config, data *Tabdata) {
 
 	// actual sorting
 	sort.SliceStable(data.entries, func(i, j int) bool {
-		return compare(&c, data.entries[i][col], data.entries[j][col])
+		return compare(&conf, data.entries[i][col], data.entries[j][col])
 	})
 }
 
 // config is not modified here, but it would be inefficient to copy it every loop
-func compare(c *cfg.Config, a string, b string) bool {
+func compare(conf *cfg.Config, left string, right string) bool {
 	var comp bool
 
-	switch c.SortMode {
+	switch conf.SortMode {
 	case "numeric":
-		left, err := strconv.Atoi(a)
+		left, err := strconv.Atoi(left)
 		if err != nil {
 			left = 0
 		}
-		right, err := strconv.Atoi(b)
+		right, err := strconv.Atoi(right)
 		if err != nil {
 			right = 0
 		}
 		comp = left < right
 	case "duration":
-		left := duration2int(a)
-		right := duration2int(b)
+		left := duration2int(left)
+		right := duration2int(right)
 		comp = left < right
 	case "time":
-		left, _ := dateparse.ParseAny(a)
-		right, _ := dateparse.ParseAny(b)
+		left, _ := dateparse.ParseAny(left)
+		right, _ := dateparse.ParseAny(right)
 		comp = left.Unix() < right.Unix()
 	default:
-		comp = a < b
+		comp = left < right
 	}
 
-	if c.SortDescending {
+	if conf.SortDescending {
 		comp = !comp
 	}
 
@@ -87,15 +88,15 @@ func compare(c *cfg.Config, a string, b string) bool {
 }
 
 /*
-   We could use time.ParseDuration(), but this doesn't support days.
+We could use time.ParseDuration(), but this doesn't support days.
 
-   We  could also  use github.com/xhit/go-str2duration/v2,  which does
-   the job,  but it's  just another dependency,  just for  this little
-   gem. And  we don't need a  time.Time value. And int  is good enough
-   for duration comparision.
+We  could also  use github.com/xhit/go-str2duration/v2,  which does
+the job,  but it's  just another dependency,  just for  this little
+gem. And  we don't need a  time.Time value. And int  is good enough
+for duration comparison.
 
-   Convert a  durartion into  an integer.  Valid  time units  are "s",
-   "m", "h" and "d".
+Convert a  duration into  an integer.  Valid  time units  are "s",
+"m", "h" and "d".
 */
 func duration2int(duration string) int {
 	re := regexp.MustCompile(`(\d+)([dhms])`)
@@ -103,16 +104,16 @@ func duration2int(duration string) int {
 
 	for _, match := range re.FindAllStringSubmatch(duration, -1) {
 		if len(match) == 3 {
-			v, _ := strconv.Atoi(match[1])
+			durationvalue, _ := strconv.Atoi(match[1])
 			switch match[2][0] {
 			case 'd':
-				seconds += v * 86400
+				seconds += durationvalue * 86400
 			case 'h':
-				seconds += v * 3600
+				seconds += durationvalue * 3600
 			case 'm':
-				seconds += v * 60
+				seconds += durationvalue * 60
 			case 's':
-				seconds += v
+				seconds += durationvalue
 			}
 		}
 	}

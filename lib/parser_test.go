@@ -109,13 +109,13 @@ func TestParserPatternmatching(t *testing.T) {
 			testname := fmt.Sprintf("parse-%s-with-pattern-%s-inverted-%t",
 				in.name, tt.pattern, tt.invert)
 			t.Run(testname, func(t *testing.T) {
-				c := cfg.Config{InvertMatch: tt.invert, Pattern: tt.pattern,
+				conf := cfg.Config{InvertMatch: tt.invert, Pattern: tt.pattern,
 					Separator: in.separator}
 
-				_ = c.PreparePattern(tt.pattern)
+				_ = conf.PreparePattern(tt.pattern)
 
 				readFd := strings.NewReader(strings.TrimSpace(in.text))
-				gotdata, err := Parse(c, readFd)
+				gotdata, err := Parse(conf, readFd)
 
 				if err != nil {
 					if !tt.want {

@@ -32,51 +32,51 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func printData(w io.Writer, c cfg.Config, data *Tabdata) {
+func printData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 	// some output preparations:
 
 	// add numbers to headers and remove this we're not interested in
-	numberizeAndReduceHeaders(c, data)
+	numberizeAndReduceHeaders(conf, data)
 
 	// remove unwanted columns, if any
-	reduceColumns(c, data)
+	reduceColumns(conf, data)
 
 	// sort the data
-	sortTable(c, data)
+	sortTable(conf, data)
 
-	switch c.OutputMode {
+	switch conf.OutputMode {
 	case cfg.Extended:
-		printExtendedData(w, c, data)
-	case cfg.Ascii:
-		printAsciiData(w, c, data)
+		printExtendedData(writer, conf, data)
+	case cfg.ASCII:
+		printAsciiData(writer, conf, data)
 	case cfg.Orgtbl:
-		printOrgmodeData(w, c, data)
+		printOrgmodeData(writer, conf, data)
 	case cfg.Markdown:
-		printMarkdownData(w, c, data)
+		printMarkdownData(writer, conf, data)
 	case cfg.Shell:
-		printShellData(w, c, data)
+		printShellData(writer, data)
 	case cfg.Yaml:
-		printYamlData(w, c, data)
+		printYamlData(writer, data)
 	case cfg.CSV:
-		printCSVData(w, c, data)
+		printCSVData(writer, data)
 	default:
-		printAsciiData(w, c, data)
+		printAsciiData(writer, conf, data)
 	}
 
 }
 
-func output(w io.Writer, str string) {
-	fmt.Fprint(w, str)
+func output(writer io.Writer, str string) {
+	fmt.Fprint(writer, str)
 }
 
 /*
 Emacs org-mode compatible table (also orgtbl-mode)
 */
-func printOrgmodeData(w io.Writer, c cfg.Config, data *Tabdata) {
+func printOrgmodeData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 	tableString := &strings.Builder{}
 	table := tablewriter.NewWriter(tableString)
 
-	if !c.NoHeaders {
+	if !conf.NoHeaders {
 		table.SetHeader(data.headers)
 	}
 
@@ -100,8 +100,8 @@ func printOrgmodeData(w io.Writer, c cfg.Config, data *Tabdata) {
 	leftR := regexp.MustCompile(`(?m)^\\+`)
 	rightR := regexp.MustCompile(`\\+(?m)$`)
 
-	output(w, color.Sprint(
-		colorizeData(c,
+	output(writer, color.Sprint(
+		colorizeData(conf,
 			rightR.ReplaceAllString(
 				leftR.ReplaceAllString(tableString.String(), "|"), "|"))))
 }
@@ -109,11 +109,11 @@ func printOrgmodeData(w io.Writer, c cfg.Config, data *Tabdata) {
 /*
 Markdown table
 */
-func printMarkdownData(w io.Writer, c cfg.Config, data *Tabdata) {
+func printMarkdownData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 	tableString := &strings.Builder{}
 	table := tablewriter.NewWriter(tableString)
 
-	if !c.NoHeaders {
+	if !conf.NoHeaders {
 		table.SetHeader(data.headers)
 	}
 
@@ -125,17 +125,17 @@ func printMarkdownData(w io.Writer, c cfg.Config, data *Tabdata) {
 	table.SetCenterSeparator("|")
 
 	table.Render()
-	output(w, color.Sprint(colorizeData(c, tableString.String())))
+	output(writer, color.Sprint(colorizeData(conf, tableString.String())))
 }
 
 /*
 Simple ASCII table without any borders etc, just like the input we expect
 */
-func printAsciiData(w io.Writer, c cfg.Config, data *Tabdata) {
+func printAsciiData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 	tableString := &strings.Builder{}
 	table := tablewriter.NewWriter(tableString)
 
-	if !c.NoHeaders {
+	if !conf.NoHeaders {
 		table.SetHeader(data.headers)
 	}
 	table.AppendBulk(data.entries)
@@ -151,7 +151,7 @@ func printAsciiData(w io.Writer, c cfg.Config, data *Tabdata) {
 	table.SetBorder(false)
 	table.SetNoWhiteSpace(true)
 
-	if !c.UseHighlight {
+	if !conf.UseHighlight {
 		// the tabs destroy the highlighting
 		table.SetTablePadding("\t") // pad with tabs
 	} else {
@@ -159,13 +159,13 @@ func printAsciiData(w io.Writer, c cfg.Config, data *Tabdata) {
 	}
 
 	table.Render()
-	output(w, color.Sprint(colorizeData(c, tableString.String())))
+	output(writer, color.Sprint(colorizeData(conf, tableString.String())))
 }
 
 /*
 We simulate the \x command of psql (the PostgreSQL client)
 */
-func printExtendedData(w io.Writer, c cfg.Config, data *Tabdata) {
+func printExtendedData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 	// needed for data output
 	format := fmt.Sprintf("%%%ds: %%s\n", data.maxwidthHeader)
 	out := ""
@@ -179,67 +179,67 @@ func printExtendedData(w io.Writer, c cfg.Config, data *Tabdata) {
 		}
 	}
 
-	output(w, colorizeData(c, out))
+	output(writer, colorizeData(conf, out))
 }
 
 /*
 Shell output, ready to be eval'd. Just like FreeBSD stat(1)
 */
-func printShellData(w io.Writer, c cfg.Config, data *Tabdata) {
+func printShellData(writer io.Writer, data *Tabdata) {
 	out := ""
 	if len(data.entries) > 0 {
 		for _, entry := range data.entries {
 			shentries := []string{}
-			for i, value := range entry {
+			for idx, value := range entry {
 				shentries = append(shentries, fmt.Sprintf("%s=\"%s\"",
-					data.headers[i], value))
+					data.headers[idx], value))
 			}
 			out += fmt.Sprint(strings.Join(shentries, " ")) + "\n"
 		}
 	}
 
 	// no colorization here
-	output(w, out)
+	output(writer, out)
 }
 
-func printYamlData(w io.Writer, c cfg.Config, data *Tabdata) {
-	type D struct {
+func printYamlData(writer io.Writer, data *Tabdata) {
+	type Data struct {
 		Entries []map[string]interface{} `yaml:"entries"`
 	}
 
-	d := D{}
+	yamlout := Data{}
 
 	for _, entry := range data.entries {
-		ml := map[string]interface{}{}
+		yamldata := map[string]interface{}{}
 
-		for i, entry := range entry {
+		for idx, entry := range entry {
 			style := yaml.TaggedStyle
 			_, err := strconv.Atoi(entry)
 			if err != nil {
 				style = yaml.DoubleQuotedStyle
 			}
 
-			ml[strings.ToLower(data.headers[i])] =
+			yamldata[strings.ToLower(data.headers[idx])] =
 				&yaml.Node{
 					Kind:  yaml.ScalarNode,
 					Style: style,
 					Value: entry}
 		}
 
-		d.Entries = append(d.Entries, ml)
+		yamlout.Entries = append(yamlout.Entries, yamldata)
 	}
 
-	yamlstr, err := yaml.Marshal(&d)
+	yamlstr, err := yaml.Marshal(&yamlout)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	output(w, string(yamlstr))
+	output(writer, string(yamlstr))
 }
 
-func printCSVData(w io.Writer, c cfg.Config, data *Tabdata) {
-	csvout := csv.NewWriter(w)
+func printCSVData(writer io.Writer, data *Tabdata) {
+	csvout := csv.NewWriter(writer)
 
 	if err := csvout.Write(data.headers); err != nil {
 		log.Fatalln("error writing record to csv:", err)
