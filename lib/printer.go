@@ -33,8 +33,6 @@ import (
 )
 
 func printData(writer io.Writer, conf cfg.Config, data *Tabdata) {
-	// some output preparations:
-
 	// add numbers to headers and remove this we're not interested in
 	numberizeAndReduceHeaders(conf, data)
 
@@ -48,7 +46,7 @@ func printData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 	case cfg.Extended:
 		printExtendedData(writer, conf, data)
 	case cfg.ASCII:
-		printAsciiData(writer, conf, data)
+		printASCIIData(writer, conf, data)
 	case cfg.Orgtbl:
 		printOrgmodeData(writer, conf, data)
 	case cfg.Markdown:
@@ -60,9 +58,8 @@ func printData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 	case cfg.CSV:
 		printCSVData(writer, data)
 	default:
-		printAsciiData(writer, conf, data)
+		printASCIIData(writer, conf, data)
 	}
-
 }
 
 func output(writer io.Writer, str string) {
@@ -131,13 +128,14 @@ func printMarkdownData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 /*
 Simple ASCII table without any borders etc, just like the input we expect
 */
-func printAsciiData(writer io.Writer, conf cfg.Config, data *Tabdata) {
+func printASCIIData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 	tableString := &strings.Builder{}
 	table := tablewriter.NewWriter(tableString)
 
 	if !conf.NoHeaders {
 		table.SetHeader(data.headers)
 	}
+
 	table.AppendBulk(data.entries)
 
 	table.SetAutoWrapText(false)
@@ -169,6 +167,7 @@ func printExtendedData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 	// needed for data output
 	format := fmt.Sprintf("%%%ds: %%s\n", data.maxwidthHeader)
 	out := ""
+
 	if len(data.entries) > 0 {
 		for _, entry := range data.entries {
 			for i, value := range entry {
@@ -187,14 +186,17 @@ Shell output, ready to be eval'd. Just like FreeBSD stat(1)
 */
 func printShellData(writer io.Writer, data *Tabdata) {
 	out := ""
+
 	if len(data.entries) > 0 {
 		for _, entry := range data.entries {
 			shentries := []string{}
+
 			for idx, value := range entry {
 				shentries = append(shentries, fmt.Sprintf("%s=\"%s\"",
 					data.headers[idx], value))
 			}
-			out += fmt.Sprint(strings.Join(shentries, " ")) + "\n"
+
+			out += strings.Join(shentries, " ") + "\n"
 		}
 	}
 
@@ -214,6 +216,7 @@ func printYamlData(writer io.Writer, data *Tabdata) {
 
 		for idx, entry := range entry {
 			style := yaml.TaggedStyle
+
 			_, err := strconv.Atoi(entry)
 			if err != nil {
 				style = yaml.DoubleQuotedStyle

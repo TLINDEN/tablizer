@@ -34,6 +34,7 @@ func man() {
 	man := exec.Command("less", "-")
 
 	var buffer bytes.Buffer
+
 	buffer.Write([]byte(manpage))
 
 	man.Stdout = os.Stdout

@@ -18,6 +18,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package lib
 
 import (
+	"bufio"
+	"fmt"
+	"io"
 	"strings"
 
 	"github.com/lithammer/fuzzysearch/fuzzy"
@@ -61,6 +64,7 @@ func FilterByFields(conf cfg.Config, data Tabdata) (Tabdata, bool, error) {
 			if !conf.Filters[strings.ToLower(header)].MatchString(row[idx]) {
 				// there IS a filter, but it doesn't match
 				keep = false
+
 				break
 			}
 		}
@@ -74,9 +78,53 @@ func FilterByFields(conf cfg.Config, data Tabdata) (Tabdata, bool, error) {
 	return newdata, true, nil
 }
 
+/* generic map.Exists(key) */
 func Exists[K comparable, V any](m map[K]V, v K) bool {
 	if _, ok := m[v]; ok {
 		return true
 	}
+
 	return false
+}
+
+func FilterByPattern(conf cfg.Config, input io.Reader) (io.Reader, error) {
+	if conf.Pattern == "" {
+		return input, nil
+	}
+
+	scanner := bufio.NewScanner(input)
+	lines := []string{}
+	hadFirst := false
+
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if hadFirst {
+			// don't match 1st line, it's the header
+			if conf.Pattern != "" && matchPattern(conf, line) == conf.InvertMatch {
+				// by default  -v is false, so if a  line does NOT
+				// match the pattern, we will ignore it. However,
+				// if the user specified -v, the matching is inverted,
+				// so we ignore all lines, which DO match.
+				continue
+			}
+
+			// apply user defined lisp filters, if any
+			accept, err := RunFilterHooks(conf, line)
+			if err != nil {
+				return input, fmt.Errorf("failed to apply filter hook: %w", err)
+			}
+
+			if !accept {
+				//  IF there  are filter  hook[s] and  IF one  of them
+				// returns false on the current line, reject it
+				continue
+			}
+		}
+
+		lines = append(lines, line)
+
+		hadFirst = true
+	}
+
+	return strings.NewReader(strings.Join(lines, "\n")), nil
 }

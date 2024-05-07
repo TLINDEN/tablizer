@@ -44,41 +44,12 @@ func Parse(conf cfg.Config, input io.Reader) (Tabdata, error) {
 Parse CSV input.
 */
 func parseCSV(conf cfg.Config, input io.Reader) (Tabdata, error) {
-	var content = input
 	data := Tabdata{}
 
-	if len(conf.Pattern) > 0 {
-		scanner := bufio.NewScanner(input)
-		lines := []string{}
-		hadFirst := false
-		for scanner.Scan() {
-			line := strings.TrimSpace(scanner.Text())
-			if hadFirst {
-				// don't match 1st line, it's the header
-				if conf.Pattern != "" && matchPattern(conf, line) == conf.InvertMatch {
-					// by default  -v is false, so if a  line does NOT
-					// match the pattern, we will ignore it. However,
-					// if the user specified -v, the matching is inverted,
-					// so we ignore all lines, which DO match.
-					continue
-				}
-
-				// apply user defined lisp filters, if any
-				accept, err := RunFilterHooks(conf, line)
-				if err != nil {
-					return data, fmt.Errorf("failed to apply filter hook: %w", err)
-				}
-
-				if !accept {
-					//  IF there  are filter  hook[s] and  IF one  of them
-					// returns false on the current line, reject it
-					continue
-				}
-			}
-			lines = append(lines, line)
-			hadFirst = true
-		}
-		content = strings.NewReader(strings.Join(lines, "\n"))
+	// apply pattern, if any
+	content, err := FilterByPattern(conf, input)
+	if err != nil {
+		return data, err
 	}
 
 	csvreader := csv.NewReader(content)
@@ -111,6 +82,7 @@ func parseCSV(conf cfg.Config, input io.Reader) (Tabdata, error) {
 	if err != nil {
 		return data, fmt.Errorf("failed to apply filter hook: %w", err)
 	}
+
 	if changed {
 		data = userdata
 	}
@@ -144,10 +116,6 @@ func parseTabular(conf cfg.Config, input io.Reader) (Tabdata, error) {
 
 			// process all header fields
 			for _, part := range parts {
-				// if Debug {
-				// 	fmt.Printf("Part: <%s>\n", string(line[beg:part[0]]))
-				//}
-
 				// register widest header field
 				headerlen := len(part)
 				if headerlen > data.maxwidthHeader {
@@ -211,6 +179,7 @@ func parseTabular(conf cfg.Config, input io.Reader) (Tabdata, error) {
 	if err != nil {
 		return data, fmt.Errorf("failed to filter fields: %w", err)
 	}
+
 	if changed {
 		data = filtereddata
 	}
@@ -220,6 +189,7 @@ func parseTabular(conf cfg.Config, input io.Reader) (Tabdata, error) {
 	if err != nil {
 		return data, fmt.Errorf("failed to apply filter hook: %w", err)
 	}
+
 	if changed {
 		data = userdata
 	}

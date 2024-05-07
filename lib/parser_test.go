@@ -62,12 +62,12 @@ func TestParser(t *testing.T) {
 		},
 	}
 
-	for _, in := range input {
-		testname := fmt.Sprintf("parse-%s", in.name)
+	for _, testdata := range input {
+		testname := fmt.Sprintf("parse-%s", testdata.name)
 		t.Run(testname, func(t *testing.T) {
-			readFd := strings.NewReader(strings.TrimSpace(in.text))
-			c := cfg.Config{Separator: in.separator}
-			gotdata, err := Parse(c, readFd)
+			readFd := strings.NewReader(strings.TrimSpace(testdata.text))
+			conf := cfg.Config{Separator: testdata.separator}
+			gotdata, err := Parse(conf, readFd)
 
 			if err != nil {
 				t.Errorf("Parser returned error: %s\nData processed so far: %+v", err, gotdata)
@@ -104,28 +104,28 @@ func TestParserPatternmatching(t *testing.T) {
 		},
 	}
 
-	for _, in := range input {
-		for _, tt := range tests {
+	for _, inputdata := range input {
+		for _, testdata := range tests {
 			testname := fmt.Sprintf("parse-%s-with-pattern-%s-inverted-%t",
-				in.name, tt.pattern, tt.invert)
+				inputdata.name, testdata.pattern, testdata.invert)
 			t.Run(testname, func(t *testing.T) {
-				conf := cfg.Config{InvertMatch: tt.invert, Pattern: tt.pattern,
-					Separator: in.separator}
+				conf := cfg.Config{InvertMatch: testdata.invert, Pattern: testdata.pattern,
+					Separator: inputdata.separator}
 
-				_ = conf.PreparePattern(tt.pattern)
+				_ = conf.PreparePattern(testdata.pattern)
 
-				readFd := strings.NewReader(strings.TrimSpace(in.text))
+				readFd := strings.NewReader(strings.TrimSpace(inputdata.text))
 				gotdata, err := Parse(conf, readFd)
 
 				if err != nil {
-					if !tt.want {
+					if !testdata.want {
 						t.Errorf("Parser returned error: %s\nData processed so far: %+v",
 							err, gotdata)
 					}
 				} else {
-					if !reflect.DeepEqual(tt.entries, gotdata.entries) {
+					if !reflect.DeepEqual(testdata.entries, gotdata.entries) {
 						t.Errorf("Parser returned invalid data (pattern: %s, invert: %t)\nExp: %+v\nGot: %+v\n",
-							tt.pattern, tt.invert, tt.entries, gotdata.entries)
+							testdata.pattern, testdata.invert, testdata.entries, gotdata.entries)
 					}
 				}
 			})
@@ -152,8 +152,8 @@ asd    igig
 19191  EDD 1  X`
 
 	readFd := strings.NewReader(strings.TrimSpace(table))
-	c := cfg.Config{Separator: cfg.DefaultSeparator}
-	gotdata, err := Parse(c, readFd)
+	conf := cfg.Config{Separator: cfg.DefaultSeparator}
+	gotdata, err := Parse(conf, readFd)
 
 	if err != nil {
 		t.Errorf("Parser returned error: %s\nData processed so far: %+v", err, gotdata)
@@ -161,6 +161,6 @@ asd    igig
 
 	if !reflect.DeepEqual(data, gotdata) {
 		t.Errorf("Parser returned invalid data, Regex: %s\nExp: %+v\nGot: %+v\n",
-			c.Separator, data, gotdata)
+			conf.Separator, data, gotdata)
 	}
 }

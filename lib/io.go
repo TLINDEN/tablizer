@@ -19,11 +19,14 @@ package lib
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"os"
 
 	"github.com/tlinden/tablizer/cfg"
 )
+
+const RWRR = 0755
 
 func ProcessFiles(conf *cfg.Config, args []string) error {
 	fds, pattern, err := determineIO(conf, args)
@@ -54,25 +57,29 @@ func ProcessFiles(conf *cfg.Config, args []string) error {
 }
 
 func determineIO(conf *cfg.Config, args []string) ([]io.Reader, string, error) {
+	var filehandles []io.Reader
+
 	var pattern string
-	var fds []io.Reader
+
 	var haveio bool
 
 	stat, _ := os.Stdin.Stat()
 	if (stat.Mode() & os.ModeCharDevice) == 0 {
 		// we're reading from STDIN, which takes precedence over file args
-		fds = append(fds, os.Stdin)
+		filehandles = append(filehandles, os.Stdin)
+
 		if len(args) > 0 {
 			// ignore any args > 1
 			pattern = args[0]
 			conf.Pattern = args[0] // used for colorization by printData()
 		}
+
 		haveio = true
 	} else if len(args) > 0 {
 		// threre were args left, take a look
 		if args[0] == "-" {
 			// in traditional unix programs a dash denotes STDIN (forced)
-			fds = append(fds, os.Stdin)
+			filehandles = append(filehandles, os.Stdin)
 			haveio = true
 		} else {
 			if _, err := os.Stat(args[0]); err != nil {
@@ -86,14 +93,13 @@ func determineIO(conf *cfg.Config, args []string) ([]io.Reader, string, error) {
 			if len(args) > 0 {
 				// consider any other args as files
 				for _, file := range args {
-
-					fd, err := os.OpenFile(file, os.O_RDONLY, 0755)
+					filehandle, err := os.OpenFile(file, os.O_RDONLY, RWRR)
 
 					if err != nil {
-						return nil, "", err
+						return nil, "", fmt.Errorf("failed to read input file %s: %w", file, err)
 					}
 
-					fds = append(fds, fd)
+					filehandles = append(filehandles, filehandle)
 					haveio = true
 				}
 			}
@@ -104,5 +110,5 @@ func determineIO(conf *cfg.Config, args []string) ([]io.Reader, string, error) {
 		return nil, "", errors.New("no file specified and nothing to read on stdin")
 	}
 
-	return fds, pattern, nil
+	return filehandles, pattern, nil
 }

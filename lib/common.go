@@ -26,11 +26,11 @@ type Tabdata struct {
 }
 
 func (data *Tabdata) CloneEmpty() Tabdata {
-	new := Tabdata{
+	newdata := Tabdata{
 		maxwidthHeader: data.maxwidthHeader,
 		columns:        data.columns,
 		headers:        data.headers,
 	}
 
-	return new
+	return newdata
 }

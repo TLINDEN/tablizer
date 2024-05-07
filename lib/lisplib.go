@@ -19,6 +19,7 @@ package lib
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"strconv"
 
@@ -31,29 +32,29 @@ func Splice2SexpList(list []string) zygo.Sexp {
 	for _, item := range list {
 		slist = append(slist, &zygo.SexpStr{S: item})
 	}
+
 	return zygo.MakeList(slist)
 }
 
 func StringReSplit(env *zygo.Zlisp, name string, args []zygo.Sexp) (zygo.Sexp, error) {
 	if len(args) < 2 {
-		return zygo.SexpNull, errors.New("expecting 2 arguments!")
+		return zygo.SexpNull, errors.New("expecting 2 arguments")
 	}
 
-	var separator string
-	var input string
+	var separator, input string
 
 	switch t := args[0].(type) {
 	case *zygo.SexpStr:
 		input = t.S
 	default:
-		return zygo.SexpNull, errors.New("second argument must be a string!")
+		return zygo.SexpNull, errors.New("second argument must be a string")
 	}
 
 	switch t := args[1].(type) {
 	case *zygo.SexpStr:
 		separator = t.S
 	default:
-		return zygo.SexpNull, errors.New("first argument must be a string!")
+		return zygo.SexpNull, errors.New("first argument must be a string")
 	}
 
 	sep := regexp.MustCompile(separator)
@@ -67,12 +68,15 @@ func String2Int(env *zygo.Zlisp, name string, args []zygo.Sexp) (zygo.Sexp, erro
 	switch t := args[0].(type) {
 	case *zygo.SexpStr:
 		num, err := strconv.Atoi(t.S)
+
 		if err != nil {
-			return zygo.SexpNull, err
+			return zygo.SexpNull, fmt.Errorf("failed to convert string to number: %w", err)
 		}
+
 		number = num
+
 	default:
-		return zygo.SexpNull, errors.New("argument must be a string!")
+		return zygo.SexpNull, errors.New("argument must be a string")
 	}
 
 	return &zygo.SexpInt{Val: int64(number)}, nil

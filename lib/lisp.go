@@ -45,12 +45,14 @@ func AddHook(env *zygo.Zlisp, name string, args []zygo.Sexp) (zygo.Sexp, error) 
 		return zygo.SexpNull, errors.New("argument of %add-hook should be: %hook-name %your-function")
 	}
 
-	switch t := args[0].(type) {
+	switch sexptype := args[0].(type) {
 	case *zygo.SexpSymbol:
-		if !HookExists(t.Name()) {
-			return zygo.SexpNull, errors.New("Unknown hook " + t.Name())
+		if !HookExists(sexptype.Name()) {
+			return zygo.SexpNull, errors.New("Unknown hook " + sexptype.Name())
 		}
-		hookname = t.Name()
+
+		hookname = sexptype.Name()
+
 	default:
 		return zygo.SexpNull, errors.New("hook name must be a symbol ")
 	}
@@ -63,6 +65,7 @@ func AddHook(env *zygo.Zlisp, name string, args []zygo.Sexp) (zygo.Sexp, error) 
 		} else {
 			Hooks[hookname] = append(Hooks[hookname], sexptype)
 		}
+
 	default:
 		return zygo.SexpNull, errors.New("hook function must be a symbol ")
 	}
@@ -90,7 +93,7 @@ func LoadAndEvalFile(env *zygo.Zlisp, path string) error {
 	if strings.HasSuffix(path, `.zy`) {
 		code, err := os.ReadFile(path)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to read lisp file %s: %w", path, err)
 		}
 
 		// FIXME: check what res (_ here) could be and mean
@@ -131,7 +134,8 @@ func SetupLisp(conf *cfg.Config) error {
 		// load all lisp file in load dir
 		dir, err := os.ReadDir(conf.LispLoadPath)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to read lisp dir %s: %w",
+				conf.LispLoadPath, err)
 		}
 
 		for _, entry := range dir {
@@ -147,6 +151,7 @@ func SetupLisp(conf *cfg.Config) error {
 	RegisterLib(env)
 
 	conf.Lisp = env
+
 	return nil
 }
 
@@ -165,17 +170,19 @@ skipped.
 func RunFilterHooks(conf cfg.Config, line string) (bool, error) {
 	for _, hook := range Hooks["filter"] {
 		var result bool
+
 		conf.Lisp.Clear()
+
 		res, err := conf.Lisp.EvalString(fmt.Sprintf("(%s `%s`)", hook.Name(), line))
 		if err != nil {
-			return false, err
+			return false, fmt.Errorf("failed to evaluate hook loader: %w", err)
 		}
 
-		switch t := res.(type) {
+		switch sexptype := res.(type) {
 		case *zygo.SexpBool:
-			result = t.Val
+			result = sexptype.Val
 		default:
-			return false, errors.New("filter hook shall return BOOL!")
+			return false, fmt.Errorf("filter hook shall return bool")
 		}
 
 		if !result {
@@ -206,6 +213,7 @@ versa afterwards.
 */
 func RunProcessHooks(conf cfg.Config, data Tabdata) (Tabdata, bool, error) {
 	var userdata Tabdata
+
 	lisplist := []zygo.Sexp{}
 
 	if len(Hooks["process"]) == 0 {
@@ -223,7 +231,7 @@ func RunProcessHooks(conf cfg.Config, data Tabdata) (Tabdata, bool, error) {
 		for idx, cell := range row {
 			err := entry.HashSet(&zygo.SexpStr{S: data.headers[idx]}, &zygo.SexpStr{S: cell})
 			if err != nil {
-				return userdata, false, err
+				return userdata, false, fmt.Errorf("failed to convert to lisp data: %w", err)
 			}
 		}
 
@@ -235,27 +243,29 @@ func RunProcessHooks(conf cfg.Config, data Tabdata) (Tabdata, bool, error) {
 
 	// execute the actual hook
 	hook := Hooks["process"][0]
-	var result bool
+
 	conf.Lisp.Clear()
+
+	var result bool
 
 	res, err := conf.Lisp.EvalString(fmt.Sprintf("(%s data)", hook.Name()))
 	if err != nil {
-		return userdata, false, err
+		return userdata, false, fmt.Errorf("failed to eval lisp loader: %w", err)
 	}
 
 	// we expect (bool, array(hash)) as return from the function
-	switch t := res.(type) {
+	switch sexptype := res.(type) {
 	case *zygo.SexpPair:
-		switch th := t.Head.(type) {
+		switch th := sexptype.Head.(type) {
 		case *zygo.SexpBool:
 			result = th.Val
 		default:
 			return userdata, false, errors.New("xpect (bool, array(hash)) as return value")
 		}
 
-		switch tt := t.Tail.(type) {
+		switch sexptailtype := sexptype.Tail.(type) {
 		case *zygo.SexpArray:
-			lisplist = tt.Val
+			lisplist = sexptailtype.Val
 		default:
 			return userdata, false, errors.New("expect (bool, array(hash)) as return value ")
 		}
@@ -275,14 +285,17 @@ func RunProcessHooks(conf cfg.Config, data Tabdata) (Tabdata, bool, error) {
 		switch hash := item.(type) {
 		case *zygo.SexpHash:
 			for _, header := range data.headers {
-				entry, err := hash.HashGetDefault(conf.Lisp, &zygo.SexpStr{S: header}, &zygo.SexpStr{S: ""})
+				entry, err := hash.HashGetDefault(
+					conf.Lisp,
+					&zygo.SexpStr{S: header},
+					&zygo.SexpStr{S: ""})
 				if err != nil {
-					return userdata, false, err
+					return userdata, false, fmt.Errorf("failed to get lisp hash entry: %w", err)
 				}
 
-				switch t := entry.(type) {
+				switch sexptype := entry.(type) {
 				case *zygo.SexpStr:
-					row = append(row, t.S)
+					row = append(row, sexptype.S)
 				default:
 					return userdata, false, errors.New("hsh values should be string ")
 				}

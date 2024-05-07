@@ -65,7 +65,6 @@ func TestMatchPattern(t *testing.T) {
 			}
 		})
 	}
-
 }
 
 func TestFilterByFields(t *testing.T) {
@@ -160,5 +159,4 @@ func TestFilterByFields(t *testing.T) {
 			}
 		})
 	}
-
 }

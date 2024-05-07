@@ -63,18 +63,22 @@ func compare(conf *cfg.Config, left string, right string) bool {
 		if err != nil {
 			left = 0
 		}
+
 		right, err := strconv.Atoi(right)
 		if err != nil {
 			right = 0
 		}
+
 		comp = left < right
 	case "duration":
 		left := duration2int(left)
 		right := duration2int(right)
+
 		comp = left < right
 	case "time":
 		left, _ := dateparse.ParseAny(left)
 		right, _ := dateparse.ParseAny(right)
+
 		comp = left.Unix() < right.Unix()
 	default:
 		comp = left < right
@@ -105,6 +109,7 @@ func duration2int(duration string) int {
 	for _, match := range re.FindAllStringSubmatch(duration, -1) {
 		if len(match) == 3 {
 			durationvalue, _ := strconv.Atoi(match[1])
+
 			switch match[2][0] {
 			case 'd':
 				seconds += durationvalue * 86400

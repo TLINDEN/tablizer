@@ -72,18 +72,18 @@ func TestPrepareColumns(t *testing.T) {
 		{"[a-z,4,5", []int{4, 5}, true}, // invalid regexp
 	}
 
-	for _, tt := range tests {
-		testname := fmt.Sprintf("PrepareColumns-%s-%t", tt.input, tt.wanterror)
+	for _, testdata := range tests {
+		testname := fmt.Sprintf("PrepareColumns-%s-%t", testdata.input, testdata.wanterror)
 		t.Run(testname, func(t *testing.T) {
-			conf := cfg.Config{Columns: tt.input}
+			conf := cfg.Config{Columns: testdata.input}
 			err := PrepareColumns(&conf, &data)
 			if err != nil {
-				if !tt.wanterror {
+				if !testdata.wanterror {
 					t.Errorf("got error: %v", err)
 				}
 			} else {
-				if !reflect.DeepEqual(conf.UseColumns, tt.exp) {
-					t.Errorf("got: %v, expected: %v", conf.UseColumns, tt.exp)
+				if !reflect.DeepEqual(conf.UseColumns, testdata.exp) {
+					t.Errorf("got: %v, expected: %v", conf.UseColumns, testdata.exp)
 				}
 			}
 		})

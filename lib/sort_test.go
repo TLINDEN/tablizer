@@ -19,8 +19,9 @@ package lib
 
 import (
 	"fmt"
-	"github.com/tlinden/tablizer/cfg"
 	"testing"
+
+	"github.com/tlinden/tablizer/cfg"
 )
 
 func TestDuration2Seconds(t *testing.T) {
@@ -36,12 +37,12 @@ func TestDuration2Seconds(t *testing.T) {
 		{"19t77X what?4s", 4},
 	}
 
-	for _, tt := range tests {
-		testname := fmt.Sprintf("duration-%s", tt.dur)
+	for _, testdata := range tests {
+		testname := fmt.Sprintf("duration-%s", testdata.dur)
 		t.Run(testname, func(t *testing.T) {
-			seconds := duration2int(tt.dur)
-			if seconds != tt.expect {
-				t.Errorf("got %d, want %d", seconds, tt.expect)
+			seconds := duration2int(testdata.dur)
+			if seconds != testdata.expect {
+				t.Errorf("got %d, want %d", seconds, testdata.expect)
 			}
 		})
 	}
@@ -66,13 +67,15 @@ func TestCompare(t *testing.T) {
 		{"time", "12/24/2022", "1/1/1970", true, true},
 	}
 
-	for _, tt := range tests {
-		testname := fmt.Sprintf("compare-mode-%s-a-%s-b-%s-desc-%t", tt.mode, tt.a, tt.b, tt.desc)
+	for _, testdata := range tests {
+		testname := fmt.Sprintf("compare-mode-%s-a-%s-b-%s-desc-%t",
+			testdata.mode, testdata.a, testdata.b, testdata.desc)
+
 		t.Run(testname, func(t *testing.T) {
-			c := cfg.Config{SortMode: tt.mode, SortDescending: tt.desc}
-			got := compare(&c, tt.a, tt.b)
-			if got != tt.want {
-				t.Errorf("got %t, want %t", got, tt.want)
+			c := cfg.Config{SortMode: testdata.mode, SortDescending: testdata.desc}
+			got := compare(&c, testdata.a, testdata.b)
+			if got != testdata.want {
+				t.Errorf("got %t, want %t", got, testdata.want)
 			}
 		})
 	}

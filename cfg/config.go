@@ -216,6 +216,7 @@ func (conf *Config) DetermineColormode() {
 // Return true if current terminal is interactive
 func isTerminal(f *os.File) bool {
 	o, _ := f.Stat()
+
 	return (o.Mode() & os.ModeCharDevice) == os.ModeCharDevice
 }
 

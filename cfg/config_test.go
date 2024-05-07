@@ -38,14 +38,14 @@ func TestPrepareModeFlags(t *testing.T) {
 	}
 
 	// FIXME: use a map for easier printing
-	for _, tt := range tests {
-		testname := fmt.Sprintf("PrepareModeFlags-expect-%d", tt.expect)
+	for _, testdata := range tests {
+		testname := fmt.Sprintf("PrepareModeFlags-expect-%d", testdata.expect)
 		t.Run(testname, func(t *testing.T) {
-			c := Config{}
+			conf := Config{}
 
-			c.PrepareModeFlags(tt.flag)
-			if c.OutputMode != tt.expect {
-				t.Errorf("got: %d, expect: %d", c.OutputMode, tt.expect)
+			conf.PrepareModeFlags(testdata.flag)
+			if conf.OutputMode != testdata.expect {
+				t.Errorf("got: %d, expect: %d", conf.OutputMode, testdata.expect)
 			}
 		})
 	}

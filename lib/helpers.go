@@ -36,57 +36,63 @@ func contains(s []int, e int) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
 // parse columns list given  with -c, modifies config.UseColumns based
 // on eventually given regex
 func PrepareColumns(conf *cfg.Config, data *Tabdata) error {
-	if len(conf.Columns) > 0 {
-		for _, use := range strings.Split(conf.Columns, ",") {
-			if len(use) == 0 {
-				msg := fmt.Sprintf("Could not parse columns list %s: empty column", conf.Columns)
+	if conf.Columns == "" {
+		return nil
+	}
+
+	for _, use := range strings.Split(conf.Columns, ",") {
+		if len(use) == 0 {
+			return fmt.Errorf("could not parse columns list %s: empty column", conf.Columns)
+		}
+
+		usenum, err := strconv.Atoi(use)
+		if err != nil {
+			// might be a regexp
+			colPattern, err := regexp.Compile(use)
+			if err != nil {
+				msg := fmt.Sprintf("Could not parse columns list %s: %v", conf.Columns, err)
+
 				return errors.New(msg)
 			}
 
-			usenum, err := strconv.Atoi(use)
-			if err != nil {
-				// might be a regexp
-				colPattern, err := regexp.Compile(use)
-				if err != nil {
-					msg := fmt.Sprintf("Could not parse columns list %s: %v", conf.Columns, err)
-					return errors.New(msg)
+			// find matching header fields
+			for i, head := range data.headers {
+				if colPattern.MatchString(head) {
+					conf.UseColumns = append(conf.UseColumns, i+1)
 				}
-
-				// find matching header fields
-				for i, head := range data.headers {
-					if colPattern.MatchString(head) {
-						conf.UseColumns = append(conf.UseColumns, i+1)
-					}
-
-				}
-			} else {
-				// we digress from go  best practises here, because if
-				// a colum spec is not a number, we process them above
-				// inside the err handler  for atoi(). so only add the
-				// number, if it's really just a number.
-				conf.UseColumns = append(conf.UseColumns, usenum)
 			}
+		} else {
+			// we digress from go  best practises here, because if
+			// a colum spec is not a number, we process them above
+			// inside the err handler  for atoi(). so only add the
+			// number, if it's really just a number.
+			conf.UseColumns = append(conf.UseColumns, usenum)
 		}
-
-		// deduplicate: put all values into a map (value gets map key)
-		// thereby  removing duplicates,  extract keys into  new slice
-		// and sort it
-		imap := make(map[int]int, len(conf.UseColumns))
-		for _, i := range conf.UseColumns {
-			imap[i] = 0
-		}
-		conf.UseColumns = nil
-		for k := range imap {
-			conf.UseColumns = append(conf.UseColumns, k)
-		}
-		sort.Ints(conf.UseColumns)
 	}
+
+	// deduplicate: put all values into a map (value gets map key)
+	// thereby  removing duplicates,  extract keys into  new slice
+	// and sort it
+	imap := make(map[int]int, len(conf.UseColumns))
+	for _, i := range conf.UseColumns {
+		imap[i] = 0
+	}
+
+	conf.UseColumns = nil
+
+	for k := range imap {
+		conf.UseColumns = append(conf.UseColumns, k)
+	}
+
+	sort.Ints(conf.UseColumns)
+
 	return nil
 }
 
@@ -96,7 +102,8 @@ func numberizeAndReduceHeaders(conf cfg.Config, data *Tabdata) {
 	maxwidth := 0 // start from scratch, so we only look at displayed column widths
 
 	for idx, head := range data.headers {
-		headlen := 0
+		var headlen int
+
 		if len(conf.Columns) > 0 {
 			// -c specified
 			if !contains(conf.UseColumns, idx+1) {
@@ -104,6 +111,7 @@ func numberizeAndReduceHeaders(conf cfg.Config, data *Tabdata) {
 				continue
 			}
 		}
+
 		if conf.NoNumbering {
 			numberedHeaders = append(numberedHeaders, head)
 			headlen = len(head)
@@ -117,7 +125,9 @@ func numberizeAndReduceHeaders(conf cfg.Config, data *Tabdata) {
 			maxwidth = headlen
 		}
 	}
+
 	data.headers = numberedHeaders
+
 	if data.maxwidthHeader != maxwidth && maxwidth > 0 {
 		data.maxwidthHeader = maxwidth
 	}
@@ -127,9 +137,12 @@ func numberizeAndReduceHeaders(conf cfg.Config, data *Tabdata) {
 func reduceColumns(conf cfg.Config, data *Tabdata) {
 	if len(conf.Columns) > 0 {
 		reducedEntries := [][]string{}
+
 		var reducedEntry []string
+
 		for _, entry := range data.entries {
 			reducedEntry = nil
+
 			for i, value := range entry {
 				if !contains(conf.UseColumns, i+1) {
 					continue
@@ -137,22 +150,26 @@ func reduceColumns(conf cfg.Config, data *Tabdata) {
 
 				reducedEntry = append(reducedEntry, value)
 			}
+
 			reducedEntries = append(reducedEntries, reducedEntry)
 		}
+
 		data.entries = reducedEntries
 	}
 }
 
+// FIXME: remove this when we only use Tablewriter and strip in ParseFile()!
 func trimRow(row []string) []string {
-	// FIXME: remove this when we only use Tablewriter and strip in ParseFile()!
-	var fixedrow []string
-	for _, cell := range row {
-		fixedrow = append(fixedrow, strings.TrimSpace(cell))
+	var fixedrow = make([]string, len(row))
+
+	for idx, cell := range row {
+		fixedrow[idx] = strings.TrimSpace(cell)
 	}
 
 	return fixedrow
 }
 
+// FIXME: refactor this beast!
 func colorizeData(conf cfg.Config, output string) string {
 	switch {
 	case conf.UseHighlight && color.IsConsole(os.Stdout):
@@ -180,17 +197,21 @@ func colorizeData(conf cfg.Config, output string) string {
 			} else {
 				line = conf.NoHighlightStyle.Sprint(line)
 			}
+
 			highlight = !highlight
 
 			colorized += line + "\n"
 		}
 
 		return colorized
+
 	case len(conf.Pattern) > 0 && !conf.NoColor && color.IsConsole(os.Stdout):
 		r := regexp.MustCompile("(" + conf.Pattern + ")")
+
 		return r.ReplaceAllStringFunc(output, func(in string) string {
 			return conf.ColorStyle.Sprint(in)
 		})
+
 	default:
 		return output
 	}
