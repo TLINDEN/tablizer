@@ -1,0 +1,120 @@
+# github.com/agext/levenshtein v1.2.1
+## explicit
+github.com/agext/levenshtein
+# github.com/alecthomas/repr v0.1.1
+## explicit; go 1.18
+github.com/alecthomas/repr
+# github.com/apparentlymart/go-textseg/v13 v13.0.0
+## explicit; go 1.16
+github.com/apparentlymart/go-textseg/v13/textseg
+# github.com/apparentlymart/go-textseg/v15 v15.0.0
+## explicit; go 1.16
+github.com/apparentlymart/go-textseg/v15/textseg
+# github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
+## explicit; go 1.12
+github.com/araddon/dateparse
+# github.com/glycerine/blake2b v0.0.0-20151022103502-3c8c640cd7be
+## explicit
+github.com/glycerine/blake2b
+# github.com/glycerine/goconvey v0.0.0-20190410193231-58a59202ab31
+## explicit
+# github.com/glycerine/greenpack v5.1.1+incompatible
+## explicit
+github.com/glycerine/greenpack/msgp
+# github.com/glycerine/liner v0.0.0-20160121172638-72909af234e0
+## explicit
+github.com/glycerine/liner
+# github.com/glycerine/zygomys v5.1.2+incompatible
+## explicit
+github.com/glycerine/zygomys/zygo
+# github.com/google/go-cmp v0.5.6
+## explicit; go 1.8
+github.com/google/go-cmp/cmp
+github.com/google/go-cmp/cmp/internal/diff
+github.com/google/go-cmp/cmp/internal/flags
+github.com/google/go-cmp/cmp/internal/function
+github.com/google/go-cmp/cmp/internal/value
+# github.com/gookit/color v1.5.2
+## explicit; go 1.16
+github.com/gookit/color
+# github.com/gopherjs/gopherjs v1.17.2
+## explicit; go 1.17
+# github.com/hashicorp/hcl/v2 v2.19.1
+## explicit; go 1.18
+github.com/hashicorp/hcl/v2
+github.com/hashicorp/hcl/v2/ext/customdecode
+github.com/hashicorp/hcl/v2/gohcl
+github.com/hashicorp/hcl/v2/hclsimple
+github.com/hashicorp/hcl/v2/hclsyntax
+github.com/hashicorp/hcl/v2/hclwrite
+github.com/hashicorp/hcl/v2/json
+# github.com/inconshreveable/mousetrap v1.0.1
+## explicit; go 1.18
+github.com/inconshreveable/mousetrap
+# github.com/jtolds/gls v4.20.0+incompatible
+## explicit
+# github.com/lithammer/fuzzysearch v1.1.7
+## explicit; go 1.15
+github.com/lithammer/fuzzysearch/fuzzy
+# github.com/mattn/go-runewidth v0.0.10
+## explicit; go 1.9
+github.com/mattn/go-runewidth
+# github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7
+## explicit
+github.com/mitchellh/go-wordwrap
+# github.com/olekukonko/tablewriter v0.0.5
+## explicit; go 1.12
+github.com/olekukonko/tablewriter
+# github.com/philhofer/fwd v1.1.2
+## explicit; go 1.15
+github.com/philhofer/fwd
+# github.com/rivo/uniseg v0.1.0
+## explicit; go 1.12
+github.com/rivo/uniseg
+# github.com/shurcooL/go v0.0.0-20200502201357-93f07166e636
+## explicit
+github.com/shurcooL/go/parserutil
+github.com/shurcooL/go/printerutil
+github.com/shurcooL/go/reflectfind
+github.com/shurcooL/go/reflectsource
+# github.com/shurcooL/go-goon v1.0.0
+## explicit; go 1.17
+github.com/shurcooL/go-goon
+# github.com/spf13/cobra v1.6.1
+## explicit; go 1.15
+github.com/spf13/cobra
+# github.com/spf13/pflag v1.0.5
+## explicit; go 1.12
+github.com/spf13/pflag
+# github.com/tinylib/msgp v1.1.9
+## explicit; go 1.18
+github.com/tinylib/msgp/msgp
+# github.com/ugorji/go/codec v1.2.11
+## explicit; go 1.11
+github.com/ugorji/go/codec
+# github.com/xo/terminfo v0.0.0-20210125001918-ca9a967f8778
+## explicit; go 1.15
+github.com/xo/terminfo
+# github.com/zclconf/go-cty v1.13.0
+## explicit; go 1.18
+github.com/zclconf/go-cty/cty
+github.com/zclconf/go-cty/cty/convert
+github.com/zclconf/go-cty/cty/ctystrings
+github.com/zclconf/go-cty/cty/function
+github.com/zclconf/go-cty/cty/function/stdlib
+github.com/zclconf/go-cty/cty/gocty
+github.com/zclconf/go-cty/cty/json
+github.com/zclconf/go-cty/cty/set
+# golang.org/x/sys v0.13.0
+## explicit; go 1.17
+golang.org/x/sys/windows
+# golang.org/x/text v0.11.0
+## explicit; go 1.17
+golang.org/x/text/runes
+golang.org/x/text/transform
+golang.org/x/text/unicode/norm
+# golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1
+## explicit; go 1.11
+# gopkg.in/yaml.v3 v3.0.1
+## explicit
+gopkg.in/yaml.v3
