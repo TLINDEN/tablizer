@@ -1,6 +1,6 @@
 module github.com/tlinden/tablizer
 
-go 1.18
+go 1.22
 
 require (
 	github.com/alecthomas/repr v0.4.0
