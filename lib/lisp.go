@@ -99,7 +99,7 @@ func LoadAndEvalFile(env *zygo.Zlisp, path string) error {
 		// FIXME: check what res (_ here) could be and mean
 		_, err = env.EvalString(string(code))
 		if err != nil {
-			log.Fatalf(env.GetStackTrace(err))
+			log.Fatal(env.GetStackTrace(err))
 		}
 	}
 
