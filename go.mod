@@ -3,7 +3,7 @@ module github.com/tlinden/tablizer
 go 1.18
 
 require (
-	github.com/alecthomas/repr v0.1.1
+	github.com/alecthomas/repr v0.4.0
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
 	github.com/glycerine/zygomys v5.1.2+incompatible
 	github.com/gookit/color v1.5.2
