@@ -12,7 +12,7 @@ jobs:
     - name: Set up Go 1.22
       uses: actions/setup-go@v5
       with:
-        go-version: ${{ matrix.version }}
+        go-version: '${{ matrix.version }}'
       id: go
 
     - name: checkout
