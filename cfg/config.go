@@ -29,7 +29,7 @@ import (
 )
 
 const DefaultSeparator string = `(\s\s+|\t)`
-const Version string = "v1.2.0"
+const Version string = "v1.2.1"
 const MAXPARTS = 2
 
 var DefaultLoadPath = os.Getenv("HOME") + "/.config/tablizer/lisp"

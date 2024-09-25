@@ -4,12 +4,12 @@ jobs:
   build:
     strategy:
       matrix:
-        version: [1.22.1]
+        version: [1.20.1, 1.21.1, 1.22.1]
         os: [ubuntu-latest, windows-latest, macos-latest]
     name: Build
     runs-on: ${{ matrix.os }}
     steps:
-    - name: Set up Go 1.22
+    - name: Set up Go ${{ matrix.version }}
       uses: actions/setup-go@v5
       with:
         go-version: '${{ matrix.version }}'
