@@ -7,7 +7,7 @@ assignees: TLINDEN
 
 ---
 
-**Describtion**
+**Description**
 <!-- Please provide a clear and concise description of the feature you desire: -->
 
 
