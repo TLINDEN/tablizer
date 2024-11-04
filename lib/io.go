@@ -45,6 +45,10 @@ func ProcessFiles(conf *cfg.Config, args []string) error {
 			return err
 		}
 
+		if err = ValidateConsistency(&data); err != nil {
+			return err
+		}
+
 		err = PrepareColumns(conf, &data)
 		if err != nil {
 			return err

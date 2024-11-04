@@ -63,6 +63,14 @@ func completion(cmd *cobra.Command, mode string) error {
 	}
 }
 
+// we die with exit 1 if there's an error
+func wrapE(err error) {
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(1)
+	}
+}
+
 func Execute() {
 	var (
 		conf           cfg.Config
@@ -77,48 +85,43 @@ func Execute() {
 		Use:   "tablizer [regex] [file, ...]",
 		Short: "[Re-]tabularize tabular data",
 		Long:  `Manipulate tabular output of other programs`,
-		RunE: func(cmd *cobra.Command, args []string) error {
+
+		Run: func(cmd *cobra.Command, args []string) {
 			if ShowVersion {
 				fmt.Println(cfg.Getversion())
 
-				return nil
+				return
 			}
 
 			if ShowManual {
 				man()
 
-				return nil
+				return
 			}
 
 			if len(ShowCompletion) > 0 {
-				return completion(cmd, ShowCompletion)
+				wrapE(completion(cmd, ShowCompletion))
+
+				return
 			}
 
 			// Setup
-			err := conf.ParseConfigfile()
-			if err != nil {
-				return err
-			}
+			wrapE(conf.ParseConfigfile())
 
 			conf.CheckEnv()
 			conf.PrepareModeFlags(modeflag)
 			conf.PrepareSortFlags(sortmode)
 
-			if err = conf.PrepareFilters(); err != nil {
-				return err
-			}
+			wrapE(conf.PrepareFilters())
 
 			conf.DetermineColormode()
 			conf.ApplyDefaults()
 
 			// setup lisp env, load plugins etc
-			err = lib.SetupLisp(&conf)
-			if err != nil {
-				return err
-			}
+			wrapE(lib.SetupLisp(&conf))
 
 			// actual execution starts here
-			return lib.ProcessFiles(&conf, args)
+			wrapE(lib.ProcessFiles(&conf, args))
 		},
 	}
 

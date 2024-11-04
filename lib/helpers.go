@@ -40,6 +40,20 @@ func contains(s []int, e int) bool {
 	return false
 }
 
+// validate the consitency of parsed data
+func ValidateConsistency(data *Tabdata) error {
+	expectedfields := len(data.headers)
+
+	for idx, row := range data.entries {
+		if len(row) != expectedfields {
+			return fmt.Errorf("row %d does not contain expected %d elements, but %d",
+				idx, expectedfields, len(row))
+		}
+	}
+
+	return nil
+}
+
 // parse columns list given  with -c, modifies config.UseColumns based
 // on eventually given regex
 func PrepareColumns(conf *cfg.Config, data *Tabdata) error {
