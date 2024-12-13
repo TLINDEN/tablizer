@@ -29,7 +29,7 @@ import (
 )
 
 const DefaultSeparator string = `(\s\s+|\t)`
-const Version string = "v1.2.2"
+const Version string = "v1.2.3"
 const MAXPARTS = 2
 
 var DefaultLoadPath = os.Getenv("HOME") + "/.config/tablizer/lisp"
@@ -328,7 +328,16 @@ func (conf *Config) PreparePattern(pattern string) error {
 func (conf *Config) ParseConfigfile() error {
 	path, err := os.Stat(conf.Configfile)
 
-	if os.IsNotExist(err) || path.IsDir() {
+	if err != nil {
+		if os.IsNotExist(err) {
+			// ignore non-existent files
+			return nil
+		}
+
+		return fmt.Errorf("failed to stat config file: %w", err)
+	}
+
+	if path.IsDir() {
 		// ignore non-existent or dirs
 		return nil
 	}

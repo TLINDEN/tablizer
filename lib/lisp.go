@@ -113,8 +113,14 @@ func SetupLisp(conf *cfg.Config) error {
 	// iterate over load-path and evaluate all *.zy files there, if any
 	// we ignore if load-path does not exist, which is the default anyway
 	path, err := os.Stat(conf.LispLoadPath)
-	if os.IsNotExist(err) {
-		return nil
+
+	if err != nil {
+		if os.IsNotExist(err) {
+			// ignore non-existent files
+			return nil
+		}
+
+		return fmt.Errorf("failed to stat path: %w", err)
 	}
 
 	// init global hooks
