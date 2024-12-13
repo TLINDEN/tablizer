@@ -15,7 +15,7 @@ require (
 )
 
 require (
-	github.com/agext/levenshtein v1.2.1 // indirect
+	github.com/agext/levenshtein v1.2.3 // indirect
 	github.com/apparentlymart/go-textseg/v13 v13.0.0 // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/glycerine/blake2b v0.0.0-20151022103502-3c8c640cd7be // indirect
@@ -26,17 +26,17 @@ require (
 	github.com/gopherjs/gopherjs v1.17.2 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jtolds/gls v4.20.0+incompatible // indirect
-	github.com/mattn/go-runewidth v0.0.10 // indirect
+	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7 // indirect
 	github.com/philhofer/fwd v1.1.2 // indirect
-	github.com/rivo/uniseg v0.1.0 // indirect
-	github.com/shurcooL/go v0.0.0-20200502201357-93f07166e636 // indirect
+	github.com/rivo/uniseg v0.2.0 // indirect
+	github.com/shurcooL/go v0.0.0-20230706063926-5fe729b41b3a // indirect
 	github.com/shurcooL/go-goon v1.0.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/tinylib/msgp v1.1.9 // indirect
-	github.com/ugorji/go/codec v1.2.11 // indirect
-	github.com/xo/terminfo v0.0.0-20210125001918-ca9a967f8778 // indirect
-	github.com/zclconf/go-cty v1.13.0 // indirect
+	github.com/ugorji/go/codec v1.2.12 // indirect
+	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
+	github.com/zclconf/go-cty v1.13.3 // indirect
 	golang.org/x/mod v0.13.0 // indirect
 	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/text v0.11.0 // indirect
