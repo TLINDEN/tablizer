@@ -402,6 +402,8 @@ functions are provided by tablizer:
     (atoi    [string])        => int
     (matchre [string, regex]) => bool
 
+The standard language is described here: L<https://github.com/glycerine/zygomys/wiki/Language>.
+
 =head1 BUGS
 
 In order to report a bug, unexpected behavior, feature requests
