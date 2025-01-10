@@ -371,7 +371,7 @@ Example:
     if it s larger than 5, false otherwise.
     */
     (defn uselarge [line]
-      (cond (> (atoi (second (resplit line `\s+`))) 5) true false))
+      (cond (> (atoi (second (resplit line ` +`))) 5) true false))
     
     /* Register the filter hook */
     (addhook %filter %uselarge)

@@ -329,7 +329,7 @@ LISP PLUGINS [experimental]
             if it s larger than 5, false otherwise.
             */
             (defn uselarge [line]
-              (cond (> (atoi (second (resplit line `\s+`))) 5) true false))
+              (cond (> (atoi (second (resplit line ` +`))) 5) true false))
     
             /* Register the filter hook */
             (addhook %filter %uselarge)
@@ -354,6 +354,9 @@ LISP PLUGINS [experimental]
         (resplit [string, regex]) => list
         (atoi    [string])        => int
         (matchre [string, regex]) => bool
+
+    The standard language is described here:
+    <https://github.com/glycerine/zygomys/wiki/Language>.
 
 BUGS
     In order to report a bug, unexpected behavior, feature requests or to
