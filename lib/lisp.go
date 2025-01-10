@@ -266,7 +266,7 @@ func RunProcessHooks(conf cfg.Config, data Tabdata) (Tabdata, bool, error) {
 		case *zygo.SexpBool:
 			result = th.Val
 		default:
-			return userdata, false, errors.New("xpect (bool, array(hash)) as return value")
+			return userdata, false, errors.New("expect (bool, array(hash)) as return value")
 		}
 
 		switch sexptailtype := sexptype.Tail.(type) {
@@ -276,7 +276,7 @@ func RunProcessHooks(conf cfg.Config, data Tabdata) (Tabdata, bool, error) {
 			return userdata, false, errors.New("expect (bool, array(hash)) as return value ")
 		}
 	default:
-		return userdata, false, errors.New("filter hook shall return array of hashes ")
+		return userdata, false, errors.New("process hook shall return array of hashes ")
 	}
 
 	if !result {
@@ -303,11 +303,11 @@ func RunProcessHooks(conf cfg.Config, data Tabdata) (Tabdata, bool, error) {
 				case *zygo.SexpStr:
 					row = append(row, sexptype.S)
 				default:
-					return userdata, false, errors.New("hsh values should be string ")
+					return userdata, false, errors.New("hash values should be string ")
 				}
 			}
 		default:
-			return userdata, false, errors.New("rturned array should contain hashes ")
+			return userdata, false, errors.New("returned array should contain hashes ")
 		}
 
 		userdata.entries = append(userdata.entries, row)

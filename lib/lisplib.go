@@ -38,7 +38,7 @@ func Splice2SexpList(list []string) zygo.Sexp {
 
 func StringReSplit(env *zygo.Zlisp, name string, args []zygo.Sexp) (zygo.Sexp, error) {
 	if len(args) < 2 {
-		return zygo.SexpNull, errors.New("expecting 2 arguments")
+		return zygo.SexpNull, errors.New("expecting 2 arguments: <string>, <regex>")
 	}
 
 	var separator, input string
@@ -47,14 +47,14 @@ func StringReSplit(env *zygo.Zlisp, name string, args []zygo.Sexp) (zygo.Sexp, e
 	case *zygo.SexpStr:
 		input = t.S
 	default:
-		return zygo.SexpNull, errors.New("second argument must be a string")
+		return zygo.SexpNull, errors.New("first argument must be a string")
 	}
 
 	switch t := args[1].(type) {
 	case *zygo.SexpStr:
 		separator = t.S
 	default:
-		return zygo.SexpNull, errors.New("first argument must be a string")
+		return zygo.SexpNull, errors.New("second argument must be a string")
 	}
 
 	sep := regexp.MustCompile(separator)
@@ -82,7 +82,29 @@ func String2Int(env *zygo.Zlisp, name string, args []zygo.Sexp) (zygo.Sexp, erro
 	return &zygo.SexpInt{Val: int64(number)}, nil
 }
 
+func RegMatch(env *zygo.Zlisp, name string, args []zygo.Sexp) (zygo.Sexp, error) {
+	if len(args) != 2 {
+		return zygo.SexpNull, fmt.Errorf("argument must be <regexp>, <string>")
+	}
+
+	arguments := []string{}
+
+	for _, arg := range args {
+		switch t := arg.(type) {
+		case *zygo.SexpStr:
+			arguments = append(arguments, t.S)
+		default:
+			return zygo.SexpNull, errors.New("argument must be a string")
+		}
+	}
+
+	reg := regexp.MustCompile(arguments[0])
+
+	return &zygo.SexpBool{Val: reg.MatchString(arguments[1])}, nil
+}
+
 func RegisterLib(env *zygo.Zlisp) {
 	env.AddFunction("resplit", StringReSplit)
 	env.AddFunction("atoi", String2Int)
+	env.AddFunction("matchre", RegMatch)
 }

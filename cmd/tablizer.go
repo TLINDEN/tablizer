@@ -38,6 +38,7 @@ SYNOPSIS
         Other Flags:
               --completion <shell> Generate the autocompletion script for <shell>
           -f, --config <file>      Configuration file (default: ~/.config/tablizer/config)
+          -l, --load-path <path>   Load path for lisp plugins (expects *.zy files)
           -d, --debug              Enable debugging
           -h, --help               help for tablizer
           -m, --man                Display manual page
@@ -303,6 +304,57 @@ CONFIGURATION AND COLORS
     Colorization can be turned off completely either by setting the
     parameter "-N" or the environment variable NO_COLOR to a true value.
 
+LISP PLUGINS [experimental]
+    Tablizer supports plugins written in zygomys lisp. You can supply a
+    directory to the "-l" parameter containing *.zy files or a single .zy
+    file containing lisp code.
+
+    You can put as much code as you want into the file, but you need to add
+    one lips function to a hook at the end.
+
+    The following hooks are available:
+
+    filter
+        The filter hook works one a whole line of the input. Your hook
+        function is expected to return true or false. If you return true,
+        the line will be included in the output, otherwise not.
+
+        Multiple filter hook functions are supported.
+
+        Example:
+
+            /*
+            Simple filter hook function. Splits the argument by whitespace,
+            fetches the 2nd element, converts it to an int and returns true
+            if it s larger than 5, false otherwise.
+            */
+            (defn uselarge [line]
+              (cond (> (atoi (second (resplit line `\s+`))) 5) true false))
+    
+            /* Register the filter hook */
+            (addhook %filter %uselarge)
+
+    process
+        The process hook function gets a table containing the parsed input
+        data (see "lib/common.go:type Tabdata struct". It is expected to
+        return a pair containing a bool to denote if the table has been
+        modified, and the [modified] table. The resulting table may have
+        less rows than the original and cells may have changed content but
+        the number of columns must persist.
+
+    transpose
+        not yet implemented.
+
+    append
+        not yet implemented.
+
+    Beside the existing language features, the following additional lisp
+    functions are provided by tablizer:
+
+        (resplit [string, regex]) => list
+        (atoi    [string])        => int
+        (matchre [string, regex]) => bool
+
 BUGS
     In order to report a bug, unexpected behavior, feature requests or to
     submit a patch, please open an issue on github:
@@ -375,6 +427,7 @@ Sort Mode Flags (mutually exclusive):
 Other Flags:
       --completion <shell> Generate the autocompletion script for <shell>
   -f, --config <file>      Configuration file (default: ~/.config/tablizer/config)
+  -l, --load-path <path>   Load path for lisp plugins (expects *.zy files)
   -d, --debug              Enable debugging
   -h, --help               help for tablizer
   -m, --man                Display manual page

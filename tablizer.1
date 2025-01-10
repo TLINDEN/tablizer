@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "TABLIZER 1"
-.TH TABLIZER 1 "2024-05-07" "1" "User Commands"
+.TH TABLIZER 1 "2025-01-10" "1" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -176,6 +176,7 @@ tablizer \- Manipulate tabular output of other programs
 \&    Other Flags:
 \&          \-\-completion <shell> Generate the autocompletion script for <shell>
 \&      \-f, \-\-config <file>      Configuration file (default: ~/.config/tablizer/config)
+\&      \-l, \-\-load\-path <path>   Load path for lisp plugins (expects *.zy files)
 \&      \-d, \-\-debug              Enable debugging
 \&      \-h, \-\-help               help for tablizer
 \&      \-m, \-\-man                Display manual page
@@ -494,6 +495,61 @@ the \f(CW\*(C`\-L\*(C'\fR parameter).
 .PP
 Colorization can be turned off completely either by setting the
 parameter \f(CW\*(C`\-N\*(C'\fR or the environment variable \fB\s-1NO_COLOR\s0\fR to a true value.
+.SH "LISP PLUGINS [experimental]"
+.IX Header "LISP PLUGINS [experimental]"
+Tablizer supports plugins written in zygomys lisp. You can supply a
+directory to the \f(CW\*(C`\-l\*(C'\fR parameter containing \fB*.zy\fR files or a single
+\&.zy file containing lisp code.
+.PP
+You can put as much code as you want into the file, but you need to
+add one lips function to a hook at the end.
+.PP
+The following hooks are available:
+.IP "\fBfilter\fR" 4
+.IX Item "filter"
+The  filter hook  works  one a  whole  line of  the  input. Your  hook
+function is expected to return true  or false. If you return true, the
+line will be included in the output, otherwise not.
+.Sp
+Multiple filter hook functions are supported.
+.Sp
+Example:
+.Sp
+.Vb 7
+\&    /*
+\&    Simple filter hook function. Splits the argument by whitespace,
+\&    fetches the 2nd element, converts it to an int and returns true
+\&    if it s larger than 5, false otherwise.
+\&    */
+\&    (defn uselarge [line]
+\&      (cond (> (atoi (second (resplit line \`\es+\`))) 5) true false))
+\&    
+\&    /* Register the filter hook */
+\&    (addhook %filter %uselarge)
+.Ve
+.IP "\fBprocess\fR" 4
+.IX Item "process"
+The process hook function gets a table containing the parsed input
+data (see \f(CW\*(C`lib/common.go:type Tabdata struct\*(C'\fR. It is expected to
+return a pair containing a bool to denote if the table has been
+modified, and the [modified] table. The resulting table may have less
+rows than the original and cells may have changed content but the
+number of columns must persist.
+.IP "\fBtranspose\fR" 4
+.IX Item "transpose"
+not yet implemented.
+.IP "\fBappend\fR" 4
+.IX Item "append"
+not yet implemented.
+.PP
+Beside the existing language features, the following additional lisp
+functions are provided by tablizer:
+.PP
+.Vb 3
+\&    (resplit [string, regex]) => list
+\&    (atoi    [string])        => int
+\&    (matchre [string, regex]) => bool
+.Ve
 .SH "BUGS"
 .IX Header "BUGS"
 In order to report a bug, unexpected behavior, feature requests

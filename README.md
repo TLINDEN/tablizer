@@ -83,6 +83,10 @@ otherwise on all rows.
 
 There are more output modes like org-mode (orgtbl) and markdown.
 
+Last but not least tablizer has support for plugins written in
+lisp. This feature is expermental yet. Take a look into the manpage
+for details.
+
 ## Demo
 
 [![asciicast](demo/tablizer-demo.gif)](https://asciinema.org/a/9FKc3HPnlg8D2X8otheleEa9t)
