@@ -150,6 +150,8 @@ func Execute() {
 		"Custom field separator")
 	rootCmd.PersistentFlags().StringVarP(&conf.Columns, "columns", "c", "",
 		"Only show the speficied columns (separated by ,)")
+	rootCmd.PersistentFlags().StringVarP(&conf.TransposeColumns, "transpose-columns", "T", "",
+		"Transpose the speficied columns (separated by ,)")
 
 	// sort options
 	rootCmd.PersistentFlags().IntVarP(&conf.SortByColumn, "sort-by", "k", 0,
@@ -195,6 +197,7 @@ func Execute() {
 
 	// filters
 	rootCmd.PersistentFlags().StringArrayVarP(&conf.Rawfilters, "filter", "F", nil, "Filter by field (field=regexp)")
+	rootCmd.PersistentFlags().StringArrayVarP(&conf.Transposers, "regex-transposer", "R", nil, "apply /search/replace/ regexp to fields given in -T")
 
 	rootCmd.SetUsageTemplate(strings.TrimSpace(usage) + "\n")
 

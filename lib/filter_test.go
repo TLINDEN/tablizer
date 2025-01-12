@@ -153,8 +153,8 @@ func TestFilterByFields(t *testing.T) {
 				t.Errorf("PrepareFilters returned error: %s", err)
 			}
 
-			data, _, _ := FilterByFields(conf, data)
-			if !reflect.DeepEqual(data, inputdata.expect) {
+			data, _, _ := FilterByFields(conf, &data)
+			if !reflect.DeepEqual(*data, inputdata.expect) {
 				t.Errorf("Filtered data does not match expected data:\ngot: %+v\nexp: %+v", data, inputdata.expect)
 			}
 		})
