@@ -44,10 +44,10 @@ func matchPattern(conf cfg.Config, line string) bool {
  * more filters match on a row, it  will be kept, otherwise it will be
  * excluded.
  */
-func FilterByFields(conf cfg.Config, data Tabdata) (Tabdata, bool, error) {
+func FilterByFields(conf cfg.Config, data *Tabdata) (*Tabdata, bool, error) {
 	if len(conf.Filters) == 0 {
 		// no filters, no checking
-		return Tabdata{}, false, nil
+		return nil, false, nil
 	}
 
 	newdata := data.CloneEmpty()
@@ -75,7 +75,44 @@ func FilterByFields(conf cfg.Config, data Tabdata) (Tabdata, bool, error) {
 		}
 	}
 
-	return newdata, true, nil
+	return &newdata, true, nil
+}
+
+/*
+ * Transpose fields using search/replace regexp.
+ */
+func TransposeFields(conf cfg.Config, data *Tabdata) (*Tabdata, bool, error) {
+	if len(conf.UseTransposers) == 0 {
+		// nothing to be done
+		return nil, false, nil
+	}
+
+	newdata := data.CloneEmpty()
+	transposed := false
+
+	for _, row := range data.entries {
+		transposedrow := false
+
+		for idx := range data.headers {
+			transposeidx, hasone := findindex(conf.UseTransposeColumns, idx+1)
+			if hasone {
+				row[idx] =
+					conf.UseTransposers[transposeidx].Search.ReplaceAllString(
+						row[idx],
+						conf.UseTransposers[transposeidx].Replace,
+					)
+				transposedrow = true
+			}
+		}
+
+		if transposedrow {
+			// also apply -v
+			newdata.entries = append(newdata.entries, row)
+			transposed = true
+		}
+	}
+
+	return &newdata, transposed, nil
 }
 
 /* generic map.Exists(key) */

@@ -40,6 +40,16 @@ func contains(s []int, e int) bool {
 	return false
 }
 
+func findindex(s []int, e int) (int, bool) {
+	for i, a := range s {
+		if a == e {
+			return i, true
+		}
+	}
+
+	return 0, false
+}
+
 // validate the consitency of parsed data
 func ValidateConsistency(data *Tabdata) error {
 	expectedfields := len(data.headers)
@@ -57,13 +67,44 @@ func ValidateConsistency(data *Tabdata) error {
 // parse columns list given  with -c, modifies config.UseColumns based
 // on eventually given regex
 func PrepareColumns(conf *cfg.Config, data *Tabdata) error {
-	if conf.Columns == "" {
-		return nil
+	// -c columns
+	usecolumns, err := PrepareColumnVars(conf.Columns, data)
+	if err != nil {
+		return err
 	}
 
-	for _, use := range strings.Split(conf.Columns, ",") {
+	conf.UseColumns = usecolumns
+
+	return nil
+}
+
+func PrepareTransposerColumns(conf *cfg.Config, data *Tabdata) error {
+	// -T columns
+	usetransposecolumns, err := PrepareColumnVars(conf.TransposeColumns, data)
+	if err != nil {
+		return err
+	}
+
+	conf.UseTransposeColumns = usetransposecolumns
+
+	// verify that columns and transposers match and prepare transposer structs
+	if err := conf.PrepareTransposers(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func PrepareColumnVars(columns string, data *Tabdata) ([]int, error) {
+	if columns == "" {
+		return nil, nil
+	}
+
+	usecolumns := []int{}
+
+	for _, use := range strings.Split(columns, ",") {
 		if len(use) == 0 {
-			return fmt.Errorf("could not parse columns list %s: empty column", conf.Columns)
+			return nil, fmt.Errorf("could not parse columns list %s: empty column", columns)
 		}
 
 		usenum, err := strconv.Atoi(use)
@@ -71,15 +112,15 @@ func PrepareColumns(conf *cfg.Config, data *Tabdata) error {
 			// might be a regexp
 			colPattern, err := regexp.Compile(use)
 			if err != nil {
-				msg := fmt.Sprintf("Could not parse columns list %s: %v", conf.Columns, err)
+				msg := fmt.Sprintf("Could not parse columns list %s: %v", columns, err)
 
-				return errors.New(msg)
+				return nil, errors.New(msg)
 			}
 
 			// find matching header fields
 			for i, head := range data.headers {
 				if colPattern.MatchString(head) {
-					conf.UseColumns = append(conf.UseColumns, i+1)
+					usecolumns = append(usecolumns, i+1)
 				}
 			}
 		} else {
@@ -87,27 +128,28 @@ func PrepareColumns(conf *cfg.Config, data *Tabdata) error {
 			// a colum spec is not a number, we process them above
 			// inside the err handler  for atoi(). so only add the
 			// number, if it's really just a number.
-			conf.UseColumns = append(conf.UseColumns, usenum)
+			usecolumns = append(usecolumns, usenum)
 		}
 	}
 
 	// deduplicate: put all values into a map (value gets map key)
 	// thereby  removing duplicates,  extract keys into  new slice
 	// and sort it
-	imap := make(map[int]int, len(conf.UseColumns))
-	for _, i := range conf.UseColumns {
+	imap := make(map[int]int, len(usecolumns))
+	for _, i := range usecolumns {
 		imap[i] = 0
 	}
 
-	conf.UseColumns = nil
+	// fill with deduplicated columns
+	usecolumns = nil
 
 	for k := range imap {
-		conf.UseColumns = append(conf.UseColumns, k)
+		usecolumns = append(usecolumns, k)
 	}
 
-	sort.Ints(conf.UseColumns)
+	sort.Ints(usecolumns)
 
-	return nil
+	return usecolumns, nil
 }
 
 // prepare headers: add numbers to headers

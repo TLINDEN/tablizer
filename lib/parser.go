@@ -175,13 +175,27 @@ func parseTabular(conf cfg.Config, input io.Reader) (Tabdata, error) {
 	}
 
 	// filter by field filters, if any
-	filtereddata, changed, err := FilterByFields(conf, data)
+	filtereddata, changed, err := FilterByFields(conf, &data)
 	if err != nil {
 		return data, fmt.Errorf("failed to filter fields: %w", err)
 	}
 
 	if changed {
-		data = filtereddata
+		data = *filtereddata
+	}
+
+	// transpose if demanded
+	if err := PrepareTransposerColumns(&conf, &data); err != nil {
+		return data, err
+	}
+
+	modifieddata, changed, err := TransposeFields(conf, &data)
+	if err != nil {
+		return data, fmt.Errorf("failed to transpose fields: %w", err)
+	}
+
+	if changed {
+		data = *modifieddata
 	}
 
 	// apply user defined lisp process hooks, if any

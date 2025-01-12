@@ -8,40 +8,42 @@ tablizer - Manipulate tabular output of other programs
       tablizer [regex] [file, ...] [flags]
     
     Operational Flags:
-      -c, --columns string     Only show the speficied columns (separated by ,)
-      -v, --invert-match       select non-matching rows
-      -n, --no-numbering       Disable header numbering
-      -N, --no-color           Disable pattern highlighting
-      -H, --no-headers         Disable headers display
-      -s, --separator string   Custom field separator
-      -k, --sort-by int        Sort by column (default: 1)
-      -z, --fuzzy              Use fuzzy search [experimental]
-      -F, --filter field=reg   Filter given field with regex, can be used multiple times
+      -c, --columns string              Only show the speficied columns (separated by ,)
+      -v, --invert-match                select non-matching rows
+      -n, --no-numbering                Disable header numbering
+      -N, --no-color                    Disable pattern highlighting
+      -H, --no-headers                  Disable headers display
+      -s, --separator string            Custom field separator
+      -k, --sort-by int                 Sort by column (default: 1)
+      -z, --fuzzy                       Use fuzzy search [experimental]
+      -F, --filter field=reg            Filter given field with regex, can be used multiple times
+      -T, --transpose-columns string    Transpose the speficied columns (separated by ,)
+      -R, --regex-transposer /from/to/  Apply /search/replace/ regexp to fields given in -T
 
     Output Flags (mutually exclusive):
-      -X, --extended           Enable extended output
-      -M, --markdown           Enable markdown table output
-      -O, --orgtbl             Enable org-mode table output
-      -S, --shell              Enable shell evaluable output
-      -Y, --yaml               Enable yaml output
-      -C, --csv                Enable CSV output
-      -A, --ascii              Default output mode, ascii tabular
-      -L, --hightlight-lines   Use alternating background colors for tables
+      -X, --extended                    Enable extended output
+      -M, --markdown                    Enable markdown table output
+      -O, --orgtbl                      Enable org-mode table output
+      -S, --shell                       Enable shell evaluable output
+      -Y, --yaml                        Enable yaml output
+      -C, --csv                         Enable CSV output
+      -A, --ascii                       Default output mode, ascii tabular
+      -L, --hightlight-lines            Use alternating background colors for tables
 
     Sort Mode Flags (mutually exclusive):
-      -a, --sort-age           sort according to age (duration) string
-      -D, --sort-desc          Sort in descending order (default: ascending)
-      -i, --sort-numeric       sort according to string numerical value
-      -t, --sort-time          sort according to time string
+      -a, --sort-age                    sort according to age (duration) string
+      -D, --sort-desc                   Sort in descending order (default: ascending)
+      -i, --sort-numeric                sort according to string numerical value
+      -t, --sort-time                   sort according to time string
 
     Other Flags:
-          --completion <shell> Generate the autocompletion script for <shell>
-      -f, --config <file>      Configuration file (default: ~/.config/tablizer/config)
-      -l, --load-path <path>   Load path for lisp plugins (expects *.zy files)
-      -d, --debug              Enable debugging
-      -h, --help               help for tablizer
-      -m, --man                Display manual page
-      -V, --version            Print program version
+          --completion <shell>         Generate the autocompletion script for <shell>
+      -f, --config <file>              Configuration file (default: ~/.config/tablizer/config)
+      -l, --load-path <path>           Load path for lisp plugins (expects *.zy files)
+      -d, --debug                      Enable debugging
+      -h, --help                       help for tablizer
+      -m, --man                        Display manual page
+      -V, --version                    Print program version
 
 
 =head1 DESCRIPTION

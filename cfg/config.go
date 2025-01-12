@@ -49,6 +49,11 @@ type Settings struct {
 	HighlightHdrBG string `hcl:"HighlightHdrBG"`
 }
 
+type Transposer struct {
+	Search  regexp.Regexp
+	Replace string
+}
+
 // internal config
 type Config struct {
 	Debug          bool
@@ -67,6 +72,11 @@ type Config struct {
 	SortMode       string
 	SortDescending bool
 	SortByColumn   int
+
+	TransposeColumns    string       // 1,2
+	UseTransposeColumns []int        // []int{1,2}
+	Transposers         []string     // []string{"/ /-/", "/foo/bar/"}
+	UseTransposers      []Transposer // {Search: re, Replace: string}
 
 	/*
 	 FIXME: make configurable somehow, config file or ENV
@@ -278,6 +288,29 @@ func (conf *Config) PrepareFilters() error {
 		}
 
 		conf.Filters[strings.ToLower(parts[0])] = reg
+	}
+
+	return nil
+}
+
+// check if transposers match transposer columns and prepare transposer structs
+func (conf *Config) PrepareTransposers() error {
+	if len(conf.Transposers) != len(conf.UseTransposeColumns) {
+		return fmt.Errorf("the number of transposers needs to correspond to the number of transpose columns: %d != %d",
+			len(conf.Transposers), len(strings.Split(conf.TransposeColumns, ",")))
+	}
+
+	for _, transposer := range conf.Transposers {
+		parts := strings.Split(transposer, "/")
+		if len(parts) != 4 {
+			return fmt.Errorf("transposer function must have the format /regexp/replace-string/")
+		}
+
+		conf.UseTransposers = append(conf.UseTransposers,
+			Transposer{
+				Search:  *regexp.MustCompile(parts[1]),
+				Replace: parts[2]},
+		)
 	}
 
 	return nil
