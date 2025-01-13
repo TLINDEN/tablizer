@@ -90,6 +90,86 @@ func TestPrepareColumns(t *testing.T) {
 	}
 }
 
+func TestPrepareTransposerColumns(t *testing.T) {
+	data := Tabdata{
+		maxwidthHeader: 5,
+		columns:        3,
+		headers: []string{
+			"ONE", "TWO", "THREE",
+		},
+		entries: [][]string{
+			{
+				"2", "3", "4",
+			},
+		},
+	}
+
+	var tests = []struct {
+		input     string
+		transp    []string
+		exp       int
+		wanterror bool // expect error
+	}{
+		{
+			"1",
+			[]string{`/\d/x/`},
+			1,
+			false,
+		},
+		{
+			"T", // will match [T]WO and [T]HREE
+			[]string{`/\d/x/`, `/.//`},
+			2,
+			false,
+		},
+		{
+			"T,2",
+			[]string{`/\d/x/`, `/.//`},
+			2,
+			false,
+		},
+		{
+			"1",
+			[]string{},
+			1,
+			true,
+		},
+		{
+			"",
+			[]string{`|.|N|`},
+			0,
+			true,
+		},
+		{
+			"1",
+			[]string{`|.|N|`},
+			1,
+			false,
+		},
+	}
+
+	for _, testdata := range tests {
+		testname := fmt.Sprintf("PrepareTransposerColumns-%s-%t", testdata.input, testdata.wanterror)
+		t.Run(testname, func(t *testing.T) {
+			conf := cfg.Config{TransposeColumns: testdata.input, Transposers: testdata.transp}
+			err := PrepareTransposerColumns(&conf, &data)
+			if err != nil {
+				if !testdata.wanterror {
+					t.Errorf("got error: %v", err)
+				}
+			} else {
+				if len(conf.UseTransposeColumns) != testdata.exp {
+					t.Errorf("got %d, want %d", conf.UseTransposeColumns, testdata.exp)
+				}
+
+				if len(conf.Transposers) != len(conf.UseTransposeColumns) {
+					t.Errorf("got %d, want %d", conf.UseTransposeColumns, testdata.exp)
+				}
+			}
+		})
+	}
+}
+
 func TestReduceColumns(t *testing.T) {
 	var tests = []struct {
 		expect  [][]string

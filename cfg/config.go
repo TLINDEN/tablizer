@@ -301,7 +301,7 @@ func (conf *Config) PrepareTransposers() error {
 	}
 
 	for _, transposer := range conf.Transposers {
-		parts := strings.Split(transposer, "/")
+		parts := strings.Split(transposer, string(transposer[0]))
 		if len(parts) != 4 {
 			return fmt.Errorf("transposer function must have the format /regexp/replace-string/")
 		}

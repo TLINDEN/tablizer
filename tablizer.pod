@@ -206,6 +206,40 @@ We want to see only the CMD column and use a regex for this:
 
 where "C" is our regexp which matches CMD.
 
+=head2 TRANSPOSE FIELDS USING REGEXPS
+
+You can manipulate field contents using regular expressions. You have
+to tell tablizer which field[s] to operate on using the option C<-T>
+and the search/replace pattern using C<-R>. The number of columns and
+patterns must match.
+
+A search/replace pattern consists of the following elements:
+
+    /search-regexp/replace-string/
+
+The separator can be any valid character. Especially if you want to
+use a regexp containing the C</> character, eg:
+
+    |search-regexp|replace-string|
+
+Example:
+    
+    cat t/testtable2
+    NAME  DURATION
+    x     10
+    a     100
+    z     0
+    u     4
+    k     6
+    
+    cat t/testtable2 | tablizer -T2 -R '/^\d/4/' -n
+    NAME    DURATION 
+    x       40      
+    a       400     
+    z       4       
+    u       4       
+    k       4  
+
 =head2 OUTPUT MODES
 
 There might be cases  when the tabular output of a  program is way too

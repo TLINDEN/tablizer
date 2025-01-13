@@ -188,6 +188,21 @@ DESCRIPTION
 
     where "C" is our regexp which matches CMD.
 
+  TRANSPOSE FIELDS USING REGEXPS
+    You can manipulate field contents using regular expressions. You have to
+    tell tablizer which field[s] to operate on using the option "-T" and the
+    search/replace pattern using "-R". The number of columns and patterns
+    must match.
+
+    A search/replace pattern consists of the following elements:
+
+        /search-regexp/replace-string/
+
+    The separator can be any valid character. Especially if you want to use
+    a regexp containing the "/" character, eg:
+
+        |search-regexp|replace-string|
+
   OUTPUT MODES
     There might be cases when the tabular output of a program is way too
     large for your current terminal but you still need to see every column.
