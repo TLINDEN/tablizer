@@ -65,7 +65,9 @@ func ValidateConsistency(data *Tabdata) error {
 }
 
 // parse columns list given  with -c, modifies config.UseColumns based
-// on eventually given regex
+// on eventually given regex.
+// This is an output filter, because -cN,N,... is being applied AFTER
+// processing of the input data.
 func PrepareColumns(conf *cfg.Config, data *Tabdata) error {
 	// -c columns
 	usecolumns, err := PrepareColumnVars(conf.Columns, data)
@@ -78,6 +80,8 @@ func PrepareColumns(conf *cfg.Config, data *Tabdata) error {
 	return nil
 }
 
+// Same thing as above but for -T option, which is an input option,
+// because transposers are being applied before output.
 func PrepareTransposerColumns(conf *cfg.Config, data *Tabdata) error {
 	// -T columns
 	usetransposecolumns, err := PrepareColumnVars(conf.TransposeColumns, data)

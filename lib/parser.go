@@ -33,11 +33,31 @@ import (
 Parser switch
 */
 func Parse(conf cfg.Config, input io.Reader) (Tabdata, error) {
+	var data Tabdata
+	var err error
+
+	// first step, parse the data
 	if len(conf.Separator) == 1 {
-		return parseCSV(conf, input)
+		data, err = parseCSV(conf, input)
+	} else {
+		data, err = parseTabular(conf, input)
 	}
 
-	return parseTabular(conf, input)
+	if err != nil {
+		return data, err
+	}
+
+	// 2nd step, apply filters, code or transposers, if any
+	postdata, changed, err := PostProcess(conf, &data)
+	if err != nil {
+		return data, err
+	}
+
+	if changed {
+		return *postdata, nil
+	}
+
+	return data, err
 }
 
 /*
@@ -75,16 +95,6 @@ func parseCSV(conf cfg.Config, input io.Reader) (Tabdata, error) {
 		if len(records) > 1 {
 			data.entries = records[1:]
 		}
-	}
-
-	// apply user defined lisp process hooks, if any
-	userdata, changed, err := RunProcessHooks(conf, data)
-	if err != nil {
-		return data, fmt.Errorf("failed to apply filter hook: %w", err)
-	}
-
-	if changed {
-		data = userdata
 	}
 
 	return data, nil
@@ -174,43 +184,53 @@ func parseTabular(conf cfg.Config, input io.Reader) (Tabdata, error) {
 		return data, fmt.Errorf("failed to read from io.Reader: %w", scanner.Err())
 	}
 
+	return data, nil
+}
+
+func PostProcess(conf cfg.Config, data *Tabdata) (*Tabdata, bool, error) {
+	var modified bool
+
 	// filter by field filters, if any
-	filtereddata, changed, err := FilterByFields(conf, &data)
+	filtereddata, changed, err := FilterByFields(conf, data)
 	if err != nil {
-		return data, fmt.Errorf("failed to filter fields: %w", err)
+		return data, false, fmt.Errorf("failed to filter fields: %w", err)
 	}
 
 	if changed {
-		data = *filtereddata
+		data = filtereddata
+		modified = true
+	}
+
+	// check if transposers are valid and turn into Transposer structs
+	if err := PrepareTransposerColumns(&conf, data); err != nil {
+		return data, false, err
 	}
 
 	// transpose if demanded
-	if err := PrepareTransposerColumns(&conf, &data); err != nil {
-		return data, err
-	}
-
-	modifieddata, changed, err := TransposeFields(conf, &data)
+	modifieddata, changed, err := TransposeFields(conf, data)
 	if err != nil {
-		return data, fmt.Errorf("failed to transpose fields: %w", err)
+		return data, false, fmt.Errorf("failed to transpose fields: %w", err)
 	}
 
 	if changed {
-		data = *modifieddata
+		data = modifieddata
+		modified = true
 	}
 
 	// apply user defined lisp process hooks, if any
 	userdata, changed, err := RunProcessHooks(conf, data)
 	if err != nil {
-		return data, fmt.Errorf("failed to apply filter hook: %w", err)
+		return data, false, fmt.Errorf("failed to apply filter hook: %w", err)
 	}
 
 	if changed {
 		data = userdata
+		modified = true
 	}
 
 	if conf.Debug {
 		repr.Print(data)
 	}
 
-	return data, nil
+	return data, modified, nil
 }

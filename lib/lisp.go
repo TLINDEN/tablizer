@@ -217,13 +217,13 @@ The somewhat complicated code is being  caused by the fact, that we
 need to convert our internal structure  to a lisp variable and vice
 versa afterwards.
 */
-func RunProcessHooks(conf cfg.Config, data Tabdata) (Tabdata, bool, error) {
+func RunProcessHooks(conf cfg.Config, data *Tabdata) (*Tabdata, bool, error) {
 	var userdata Tabdata
 
 	lisplist := []zygo.Sexp{}
 
 	if len(Hooks["process"]) == 0 {
-		return userdata, false, nil
+		return data, false, nil
 	}
 
 	if len(Hooks["process"]) > 1 {
@@ -237,7 +237,7 @@ func RunProcessHooks(conf cfg.Config, data Tabdata) (Tabdata, bool, error) {
 		for idx, cell := range row {
 			err := entry.HashSet(&zygo.SexpStr{S: data.headers[idx]}, &zygo.SexpStr{S: cell})
 			if err != nil {
-				return userdata, false, fmt.Errorf("failed to convert to lisp data: %w", err)
+				return data, false, fmt.Errorf("failed to convert to lisp data: %w", err)
 			}
 		}
 
@@ -256,7 +256,7 @@ func RunProcessHooks(conf cfg.Config, data Tabdata) (Tabdata, bool, error) {
 
 	res, err := conf.Lisp.EvalString(fmt.Sprintf("(%s data)", hook.Name()))
 	if err != nil {
-		return userdata, false, fmt.Errorf("failed to eval lisp loader: %w", err)
+		return data, false, fmt.Errorf("failed to eval lisp loader: %w", err)
 	}
 
 	// we expect (bool, array(hash)) as return from the function
@@ -266,22 +266,22 @@ func RunProcessHooks(conf cfg.Config, data Tabdata) (Tabdata, bool, error) {
 		case *zygo.SexpBool:
 			result = th.Val
 		default:
-			return userdata, false, errors.New("expect (bool, array(hash)) as return value")
+			return data, false, errors.New("expect (bool, array(hash)) as return value")
 		}
 
 		switch sexptailtype := sexptype.Tail.(type) {
 		case *zygo.SexpArray:
 			lisplist = sexptailtype.Val
 		default:
-			return userdata, false, errors.New("expect (bool, array(hash)) as return value ")
+			return data, false, errors.New("expect (bool, array(hash)) as return value ")
 		}
 	default:
-		return userdata, false, errors.New("process hook shall return array of hashes ")
+		return data, false, errors.New("process hook shall return array of hashes ")
 	}
 
 	if !result {
 		// no further processing required
-		return userdata, result, nil
+		return data, result, nil
 	}
 
 	// finally convert lispdata back to Tabdata
@@ -296,18 +296,18 @@ func RunProcessHooks(conf cfg.Config, data Tabdata) (Tabdata, bool, error) {
 					&zygo.SexpStr{S: header},
 					&zygo.SexpStr{S: ""})
 				if err != nil {
-					return userdata, false, fmt.Errorf("failed to get lisp hash entry: %w", err)
+					return data, false, fmt.Errorf("failed to get lisp hash entry: %w", err)
 				}
 
 				switch sexptype := entry.(type) {
 				case *zygo.SexpStr:
 					row = append(row, sexptype.S)
 				default:
-					return userdata, false, errors.New("hash values should be string ")
+					return data, false, errors.New("hash values should be string ")
 				}
 			}
 		default:
-			return userdata, false, errors.New("returned array should contain hashes ")
+			return data, false, errors.New("returned array should contain hashes ")
 		}
 
 		userdata.entries = append(userdata.entries, row)
@@ -315,5 +315,5 @@ func RunProcessHooks(conf cfg.Config, data Tabdata) (Tabdata, bool, error) {
 
 	userdata.headers = data.headers
 
-	return userdata, result, nil
+	return &userdata, result, nil
 }
