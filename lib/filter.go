@@ -19,7 +19,6 @@ package lib
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"strings"
 
@@ -142,18 +141,6 @@ func FilterByPattern(conf cfg.Config, input io.Reader) (io.Reader, error) {
 				// match the pattern, we will ignore it. However,
 				// if the user specified -v, the matching is inverted,
 				// so we ignore all lines, which DO match.
-				continue
-			}
-
-			// apply user defined lisp filters, if any
-			accept, err := RunFilterHooks(conf, line)
-			if err != nil {
-				return input, fmt.Errorf("failed to apply filter hook: %w", err)
-			}
-
-			if !accept {
-				//  IF there  are filter  hook[s] and  IF one  of them
-				// returns false on the current line, reject it
 				continue
 			}
 		}

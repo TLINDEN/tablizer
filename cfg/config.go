@@ -23,7 +23,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/glycerine/zygomys/zygo"
 	"github.com/gookit/color"
 	"github.com/hashicorp/hcl/v2/hclsimple"
 )
@@ -32,7 +31,6 @@ const DefaultSeparator string = `(\s\s+|\t)`
 const Version string = "v1.3.0"
 const MAXPARTS = 2
 
-var DefaultLoadPath = os.Getenv("HOME") + "/.config/tablizer/lisp"
 var DefaultConfigfile = os.Getenv("HOME") + "/.config/tablizer/config"
 
 var VERSION string // maintained by -x
@@ -89,13 +87,6 @@ type Config struct {
 
 	NoColor bool
 
-	// special  case: we use the  config struct to transport  the lisp
-	// env trough the program
-	Lisp *zygo.Zlisp
-
-	// a path containing lisp scripts to be loaded on startup
-	LispLoadPath string
-
 	// config file, optional
 	Configfile string
 
@@ -137,9 +128,6 @@ type Sortmode struct {
 	Time    bool
 	Age     bool
 }
-
-// valid lisp hooks
-var ValidHooks []string
 
 // default color schemes
 func (conf *Config) Colors() map[color.Level]map[string]color.Color {
@@ -342,8 +330,6 @@ func (conf *Config) ApplyDefaults() {
 	if conf.OutputMode == Yaml || conf.OutputMode == CSV {
 		conf.NoNumbering = true
 	}
-
-	ValidHooks = []string{"filter", "process", "transpose", "append"}
 }
 
 func (conf *Config) PreparePattern(pattern string) error {

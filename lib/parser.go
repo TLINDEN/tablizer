@@ -145,18 +145,6 @@ func parseTabular(conf cfg.Config, input io.Reader) (Tabdata, error) {
 				continue
 			}
 
-			// apply user defined lisp filters, if any
-			accept, err := RunFilterHooks(conf, line)
-			if err != nil {
-				return data, fmt.Errorf("failed to apply filter hook: %w", err)
-			}
-
-			if !accept {
-				//  IF there  are filter  hook[s] and  IF one  of them
-				// returns false on the current line, reject it
-				continue
-			}
-
 			idx := 0 // we cannot use the header index, because we could exclude columns
 			values := []string{}
 			for _, part := range parts {
@@ -211,17 +199,6 @@ func PostProcess(conf cfg.Config, data *Tabdata) (*Tabdata, bool, error) {
 
 	if changed {
 		data = modifieddata
-		modified = true
-	}
-
-	// apply user defined lisp process hooks, if any
-	userdata, changed, err := RunProcessHooks(conf, data)
-	if err != nil {
-		return data, false, fmt.Errorf("failed to apply filter hook: %w", err)
-	}
-
-	if changed {
-		data = userdata
 		modified = true
 	}
 
