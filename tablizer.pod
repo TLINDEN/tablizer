@@ -206,6 +206,12 @@ We want to see only the CMD column and use a regex for this:
 
 where "C" is our regexp which matches CMD.
 
+If a column specifier doesn't look like a regular expression, matching
+against header  fields will  be case  insensitive. So,  if you  have a
+field with  the name C<ID> then  these will all match:  C<-c id>, C<-c
+Id>. The same rule applies to the options C<-T> and C<-F>.
+
+
 =head2 TRANSPOSE FIELDS USING REGEXPS
 
 You can manipulate field contents using regular expressions. You have

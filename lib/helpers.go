@@ -106,24 +106,33 @@ func PrepareColumnVars(columns string, data *Tabdata) ([]int, error) {
 
 	usecolumns := []int{}
 
-	for _, use := range strings.Split(columns, ",") {
-		if len(use) == 0 {
+	isregex := regexp.MustCompile(`\W`)
+
+	for _, columnpattern := range strings.Split(columns, ",") {
+		if len(columnpattern) == 0 {
 			return nil, fmt.Errorf("could not parse columns list %s: empty column", columns)
 		}
 
-		usenum, err := strconv.Atoi(use)
+		usenum, err := strconv.Atoi(columnpattern)
 		if err != nil {
-			// might be a regexp
-			colPattern, err := regexp.Compile(use)
+			// not a number
+
+			if !isregex.MatchString(columnpattern) {
+				// is not a regexp (contains no non-word chars)
+				// lc() it so that word searches are case insensitive
+				columnpattern = strings.ToLower(columnpattern)
+			}
+
+			colPattern, err := regexp.Compile(columnpattern)
 			if err != nil {
 				msg := fmt.Sprintf("Could not parse columns list %s: %v", columns, err)
 
 				return nil, errors.New(msg)
 			}
 
-			// find matching header fields
+			// find matching header fields, ignoring case
 			for i, head := range data.headers {
-				if colPattern.MatchString(head) {
+				if colPattern.MatchString(strings.ToLower(head)) {
 					usecolumns = append(usecolumns, i+1)
 				}
 			}

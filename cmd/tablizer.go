@@ -188,6 +188,11 @@ DESCRIPTION
 
     where "C" is our regexp which matches CMD.
 
+    If a column specifier doesn't look like a regular expression, matching
+    against header fields will be case insensitive. So, if you have a field
+    with the name "ID" then these will all match: "-c id", "-c Id". The same
+    rule applies to the options "-T" and "-F".
+
   TRANSPOSE FIELDS USING REGEXPS
     You can manipulate field contents using regular expressions. You have to
     tell tablizer which field[s] to operate on using the option "-T" and the
@@ -202,6 +207,24 @@ DESCRIPTION
     a regexp containing the "/" character, eg:
 
         |search-regexp|replace-string|
+
+    Example:
+
+        cat t/testtable2
+        NAME  DURATION
+        x     10
+        a     100
+        z     0
+        u     4
+        k     6
+    
+        cat t/testtable2 | tablizer -T2 -R '/^\d/4/' -n
+        NAME    DURATION 
+        x       40      
+        a       400     
+        z       4       
+        u       4       
+        k       4
 
   OUTPUT MODES
     There might be cases when the tabular output of a program is way too

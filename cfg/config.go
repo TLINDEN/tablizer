@@ -287,7 +287,7 @@ func (conf *Config) PrepareFilters() error {
 				parts[0], err)
 		}
 
-		conf.Filters[strings.ToLower(parts[0])] = reg
+		conf.Filters[strings.ToLower(strings.ToLower(parts[0]))] = reg
 	}
 
 	return nil
