@@ -1,0 +1,49 @@
+# sort by name
+exec tablizer -r testtable.txt -k 1
+stdout '^alert.*\n^grafana.*\n^kube'
+
+# sort by name reversed
+exec tablizer -r testtable.txt -k 1 -D
+stdout 'kube.*\n^grafana.*\n^alert'
+
+# sort by starts numerically
+exec tablizer -r testtable.txt -k 4 -i -c4
+stdout '17\s*\n^20\s*\n^35'
+
+# sort by starts numerically reversed
+exec tablizer -r testtable.txt -k 4 -i -c4 -D
+stdout '35\s*\n^20\s*\n^17'
+
+# sort by age
+exec tablizer -r testtable.txt -k 5 -a
+stdout '45m\s*\n.*1h44m'
+
+# sort by age reverse
+exec tablizer -r testtable.txt -k 5 -a -D
+stdout '1h44m\s*\n.*45m'
+
+# sort by time
+exec tablizer -r timetable.txt -k 2 -t
+stdout '^sel.*\n^foo.*\nbar'
+
+# sort by time reverse
+exec tablizer -r timetable.txt -k 2 -t -D
+stdout '^bar.*\n^foo.*\nsel'
+
+
+# will be automatically created in work dir
+-- testtable.txt --
+NAME                                                 READY   STATUS    STARTS      AGE
+alertmanager-kube-prometheus-alertmanager-0          2/2     Running   35          11d
+kube-prometheus-blackbox-exporter-5d85b5d8f4-tskh7   1/1     Running   17          1h44m
+grafana-fcc54cbc9-bk7s8                              1/1     Running   17          1d
+kube-prometheus-kube-state-metrics-b4cd9487-75p7f    1/1     Running   20          45m
+kube-prometheus-node-exporter-bfzpl                  1/1     Running   17          54s
+
+
+
+-- timetable.txt --
+NAME  TIME
+foo   2024-11-18T12:00:00+01:00
+bar   2024-11-18T12:45:00+01:00
+sel   2024-07-18T12:00:00+01:00

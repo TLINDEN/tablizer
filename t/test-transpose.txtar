@@ -1,0 +1,21 @@
+# transpose one field
+exec tablizer -r testtable.txt -T status -R '/Running/OK/'
+stdout grafana.*OK
+
+# transpose two fields
+exec tablizer -r testtable.txt -T name,status -R '/alertmanager-//' -R '/Running/OK/' 
+stdout prometheus-0.*OK
+
+# transpose one field and show one column
+exec tablizer -r testtable.txt -T status -R '/Running/OK/' -c name
+! stdout grafana.*OK
+
+
+# will be automatically created in work dir
+-- testtable.txt --
+NAME                                                 READY   STATUS    RESTARTS       AGE
+alertmanager-kube-prometheus-alertmanager-0          2/2     Running   35 (45m ago)   11d
+grafana-fcc54cbc9-bk7s8                              1/1     Running   17 (45m ago)   1d
+kube-prometheus-blackbox-exporter-5d85b5d8f4-tskh7   1/1     Running   17 (45m ago)   1h44m
+kube-prometheus-kube-state-metrics-b4cd9487-75p7f    1/1     Running   20 (45m ago)   45m
+kube-prometheus-node-exporter-bfzpl                  1/1     Running   17 (45m ago)   54s
