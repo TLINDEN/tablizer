@@ -104,6 +104,9 @@ type Config struct {
 	// used for field filtering
 	Rawfilters []string
 	Filters    map[string]*regexp.Regexp
+
+	// -r <file>
+	InputFile string
 }
 
 // maps outputmode short flags to output mode, ie. -O => -o orgtbl
@@ -297,7 +300,7 @@ func (conf *Config) PrepareFilters() error {
 func (conf *Config) PrepareTransposers() error {
 	if len(conf.Transposers) != len(conf.UseTransposeColumns) {
 		return fmt.Errorf("the number of transposers needs to correspond to the number of transpose columns: %d != %d",
-			len(conf.Transposers), len(strings.Split(conf.TransposeColumns, ",")))
+			len(conf.Transposers), len(conf.UseTransposeColumns))
 	}
 
 	for _, transposer := range conf.Transposers {
