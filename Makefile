@@ -66,11 +66,10 @@ clean:
 	rm -rf $(tool) releases coverage.out
 
 test:
-	go test -v ./...
-	bash t/test.sh
+	go test ./... $(OPTS)
 
 singletest:
-	@echo "Call like this: ''make singletest TEST=TestPrepareColumns MOD=lib"
+	@echo "Call like this: 'make singletest TEST=TestPrepareColumns MOD=lib'"
 	go test -run $(TEST) github.com/tlinden/tablizer/$(MOD)
 
 cover-report:

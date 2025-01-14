@@ -18,9 +18,17 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package main
 
 import (
+	"os"
+
 	"github.com/tlinden/tablizer/cmd"
 )
 
 func main() {
+	os.Exit(Main())
+}
+
+func Main() int {
 	cmd.Execute()
+
+	return 0 // cmd takes care of exit 1 itself
 }
