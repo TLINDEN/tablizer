@@ -121,19 +121,25 @@ func PrepareColumnVars(columns string, data *Tabdata) ([]int, error) {
 				// is not a regexp (contains no non-word chars)
 				// lc() it so that word searches are case insensitive
 				columnpattern = strings.ToLower(columnpattern)
-			}
 
-			colPattern, err := regexp.Compile(columnpattern)
-			if err != nil {
-				msg := fmt.Sprintf("Could not parse columns list %s: %v", columns, err)
+				for i, head := range data.headers {
+					if columnpattern == strings.ToLower(head) {
+						usecolumns = append(usecolumns, i+1)
+					}
+				}
+			} else {
+				colPattern, err := regexp.Compile("(?i)" + columnpattern)
+				if err != nil {
+					msg := fmt.Sprintf("Could not parse columns list %s: %v", columns, err)
 
-				return nil, errors.New(msg)
-			}
+					return nil, errors.New(msg)
+				}
 
-			// find matching header fields, ignoring case
-			for i, head := range data.headers {
-				if colPattern.MatchString(strings.ToLower(head)) {
-					usecolumns = append(usecolumns, i+1)
+				// find matching header fields, ignoring case
+				for i, head := range data.headers {
+					if colPattern.MatchString(strings.ToLower(head)) {
+						usecolumns = append(usecolumns, i+1)
+					}
 				}
 			}
 		} else {

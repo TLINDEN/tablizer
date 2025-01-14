@@ -67,8 +67,8 @@ func TestPrepareColumns(t *testing.T) {
 	}{
 		{"1,2,3", []int{1, 2, 3}, false},
 		{"1,2,", []int{}, true},
-		{"T", []int{2, 3}, false},
-		{"T,2,3", []int{2, 3}, false},
+		{"T.", []int{2, 3}, false},
+		{"T.,2,3", []int{2, 3}, false},
 		{"[a-z,4,5", []int{4, 5}, true}, // invalid regexp
 	}
 
@@ -117,13 +117,13 @@ func TestPrepareTransposerColumns(t *testing.T) {
 			false,
 		},
 		{
-			"T", // will match [T]WO and [T]HREE
+			"T.", // will match [T]WO and [T]HREE
 			[]string{`/\d/x/`, `/.//`},
 			2,
 			false,
 		},
 		{
-			"T,2",
+			"TH.,2",
 			[]string{`/\d/x/`, `/.//`},
 			2,
 			false,
