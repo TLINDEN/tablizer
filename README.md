@@ -198,6 +198,41 @@ In order to report a bug, unexpected behavior, feature requests
 or to submit a patch, please open an issue on github:
 https://github.com/TLINDEN/tablizer/issues.
 
+## Prior Art
+
+When I started with tablizer I was not aware that other tools
+exist. Here is a non-exhausive list of the ones I find especially
+awesome:
+
+### [miller](https://github.com/johnkerl/miller)
+
+This is a really powerful tool to work with tabular data and it also
+allows other inputs as json, csv etc. You can filter, manipulate,
+create pipelines, there's even a programming language builtin to do
+even more amazing things.
+
+### [csvq](https://github.com/mithrandie/csvq)
+
+Csvq allows you to query CSV and TSV data using SQL queries. How nice
+is that? Highly recommended if you have to work with a large (and
+wide) dataset and need to apply a complicated set of rules.
+
+### [goawk](https://github.com/benhoyt/goawk)
+
+Goawk is a 100% POSIX compliant AWK implementation in GO, which also
+supports CSV and TSV data as input (using `-i csv` for example). You
+can apply any kind of awk code to your tabular data, there are no
+limit to your creativity!
+
+### [teip](https://github.com/greymd/teip)
+
+I particularly like teip, it's a real gem. You can use it to drill
+"holes" into your tabular data and modify these "holes" using small
+external unix commands such as grep or sed. The possibilities are
+endless, you can even use teip to modify data inside a hole created by
+teip. Highly recommended.
+
+
 ## Copyright and license
 
 This software is licensed under the GNU GENERAL PUBLIC LICENSE version 3.
