@@ -83,6 +83,22 @@ otherwise on all rows.
 
 There are more output modes like org-mode (orgtbl) and markdown.
 
+You can also use it to modify certain cells using regular expression
+matching. For example:
+
+```shell
+kubectl get pods | tablizer -n -T4 -R '/ /-/'
+NAME                            READY   STATUS  RESTARTS        AGE
+repldepl-7bcd8d5b64-7zq4l       1/1     Running 1-(69m-ago)     5h26m
+repldepl-7bcd8d5b64-m48n8       1/1     Running 1-(69m-ago)     5h26m
+repldepl-7bcd8d5b64-q2bf4       1/1     Running 1-(69m-ago)     5h26m
+```
+
+Here, we modified the 4th column (`-T4`) by replacing every space with
+a dash. If you need to work with `/` characters, you can also use any
+other separator, for instance: `-R '| |-|'`.
+
+
 Last but not least tablizer has support for plugins written in
 lisp. This feature is expermental yet. Take a look into the manpage
 for details.
