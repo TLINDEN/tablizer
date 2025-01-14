@@ -117,9 +117,6 @@ func Execute() {
 			conf.DetermineColormode()
 			conf.ApplyDefaults()
 
-			// setup lisp env, load plugins etc
-			wrapE(lib.SetupLisp(&conf))
-
 			// actual execution starts here
 			wrapE(lib.ProcessFiles(&conf, args))
 		},
@@ -186,10 +183,6 @@ func Execute() {
 		"Enable ASCII output (default)")
 	rootCmd.MarkFlagsMutuallyExclusive("extended", "markdown", "orgtbl",
 		"shell", "yaml", "csv")
-
-	// lisp options
-	rootCmd.PersistentFlags().StringVarP(&conf.LispLoadPath, "load-path", "l", cfg.DefaultLoadPath,
-		"Load path for lisp plugins (expects *.zy files)")
 
 	// config file
 	rootCmd.PersistentFlags().StringVarP(&conf.Configfile, "config", "f", cfg.DefaultConfigfile,

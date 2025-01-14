@@ -8,6 +8,49 @@ Tablizer  can   be  used   to  re-format   tabular  output   of  other
 programs. While you  could do this using standard unix  tools, in some
 cases it's a hard job.
 
+Usage:
+```default
+Usage:
+  tablizer [regex] [file, ...] [flags]
+
+Operational Flags:
+  -c, --columns string              Only show the speficied columns (separated by ,)
+  -v, --invert-match                select non-matching rows
+  -n, --no-numbering                Disable header numbering
+  -N, --no-color                    Disable pattern highlighting
+  -H, --no-headers                  Disable headers display
+  -s, --separator string            Custom field separator
+  -k, --sort-by int                 Sort by column (default: 1)
+  -z, --fuzzy                       Use fuzzy search [experimental]
+  -F, --filter field=reg            Filter given field with regex, can be used multiple times
+  -T, --transpose-columns string    Transpose the speficied columns (separated by ,)
+  -R, --regex-transposer /from/to/  Apply /search/replace/ regexp to fields given in -T
+
+Output Flags (mutually exclusive):
+  -X, --extended                    Enable extended output
+  -M, --markdown                    Enable markdown table output
+  -O, --orgtbl                      Enable org-mode table output
+  -S, --shell                       Enable shell evaluable output
+  -Y, --yaml                        Enable yaml output
+  -C, --csv                         Enable CSV output
+  -A, --ascii                       Default output mode, ascii tabular
+  -L, --hightlight-lines            Use alternating background colors for tables
+
+Sort Mode Flags (mutually exclusive):
+  -a, --sort-age                    sort according to age (duration) string
+  -D, --sort-desc                   Sort in descending order (default: ascending)
+  -i, --sort-numeric                sort according to string numerical value
+  -t, --sort-time                   sort according to time string
+
+Other Flags:
+      --completion <shell>         Generate the autocompletion script for <shell>
+  -f, --config <file>              Configuration file (default: ~/.config/tablizer/config)
+  -d, --debug                      Enable debugging
+  -h, --help                       help for tablizer
+  -m, --man                        Display manual page
+  -V, --version                    Print program version
+```
+
 Let's take this output:
 ```
 % kubectl get pods -o wide
@@ -99,9 +142,6 @@ a dash. If you need to work with `/` characters, you can also use any
 other separator, for instance: `-R '| |-|'`.
 
 
-Last but not least tablizer has support for plugins written in
-lisp. This feature is expermental yet. Take a look into the manpage
-for details.
 
 ## Demo
 
