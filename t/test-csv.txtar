@@ -1,17 +1,17 @@
 # reading from file and matching with lowercase words
-exec tablizer -c name,status -r testtable.csv -s,
+exec tablizer$exe -c name,status -r testtable.csv -s,
 stdout grafana.*Runn
 
 # matching mixed case
-exec tablizer -c NAME,staTUS -r testtable.csv -s,
+exec tablizer$exe -c NAME,staTUS -r testtable.csv -s,
 stdout grafana.*Runn
 
 # matching using numbers
-exec tablizer -c 1,3 -r testtable.csv -s,
+exec tablizer$exe -c 1,3 -r testtable.csv -s,
 stdout grafana.*Runn
 
 # matching using regex
-exec tablizer -c 'na.*,stat.' -r testtable.csv -s,
+exec tablizer$exe -c 'na.*,stat.' -r testtable.csv -s,
 stdout grafana.*Runn
 
 

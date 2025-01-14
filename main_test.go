@@ -13,7 +13,7 @@ func TestMain(m *testing.M) {
 	}))
 }
 
-func TestRpn(t *testing.T) {
+func TestTablizer(t *testing.T) {
 	testscript.Run(t, testscript.Params{
 		Dir: "t",
 	})
