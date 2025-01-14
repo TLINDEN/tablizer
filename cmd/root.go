@@ -196,8 +196,14 @@ func Execute() {
 		"config file (default: ~/.config/tablizer/config)")
 
 	// filters
-	rootCmd.PersistentFlags().StringArrayVarP(&conf.Rawfilters, "filter", "F", nil, "Filter by field (field=regexp)")
-	rootCmd.PersistentFlags().StringArrayVarP(&conf.Transposers, "regex-transposer", "R", nil, "apply /search/replace/ regexp to fields given in -T")
+	rootCmd.PersistentFlags().StringArrayVarP(&conf.Rawfilters,
+		"filter", "F", nil, "Filter by field (field=regexp)")
+	rootCmd.PersistentFlags().StringArrayVarP(&conf.Transposers,
+		"regex-transposer", "R", nil, "apply /search/replace/ regexp to fields given in -T")
+
+	// input
+	rootCmd.PersistentFlags().StringVarP(&conf.InputFile, "read-file", "r", "",
+		"Read input data from file")
 
 	rootCmd.SetUsageTemplate(strings.TrimSpace(usage) + "\n")
 

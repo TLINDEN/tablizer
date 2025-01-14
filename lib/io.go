@@ -29,7 +29,7 @@ import (
 const RWRR = 0755
 
 func ProcessFiles(conf *cfg.Config, args []string) error {
-	fds, pattern, err := determineIO(conf, args)
+	fd, pattern, err := determineIO(conf, args)
 
 	if err != nil {
 		return err
@@ -39,28 +39,67 @@ func ProcessFiles(conf *cfg.Config, args []string) error {
 		return err
 	}
 
-	for _, fd := range fds {
-		data, err := Parse(*conf, fd)
-		if err != nil {
-			return err
-		}
-
-		if err = ValidateConsistency(&data); err != nil {
-			return err
-		}
-
-		err = PrepareColumns(conf, &data)
-		if err != nil {
-			return err
-		}
-
-		printData(os.Stdout, *conf, &data)
+	data, err := Parse(*conf, fd)
+	if err != nil {
+		return err
 	}
+
+	if err = ValidateConsistency(&data); err != nil {
+		return err
+	}
+
+	err = PrepareColumns(conf, &data)
+	if err != nil {
+		return err
+	}
+
+	printData(os.Stdout, *conf, &data)
 
 	return nil
 }
 
-func determineIO(conf *cfg.Config, args []string) ([]io.Reader, string, error) {
+func determineIO(conf *cfg.Config, args []string) (io.Reader, string, error) {
+	var filehandle io.Reader
+	var pattern string
+	var haveio bool
+
+	switch {
+	case conf.InputFile == "-":
+		filehandle = os.Stdin
+		haveio = true
+	case conf.InputFile != "":
+		fd, err := os.OpenFile(conf.InputFile, os.O_RDONLY, RWRR)
+
+		if err != nil {
+			return nil, "", fmt.Errorf("failed to read input file %s: %w", conf.InputFile, err)
+		}
+
+		filehandle = fd
+		haveio = true
+	}
+
+	if !haveio {
+		stat, _ := os.Stdin.Stat()
+		if (stat.Mode() & os.ModeCharDevice) == 0 {
+			// we're reading from STDIN, which takes precedence over file args
+			filehandle = os.Stdin
+			haveio = true
+		}
+	}
+
+	if len(args) > 0 {
+		pattern = args[0]
+		conf.Pattern = args[0]
+	}
+
+	if !haveio {
+		return nil, "", errors.New("no file specified and nothing to read on stdin")
+	}
+
+	return filehandle, pattern, nil
+}
+
+func _determineIO(conf *cfg.Config, args []string) ([]io.Reader, string, error) {
 	var filehandles []io.Reader
 
 	var pattern string
@@ -80,7 +119,7 @@ func determineIO(conf *cfg.Config, args []string) ([]io.Reader, string, error) {
 
 		haveio = true
 	} else if len(args) > 0 {
-		// threre were args left, take a look
+		// there were args left, take a look
 		if args[0] == "-" {
 			// in traditional unix programs a dash denotes STDIN (forced)
 			filehandles = append(filehandles, os.Stdin)
