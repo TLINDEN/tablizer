@@ -133,7 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "TABLIZER 1"
-.TH TABLIZER 1 "2025-01-13" "1" "User Commands"
+.TH TABLIZER 1 "2025-01-14" "1" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -351,6 +351,11 @@ We want to see only the \s-1CMD\s0 column and use a regex for this:
 .Ve
 .PP
 where \*(L"C\*(R" is our regexp which matches \s-1CMD.\s0
+.PP
+If a column specifier doesn't look like a regular expression, matching
+against header  fields will  be case  insensitive. So,  if you  have a
+field with  the name \f(CW\*(C`ID\*(C'\fR then  these will all match:  \f(CW\*(C`\-c id\*(C'\fR, \f(CW\*(C`\-c
+Id\*(C'\fR. The same rule applies to the options \f(CW\*(C`\-T\*(C'\fR and \f(CW\*(C`\-F\*(C'\fR.
 .SS "\s-1TRANSPOSE FIELDS USING REGEXPS\s0"
 .IX Subsection "TRANSPOSE FIELDS USING REGEXPS"
 You can manipulate field contents using regular expressions. You have
@@ -369,6 +374,26 @@ use a regexp containing the \f(CW\*(C`/\*(C'\fR character, eg:
 .PP
 .Vb 1
 \&    |search\-regexp|replace\-string|
+.Ve
+.PP
+Example:
+.PP
+.Vb 7
+\&    cat t/testtable2
+\&    NAME  DURATION
+\&    x     10
+\&    a     100
+\&    z     0
+\&    u     4
+\&    k     6
+\&    
+\&    cat t/testtable2 | tablizer \-T2 \-R \*(Aq/^\ed/4/\*(Aq \-n
+\&    NAME    DURATION 
+\&    x       40      
+\&    a       400     
+\&    z       4       
+\&    u       4       
+\&    k       4
 .Ve
 .SS "\s-1OUTPUT MODES\s0"
 .IX Subsection "OUTPUT MODES"

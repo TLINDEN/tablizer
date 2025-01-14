@@ -120,9 +120,6 @@ func parseTabular(conf cfg.Config, input io.Reader) (Tabdata, error) {
 		if !hadFirst {
 			// header processing
 			data.columns = len(parts)
-			// if Debug {
-			// 	fmt.Println(parts)
-			// }
 
 			// process all header fields
 			for _, part := range parts {
