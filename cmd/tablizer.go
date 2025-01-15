@@ -15,7 +15,7 @@ SYNOPSIS
           -N, --no-color                    Disable pattern highlighting
           -H, --no-headers                  Disable headers display
           -s, --separator string            Custom field separator
-          -k, --sort-by int                 Sort by column (default: 1)
+          -k, --sort-by int|name            Sort by column (default: 1)
           -z, --fuzzy                       Use fuzzy search [experimental]
           -F, --filter field=reg            Filter given field with regex, can be used multiple times
           -T, --transpose-columns string    Transpose the speficied columns (separated by ,)
@@ -103,10 +103,19 @@ DESCRIPTION
     highlighted. You can disable this behavior with the -N option.
 
     Use the -k option to specify by which column to sort the tabular data
-    (as in GNU sort(1)). The default sort column is the first one. To
-    disable sorting at all, supply 0 (Zero) to -k. The default sort order is
-    ascending. You can change this to descending order using the option -D.
-    The default sort order is by string, but there are other sort modes:
+    (as in GNU sort(1)). The default sort column is the first one. You can
+    specify column numbers or names. Column numbers start with 1, names are
+    case insensitive. You can specify multiple columns separated by comma to
+    sort, but the type must be the same. For example if you want to sort
+    numerically, all columns must be numbers. If you use column numbers,
+    then be aware, that these are the numbers before column extraction. For
+    example if you have a table with 4 columns and specify "-c4", then only
+    1 column (the fourth) will be printed, however if you want to sort by
+    this column, you'll have to specify "-k4".
+
+    The default sort order is ascending. You can change this to descending
+    order using the option -D. The default sort order is by alphanumeric
+    string, but there are other sort modes:
 
     -a --sort-age
         Sorts duration strings like "1d4h32m51s".
@@ -392,7 +401,7 @@ Operational Flags:
   -N, --no-color                    Disable pattern highlighting
   -H, --no-headers                  Disable headers display
   -s, --separator string            Custom field separator
-  -k, --sort-by int                 Sort by column (default: 1)
+  -k, --sort-by int|name            Sort by column (default: 1)
   -z, --fuzzy                       Use fuzzy search [experimental]
   -F, --filter field=reg            Filter given field with regex, can be used multiple times
   -T, --transpose-columns string    Transpose the speficied columns (separated by ,)

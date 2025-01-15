@@ -63,7 +63,7 @@ var tests = []struct {
 	name string // so we can identify which one fails, can be the same
 	// for multiple tests, because flags will be appended to the name
 	sortby    string // empty == default
-	column    int    // sort by this column, 0 == default first or NO Sort
+	column    int    // sort by this column (numbers start by 1)
 	desc      bool   // sort in descending order, default == ascending
 	nonum     bool   // hide numbering
 	mode      int    // shell, orgtbl, etc. empty == default: ascii
@@ -162,7 +162,7 @@ DURATION(2): 33d12h
 
 	//------------------------ SORT TESTS
 	{
-		name:   "sortbycolumn",
+		name:   "sortbycolumn3",
 		column: 3,
 		sortby: "numeric",
 		desc:   false,
@@ -173,7 +173,7 @@ beta   	1d10h5m1s  	33      	3/1/2014
 alpha  	4h35m      	170     	2013-Feb-03`,
 	},
 	{
-		name:   "sortbycolumn",
+		name:   "sortbycolumn4",
 		column: 4,
 		sortby: "time",
 		desc:   false,
@@ -184,7 +184,7 @@ alpha  	4h35m      	170     	2013-Feb-03
 beta   	1d10h5m1s  	33      	3/1/2014`,
 	},
 	{
-		name:   "sortbycolumn",
+		name:   "sortbycolumn2",
 		column: 2,
 		sortby: "duration",
 		desc:   false,
@@ -251,21 +251,24 @@ DURATION(2)	WHEN(4)
 
 func TestPrinter(t *testing.T) {
 	for _, testdata := range tests {
-		testname := fmt.Sprintf("print-sortcol-%d-desc-%t-sortby-%s-mode-%d-usecolumns-%s",
-			testdata.column, testdata.desc, testdata.sortby, testdata.mode, testdata.usecolstr)
+		testname := fmt.Sprintf("print-%s-%d-desc-%t-sortby-%s-mode-%d-usecolumns-%s",
+			testdata.name, testdata.column, testdata.desc, testdata.sortby, testdata.mode, testdata.usecolstr)
 		t.Run(testname, func(t *testing.T) {
 			// replaces os.Stdout, but we ignore it
 			var writer bytes.Buffer
 
 			// cmd flags
 			conf := cfg.Config{
-				SortByColumn:   testdata.column,
 				SortDescending: testdata.desc,
 				SortMode:       testdata.sortby,
 				OutputMode:     testdata.mode,
 				NoNumbering:    testdata.nonum,
 				UseColumns:     testdata.usecol,
 				NoColor:        true,
+			}
+
+			if testdata.column > 0 {
+				conf.UseSortByColumn = []int{testdata.column}
 			}
 
 			conf.ApplyDefaults()

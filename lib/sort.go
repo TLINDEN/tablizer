@@ -18,6 +18,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package lib
 
 import (
+	"cmp"
 	"regexp"
 	"sort"
 	"strconv"
@@ -27,34 +28,41 @@ import (
 )
 
 func sortTable(conf cfg.Config, data *Tabdata) {
-	if conf.SortByColumn <= 0 {
+	if len(conf.UseSortByColumn) == 0 {
 		// no sorting wanted
 		return
 	}
-
-	// slightly modified here to match internal array indicies
-	col := conf.SortByColumn
-
-	col-- // ui starts counting by 1, but use 0 internally
 
 	// sanity checks
 	if len(data.entries) == 0 {
 		return
 	}
 
-	if col >= len(data.headers) {
-		// fall back to default column
-		col = 0
-	}
-
 	// actual sorting
 	sort.SliceStable(data.entries, func(i, j int) bool {
-		return compare(&conf, data.entries[i][col], data.entries[j][col])
+		// holds the result of a sort of one column
+		comparators := []int{}
+
+		// iterate over all columns to be sorted, conf.SortMode must be identical!
+		for _, column := range conf.UseSortByColumn {
+			comparators = append(comparators, compare(&conf, data.entries[i][column-1], data.entries[j][column-1]))
+		}
+
+		// return the combined result
+		res := cmp.Or(comparators...)
+
+		switch res {
+		case 0:
+			return true
+		default:
+			return false
+		}
+
 	})
 }
 
 // config is not modified here, but it would be inefficient to copy it every loop
-func compare(conf *cfg.Config, left string, right string) bool {
+func compare(conf *cfg.Config, left string, right string) int {
 	var comp bool
 
 	switch conf.SortMode {
@@ -88,7 +96,12 @@ func compare(conf *cfg.Config, left string, right string) bool {
 		comp = !comp
 	}
 
-	return comp
+	switch comp {
+	case true:
+		return 0
+	default:
+		return 1
+	}
 }
 
 /*

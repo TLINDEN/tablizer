@@ -1,0 +1,6 @@
+NAME                                                 READY   STATUS    STARTS      AGE
+alertmanager-kube-prometheus-alertmanager-0          2/2     Running   35          11d
+kube-prometheus-blackbox-exporter-5d85b5d8f4-tskh7   1/1     Running   17          1h44m
+grafana-fcc54cbc9-bk7s8                              1/1     Running   17          1d
+kube-prometheus-kube-state-metrics-b4cd9487-75p7f    1/1     Running   20          45m
+kube-prometheus-node-exporter-bfzpl                  1/1     Running   17          54s

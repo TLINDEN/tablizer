@@ -28,7 +28,7 @@ import (
 )
 
 const DefaultSeparator string = `(\s\s+|\t)`
-const Version string = "v1.3.0"
+const Version string = "v1.3.1"
 const MAXPARTS = 2
 
 var DefaultConfigfile = os.Getenv("HOME") + "/.config/tablizer/config"
@@ -67,9 +67,10 @@ type Config struct {
 	UseFuzzySearch bool
 	UseHighlight   bool
 
-	SortMode       string
-	SortDescending bool
-	SortByColumn   int
+	SortMode        string
+	SortDescending  bool
+	SortByColumn    string // 1,2
+	UseSortByColumn []int  // []int{1,2}
 
 	TransposeColumns    string       // 1,2
 	UseTransposeColumns []int        // []int{1,2}

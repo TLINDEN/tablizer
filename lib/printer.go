@@ -33,14 +33,16 @@ import (
 )
 
 func printData(writer io.Writer, conf cfg.Config, data *Tabdata) {
-	// add numbers to headers and remove this we're not interested in
+	//  Sort   the  data  first,  before   headers+entries  are  being
+	// reduced. That way the user can specify any valid column to sort
+	// by, independently if it's being used for display or not.
+	sortTable(conf, data)
+
+	// add numbers to headers and remove those we're not interested in
 	numberizeAndReduceHeaders(conf, data)
 
 	// remove unwanted columns, if any
 	reduceColumns(conf, data)
-
-	// sort the data
-	sortTable(conf, data)
 
 	switch conf.OutputMode {
 	case cfg.Extended:
