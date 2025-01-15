@@ -53,18 +53,18 @@ func TestCompare(t *testing.T) {
 		mode string
 		a    string
 		b    string
-		want bool
+		want int
 		desc bool
 	}{
 		// ascending
-		{"numeric", "10", "20", true, false},
-		{"duration", "2d4h5m", "45m", false, false},
-		{"time", "12/24/2022", "1/1/1970", false, false},
+		{"numeric", "10", "20", 0, false},
+		{"duration", "2d4h5m", "45m", 1, false},
+		{"time", "12/24/2022", "1/1/1970", 1, false},
 
 		// descending
-		{"numeric", "10", "20", false, true},
-		{"duration", "2d4h5m", "45m", true, true},
-		{"time", "12/24/2022", "1/1/1970", true, true},
+		{"numeric", "10", "20", 1, true},
+		{"duration", "2d4h5m", "45m", 0, true},
+		{"time", "12/24/2022", "1/1/1970", 0, true},
 	}
 
 	for _, testdata := range tests {
@@ -75,7 +75,7 @@ func TestCompare(t *testing.T) {
 			c := cfg.Config{SortMode: testdata.mode, SortDescending: testdata.desc}
 			got := compare(&c, testdata.a, testdata.b)
 			if got != testdata.want {
-				t.Errorf("got %t, want %t", got, testdata.want)
+				t.Errorf("got %d, want %d", got, testdata.want)
 			}
 		})
 	}

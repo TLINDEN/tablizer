@@ -99,6 +99,19 @@ func PrepareTransposerColumns(conf *cfg.Config, data *Tabdata) error {
 	return nil
 }
 
+// output option, prepare -k1,2 sort fields
+func PrepareSortColumns(conf *cfg.Config, data *Tabdata) error {
+	// -c columns
+	usecolumns, err := PrepareColumnVars(conf.SortByColumn, data)
+	if err != nil {
+		return err
+	}
+
+	conf.UseSortByColumn = usecolumns
+
+	return nil
+}
+
 func PrepareColumnVars(columns string, data *Tabdata) ([]int, error) {
 	if columns == "" {
 		return nil, nil

@@ -48,6 +48,11 @@ func ProcessFiles(conf *cfg.Config, args []string) error {
 		return err
 	}
 
+	err = PrepareSortColumns(conf, &data)
+	if err != nil {
+		return err
+	}
+
 	err = PrepareColumns(conf, &data)
 	if err != nil {
 		return err

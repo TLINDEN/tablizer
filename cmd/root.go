@@ -151,7 +151,7 @@ func Execute() {
 		"Transpose the speficied columns (separated by ,)")
 
 	// sort options
-	rootCmd.PersistentFlags().IntVarP(&conf.SortByColumn, "sort-by", "k", 0,
+	rootCmd.PersistentFlags().StringVarP(&conf.SortByColumn, "sort-by", "k", "",
 		"Sort by column (default: 1)")
 
 	// sort mode, only 1 allowed
