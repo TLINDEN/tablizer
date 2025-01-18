@@ -53,8 +53,7 @@ buildlocal:
 	go build -ldflags "-X 'github.com/tlinden/tablizer/cfg.VERSION=$(VERSION)'"
 
 release:
-	./mkrel.sh $(tool) $(version)
-	gh release create $(version) --generate-notes releases/*
+	gh release create $(version) --generate-notes
 
 install: buildlocal
 	install -d -o $(UID) -g $(GID) $(PREFIX)/bin

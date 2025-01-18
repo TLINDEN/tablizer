@@ -1,0 +1,32 @@
+name: build-and-test
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  release:
+    name: Build Release Assets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.22.11
+
+      - name: Build the executables
+        run: ./mkrel.sh tablizer ${{ github.ref_name}}
+
+      - name: List the executables
+        run: ls -l ./releases
+
+      - name: Upload the binaries
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref_name }}
+          file: ./releases/*
+          file_glob: true
