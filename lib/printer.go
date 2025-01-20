@@ -285,7 +285,7 @@ func yankColumns(conf cfg.Config, data *Tabdata) {
 	}
 
 	if yank != "" {
-		// FIXME: does not use the primary clipboard, grnz...
+		clipboard.Primary = true // unix
 		clipboard.WriteAll(yank)
 	}
 }
