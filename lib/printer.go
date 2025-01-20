@@ -26,6 +26,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/atotto/clipboard"
 	"github.com/gookit/color"
 	"github.com/olekukonko/tablewriter"
 	"github.com/tlinden/tablizer/cfg"
@@ -37,6 +38,9 @@ func printData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 	// reduced. That way the user can specify any valid column to sort
 	// by, independently if it's being used for display or not.
 	sortTable(conf, data)
+
+	// put one or more columns into clipboard
+	yankColumns(conf, data)
 
 	// add numbers to headers and remove those we're not interested in
 	numberizeAndReduceHeaders(conf, data)
@@ -260,5 +264,28 @@ func printCSVData(writer io.Writer, data *Tabdata) {
 
 	if err := csvout.Error(); err != nil {
 		log.Fatal(err)
+	}
+}
+
+func yankColumns(conf cfg.Config, data *Tabdata) {
+	var yank string
+
+	if len(data.entries) == 0 || len(conf.UseYankColumns) == 0 {
+		return
+	}
+
+	for _, row := range data.entries {
+		for i, field := range row {
+			for _, idx := range conf.UseYankColumns {
+				if i == idx-1 {
+					yank += field + " "
+				}
+			}
+		}
+	}
+
+	if yank != "" {
+		// FIXME: does not use the primary clipboard, grnz...
+		clipboard.WriteAll(yank)
 	}
 }

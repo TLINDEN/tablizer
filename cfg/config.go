@@ -59,6 +59,8 @@ type Config struct {
 	NoHeaders      bool
 	Columns        string
 	UseColumns     []int
+	YankColumns    string
+	UseYankColumns []int
 	Separator      string
 	OutputMode     int
 	InvertMatch    bool
