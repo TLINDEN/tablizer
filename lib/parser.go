@@ -137,7 +137,7 @@ func parseTabular(conf cfg.Config, input io.Reader) (Tabdata, error) {
 			}
 		} else {
 			// data processing
-			if conf.Pattern != "" && matchPattern(conf, line) == conf.InvertMatch {
+			if matchPattern(conf, line) == conf.InvertMatch {
 				// by default  -v is false, so if a  line does NOT
 				// match the pattern, we will ignore it. However,
 				// if the user specified -v, the matching is inverted,

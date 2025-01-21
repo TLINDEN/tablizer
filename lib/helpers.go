@@ -293,12 +293,20 @@ func colorizeData(conf cfg.Config, output string) string {
 
 		return colorized
 
-	case len(conf.Pattern) > 0 && !conf.NoColor && color.IsConsole(os.Stdout):
-		r := regexp.MustCompile("(" + conf.Pattern + ")")
+	case len(conf.Patterns) > 0 && !conf.NoColor && color.IsConsole(os.Stdout):
+		out := output
 
-		return r.ReplaceAllStringFunc(output, func(in string) string {
-			return conf.ColorStyle.Sprint(in)
-		})
+		for _, re := range conf.Patterns {
+			if !re.Negate {
+				r := regexp.MustCompile("(" + re.Pattern + ")")
+
+				out = r.ReplaceAllStringFunc(out, func(in string) string {
+					return conf.ColorStyle.Sprint(in)
+				})
+			}
+		}
+
+		return out
 
 	default:
 		return output

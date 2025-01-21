@@ -6,7 +6,7 @@ NAME
 
 SYNOPSIS
         Usage:
-          tablizer [regex] [file, ...] [flags]
+          tablizer [regex,...] [file, ...] [flags]
     
         Operational Flags:
           -c, --columns string              Only show the speficied columns (separated by ,)
@@ -130,30 +130,43 @@ DESCRIPTION
     for the developer.
 
   PATTERNS AND FILTERING
-    You can reduce the rows being displayed by using a regular expression
-    pattern. The regexp is PCRE compatible, refer to the syntax cheat sheet
-    here: <https://github.com/google/re2/wiki/Syntax>. If you want to read a
-    more comprehensive documentation about the topic and have perl installed
-    you can read it with:
+    You can reduce the rows being displayed by using one or more regular
+    expression patterns. The regexp language being used is the one of
+    GOLANG, refer to the syntax cheat sheet here:
+    <https://pkg.go.dev/regexp/syntax>.
+
+    If you want to read a more comprehensive documentation about the topic
+    and have perl installed you can read it with:
 
         perldoc perlre
 
-    Or read it online: <https://perldoc.perl.org/perlre>.
+    Or read it online: <https://perldoc.perl.org/perlre>. But please note
+    that the GO regexp engine does NOT support all perl regex terms,
+    especially look-ahead and look-behind.
 
-    A note on modifiers: the regexp engine used in tablizer uses another
-    modifier syntax:
+    If you want to supply flags to a regex, then surround it with slashes
+    and append the flag. The following flags are supported:
 
-        (?MODIFIER)
-
-    The most important modifiers are:
-
-    "i" ignore case "m" multiline mode "s" single line mode
+        i => case insensitive
+        ! => negative match
 
     Example for a case insensitive search:
 
-        kubectl get pods -A | tablizer "(?i)account"
+        kubectl get pods -A | tablizer "/account/i"
 
-    You can use the experimental fuzzy search feature by providing the
+    If you use the "!" flag, then the regex match will be negated, that is,
+    if a line in the input matches the given regex, but "!" is supplied,
+    tablizer will NOT include it in the output.
+
+    For example, here we want to get all lines matching "foo" but not "bar":
+
+        cat table | tablizer foo '/bar/!'
+
+    This would match a line "foo zorro" but not "foo bar".
+
+    The flags can also be combined.
+
+    You can also use the experimental fuzzy search feature by providing the
     option -z, in which case the pattern is regarded as a fuzzy search term,
     not a regexp.
 
@@ -392,7 +405,7 @@ AUTHORS
 var usage = `
 
 Usage:
-  tablizer [regex] [file, ...] [flags]
+  tablizer [regex,...] [file, ...] [flags]
 
 Operational Flags:
   -c, --columns string              Only show the speficied columns (separated by ,)

@@ -27,21 +27,21 @@ import (
 
 func TestMatchPattern(t *testing.T) {
 	var input = []struct {
-		name    string
-		fuzzy   bool
-		pattern string
-		line    string
+		name     string
+		fuzzy    bool
+		patterns []*cfg.Pattern
+		line     string
 	}{
 		{
-			name:    "normal",
-			pattern: "haus",
-			line:    "hausparty",
+			name:     "normal",
+			patterns: []*cfg.Pattern{{Pattern: "haus"}},
+			line:     "hausparty",
 		},
 		{
-			name:    "fuzzy",
-			pattern: "hpt",
-			line:    "haus-party-termin",
-			fuzzy:   true,
+			name:     "fuzzy",
+			patterns: []*cfg.Pattern{{Pattern: "hpt"}},
+			line:     "haus-party-termin",
+			fuzzy:    true,
 		},
 	}
 
@@ -55,7 +55,7 @@ func TestMatchPattern(t *testing.T) {
 				conf.UseFuzzySearch = true
 			}
 
-			err := conf.PreparePattern(inputdata.pattern)
+			err := conf.PreparePattern(inputdata.patterns)
 			if err != nil {
 				t.Errorf("PreparePattern returned error: %s", err)
 			}
