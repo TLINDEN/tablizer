@@ -27,15 +27,42 @@ import (
 )
 
 /*
- * [!]Match a  line, use fuzzy  search for normal pattern  strings and
- * regexp otherwise.
- */
+* [!]Match a  line, use fuzzy  search for normal pattern  strings and
+* regexp otherwise.
+
+		'foo bar'  foo, /bar/!  => false => line contains foo and not (not bar)
+	    'foo nix'  foo, /bar/!  => ture  => line contains foo and (not bar)
+		'foo bar'  foo, /bar/   => true  => line contains both foo and bar
+		'foo nix'  foo, /bar/   => false => line does not contain bar
+		'foo bar'  foo, /nix/   => false => line does not contain nix
+*/
 func matchPattern(conf cfg.Config, line string) bool {
-	if conf.UseFuzzySearch {
-		return fuzzy.MatchFold(conf.Pattern, line)
+	if len(conf.Patterns) == 0 {
+		// any line always matches ""
+		return true
 	}
 
-	return conf.PatternR.MatchString(line)
+	if conf.UseFuzzySearch {
+		// fuzzy search only considers the 1st pattern
+		return fuzzy.MatchFold(conf.Patterns[0].Pattern, line)
+	}
+
+	var match bool
+
+	for _, re := range conf.Patterns {
+		patmatch := re.PatternRe.MatchString(line)
+		if re.Negate {
+			// toggle the meaning of match
+			patmatch = !patmatch
+		}
+
+		if match != patmatch {
+			// toggles match if the last match and current match are different
+			match = !match
+		}
+	}
+
+	return match
 }
 
 /*
@@ -123,8 +150,11 @@ func Exists[K comparable, V any](m map[K]V, v K) bool {
 	return false
 }
 
+/*
+ * Filters the whole input lines, returns filtered lines
+ */
 func FilterByPattern(conf cfg.Config, input io.Reader) (io.Reader, error) {
-	if conf.Pattern == "" {
+	if len(conf.Patterns) == 0 {
 		return input, nil
 	}
 
@@ -136,7 +166,7 @@ func FilterByPattern(conf cfg.Config, input io.Reader) (io.Reader, error) {
 		line := strings.TrimSpace(scanner.Text())
 		if hadFirst {
 			// don't match 1st line, it's the header
-			if conf.Pattern != "" && matchPattern(conf, line) == conf.InvertMatch {
+			if matchPattern(conf, line) == conf.InvertMatch {
 				// by default  -v is false, so if a  line does NOT
 				// match the pattern, we will ignore it. However,
 				// if the user specified -v, the matching is inverted,

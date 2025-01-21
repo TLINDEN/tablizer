@@ -79,20 +79,55 @@ func TestPrepareSortFlags(t *testing.T) {
 
 func TestPreparePattern(t *testing.T) {
 	var tests = []struct {
-		pattern string
-		wanterr bool
+		patterns  []*Pattern
+		name      string
+		wanterr   bool
+		wanticase bool
+		wantneg   bool
 	}{
-		{"[A-Z]+", false},
-		{"[a-z", true},
+		{
+			[]*Pattern{{Pattern: "[A-Z]+"}},
+			"simple",
+			false,
+			false,
+			false,
+		},
+		{
+			[]*Pattern{{Pattern: "[a-z"}},
+			"regfail",
+			true,
+			false,
+			false,
+		},
+		{
+			[]*Pattern{{Pattern: "/[A-Z]+/i"}},
+			"icase",
+			false,
+			true,
+			false,
+		},
+		{
+			[]*Pattern{{Pattern: "/[A-Z]+/!"}},
+			"negate",
+			false,
+			false,
+			true,
+		},
+		{
+			[]*Pattern{{Pattern: "/[A-Z]+/!i"}},
+			"negicase",
+			false,
+			true,
+			true,
+		},
 	}
 
 	for _, testdata := range tests {
-		testname := fmt.Sprintf("PreparePattern-pattern-%s-wanterr-%t",
-			testdata.pattern, testdata.wanterr)
+		testname := fmt.Sprintf("PreparePattern-pattern-%s-wanterr-%t", testdata.name, testdata.wanterr)
 		t.Run(testname, func(t *testing.T) {
 			conf := Config{}
 
-			err := conf.PreparePattern(testdata.pattern)
+			err := conf.PreparePattern(testdata.patterns)
 
 			if err != nil {
 				if !testdata.wanterr {

@@ -83,36 +83,42 @@ func TestParser(t *testing.T) {
 
 func TestParserPatternmatching(t *testing.T) {
 	var tests = []struct {
-		entries [][]string
-		pattern string
-		invert  bool
-		want    bool
+		name     string
+		entries  [][]string
+		patterns []*cfg.Pattern
+		invert   bool
+		want     bool
 	}{
 		{
+			name: "match",
 			entries: [][]string{
 				{"asd", "igig", "cxxxncnc"},
 			},
-			pattern: "ig",
-			invert:  false,
+			patterns: []*cfg.Pattern{{Pattern: "ig"}},
+			invert:   false,
 		},
 		{
+			name: "invert",
 			entries: [][]string{
 				{"19191", "EDD 1", "X"},
 			},
-			pattern: "ig",
-			invert:  true,
+			patterns: []*cfg.Pattern{{Pattern: "ig"}},
+			invert:   true,
 		},
 	}
 
 	for _, inputdata := range input {
 		for _, testdata := range tests {
 			testname := fmt.Sprintf("parse-%s-with-pattern-%s-inverted-%t",
-				inputdata.name, testdata.pattern, testdata.invert)
+				inputdata.name, testdata.name, testdata.invert)
 			t.Run(testname, func(t *testing.T) {
-				conf := cfg.Config{InvertMatch: testdata.invert, Pattern: testdata.pattern,
-					Separator: inputdata.separator}
+				conf := cfg.Config{
+					InvertMatch: testdata.invert,
+					Patterns:    testdata.patterns,
+					Separator:   inputdata.separator,
+				}
 
-				_ = conf.PreparePattern(testdata.pattern)
+				_ = conf.PreparePattern(testdata.patterns)
 
 				readFd := strings.NewReader(strings.TrimSpace(inputdata.text))
 				gotdata, err := Parse(conf, readFd)
@@ -125,7 +131,7 @@ func TestParserPatternmatching(t *testing.T) {
 				} else {
 					if !reflect.DeepEqual(testdata.entries, gotdata.entries) {
 						t.Errorf("Parser returned invalid data (pattern: %s, invert: %t)\nExp: %+v\nGot: %+v\n",
-							testdata.pattern, testdata.invert, testdata.entries, gotdata.entries)
+							testdata.name, testdata.invert, testdata.entries, gotdata.entries)
 					}
 				}
 			})

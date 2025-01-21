@@ -52,6 +52,12 @@ type Transposer struct {
 	Replace string
 }
 
+type Pattern struct {
+	Pattern   string
+	PatternRe *regexp.Regexp
+	Negate    bool
+}
+
 // internal config
 type Config struct {
 	Debug          bool
@@ -62,8 +68,7 @@ type Config struct {
 	Separator      string
 	OutputMode     int
 	InvertMatch    bool
-	Pattern        string
-	PatternR       *regexp.Regexp
+	Patterns       []*Pattern
 	UseFuzzySearch bool
 	UseHighlight   bool
 
@@ -333,15 +338,39 @@ func (conf *Config) ApplyDefaults() {
 	}
 }
 
-func (conf *Config) PreparePattern(pattern string) error {
-	PatternR, err := regexp.Compile(pattern)
+func (conf *Config) PreparePattern(patterns []*Pattern) error {
+	// regex checks if a pattern looks like /$pattern/[i!]
+	flagre := regexp.MustCompile(`^/(.*)/([i!]+)$`)
 
-	if err != nil {
-		return fmt.Errorf("regexp pattern %s is invalid: %w", conf.Pattern, err)
+	for _, pattern := range patterns {
+		matches := flagre.FindAllStringSubmatch(pattern.Pattern, -1)
+
+		if matches != nil {
+			// we have a regex with flags
+			for _, match := range matches {
+				pattern.Pattern = match[1] // the inner part is our actual pattern
+				flags := match[2]          // the flags
+
+				for _, flag := range flags {
+					switch flag {
+					case 'i':
+						pattern.Pattern = `(?i)` + pattern.Pattern
+					case '!':
+						pattern.Negate = true
+					}
+				}
+			}
+		}
+
+		PatternRe, err := regexp.Compile(pattern.Pattern)
+		if err != nil {
+			return fmt.Errorf("regexp pattern %s is invalid: %w", pattern.Pattern, err)
+		}
+
+		pattern.PatternRe = PatternRe
 	}
 
-	conf.PatternR = PatternR
-	conf.Pattern = pattern
+	conf.Patterns = patterns
 
 	return nil
 }
