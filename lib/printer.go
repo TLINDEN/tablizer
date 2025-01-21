@@ -286,6 +286,8 @@ func yankColumns(conf cfg.Config, data *Tabdata) {
 
 	if yank != "" {
 		clipboard.Primary = true // unix
-		clipboard.WriteAll(yank)
+		if err := clipboard.WriteAll(yank); err != nil {
+			log.Fatalln("error writing string to clipboard:", err)
+		}
 	}
 }
