@@ -345,19 +345,17 @@ func (conf *Config) PreparePattern(patterns []*Pattern) error {
 	for _, pattern := range patterns {
 		matches := flagre.FindAllStringSubmatch(pattern.Pattern, -1)
 
-		if matches != nil {
-			// we have a regex with flags
-			for _, match := range matches {
-				pattern.Pattern = match[1] // the inner part is our actual pattern
-				flags := match[2]          // the flags
+		// we have a regex with flags
+		for _, match := range matches {
+			pattern.Pattern = match[1] // the inner part is our actual pattern
+			flags := match[2]          // the flags
 
-				for _, flag := range flags {
-					switch flag {
-					case 'i':
-						pattern.Pattern = `(?i)` + pattern.Pattern
-					case '!':
-						pattern.Negate = true
-					}
+			for _, flag := range flags {
+				switch flag {
+				case 'i':
+					pattern.Pattern = `(?i)` + pattern.Pattern
+				case '!':
+					pattern.Negate = true
 				}
 			}
 		}
