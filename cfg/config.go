@@ -340,7 +340,7 @@ func (conf *Config) ApplyDefaults() {
 
 func (conf *Config) PreparePattern(patterns []*Pattern) error {
 	// regex checks if a pattern looks like /$pattern/[i!]
-	flagre := regexp.MustCompile(`^/(.*)/([i!]+)$`)
+	flagre := regexp.MustCompile(`^/(.*)/([i!]*)$`)
 
 	for _, pattern := range patterns {
 		matches := flagre.FindAllStringSubmatch(pattern.Pattern, -1)
