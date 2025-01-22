@@ -47,8 +47,9 @@ func matchPattern(conf cfg.Config, line string) bool {
 		return fuzzy.MatchFold(conf.Patterns[0].Pattern, line)
 	}
 
-	var match bool
+	var match int
 
+	//fmt.Printf("<%s>\n", line)
 	for _, re := range conf.Patterns {
 		patmatch := re.PatternRe.MatchString(line)
 		if re.Negate {
@@ -56,13 +57,16 @@ func matchPattern(conf cfg.Config, line string) bool {
 			patmatch = !patmatch
 		}
 
-		if match != patmatch {
-			// toggles match if the last match and current match are different
-			match = !match
+		if patmatch {
+			match++
 		}
+
+		//fmt.Printf("patmatch: %t, match: %d, pattern: %s, negate: %t\n", patmatch, match, re.Pattern, re.Negate)
 	}
 
-	return match
+	// fmt.Printf("result: %t\n", match == len(conf.Patterns))
+	//fmt.Println()
+	return match == len(conf.Patterns)
 }
 
 /*
