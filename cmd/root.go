@@ -147,6 +147,8 @@ func Execute() {
 		"Custom field separator")
 	rootCmd.PersistentFlags().StringVarP(&conf.Columns, "columns", "c", "",
 		"Only show the speficied columns (separated by ,)")
+	rootCmd.PersistentFlags().StringVarP(&conf.YankColumns, "yank-columns", "y", "",
+		"Yank the speficied columns (separated by ,) to the clipboard")
 	rootCmd.PersistentFlags().StringVarP(&conf.TransposeColumns, "transpose-columns", "T", "",
 		"Transpose the speficied columns (separated by ,)")
 
