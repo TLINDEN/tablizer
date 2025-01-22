@@ -1,0 +1,46 @@
+# filtering
+
+# a AND b
+exec tablizer -r testtable.txt -H -cspecies invasive imperium
+stdout 'namak'
+! stdout human
+
+# a AND !b
+exec tablizer -r testtable.txt -H -cspecies invasive '/imperium/!'
+stdout 'human'
+! stdout namak
+
+# a AND !b AND c
+exec tablizer -r testtable.txt -H -cspecies peaceful '/imperium/!' planetary
+stdout 'kenaha'
+! stdout 'namak|heduu|riedl'
+
+# case insensitive
+exec tablizer -r testtable.txt -H -cspecies '/REGIONAL/i'
+stdout namak
+! stdout 'human|riedl|heduu|kenaa'
+
+# case insensitive negated
+exec tablizer -r testtable.txt -H -cspecies '/REGIONAL/!i'
+stdout 'human|riedl|heduu|kenaa'
+! stdout namak
+
+# !a AND !b
+exec tablizer -r testtable.txt -H -cspecies '/galactic/!' '/planetary/!'
+stdout namak
+! stdout 'human|riedl|heduu|kenaa'
+
+# same case insensitive
+exec tablizer -r testtable.txt -H -cspecies '/GALACTIC/i!' '/PLANETARY/!i'
+stdout namak
+! stdout 'human|riedl|heduu|kenaa'
+
+# will be automatically created in work dir
+-- testtable.txt --
+SPECIES   TYPE         HOME     STAGE             SPREAD
+human     invasive     earth    brink             planetary
+riedl     peaceful     keauna   civilized         pangalactic
+namak     invasive     namak    imperium          regional
+heduu     peaceful     iu       imperium          galactic
+kenaha    peaceful     kohi     hunter-gatherer   planetary
+
