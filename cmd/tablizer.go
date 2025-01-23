@@ -30,6 +30,8 @@ SYNOPSIS
           -C, --csv                         Enable CSV output
           -A, --ascii                       Default output mode, ascii tabular
           -L, --hightlight-lines            Use alternating background colors for tables
+          -y, --yank-columns                Yank specified columns (separated by ,) to clipboard,
+                                            space separated
 
         Sort Mode Flags (mutually exclusive):
           -a, --sort-age                    sort according to age (duration) string
@@ -267,6 +269,18 @@ DESCRIPTION
     markdown which prints a Markdown table, yaml, which prints yaml encoding
     and CSV mode, which prints a comma separated value file.
 
+  PUT FIELDS TO CLIPBOARD
+    You can let tablizer put fields to the clipboard using the option "-y".
+    This best fits the use-case when the result of your filtering yields
+    just one row. For example:
+
+        cloudctl cluster ls | tablizer -yid matchbox
+
+    If "matchbox" matches one cluster, you can immediately use the id of
+    that cluster somewhere else and paste it. Of course, if there are
+    multiple matches, then all id's will be put into the clipboard separated
+    by one space.
+
   ENVIRONMENT VARIABLES
     tablizer supports certain environment variables which use can use to
     influence program behavior. Commandline flags have always precedence
@@ -416,6 +430,8 @@ Output Flags (mutually exclusive):
   -C, --csv                         Enable CSV output
   -A, --ascii                       Default output mode, ascii tabular
   -L, --hightlight-lines            Use alternating background colors for tables
+  -y, --yank-columns                Yank specified columns (separated by ,) to clipboard,
+                                    space separated
 
 Sort Mode Flags (mutually exclusive):
   -a, --sort-age                    sort according to age (duration) string

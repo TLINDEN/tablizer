@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 Thomas von Dein
+Copyright © 2022-2025 Thomas von Dein
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,7 +26,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/atotto/clipboard"
 	"github.com/gookit/color"
 	"github.com/olekukonko/tablewriter"
 	"github.com/tlinden/tablizer/cfg"
@@ -264,30 +263,5 @@ func printCSVData(writer io.Writer, data *Tabdata) {
 
 	if err := csvout.Error(); err != nil {
 		log.Fatal(err)
-	}
-}
-
-func yankColumns(conf cfg.Config, data *Tabdata) {
-	var yank string
-
-	if len(data.entries) == 0 || len(conf.UseYankColumns) == 0 {
-		return
-	}
-
-	for _, row := range data.entries {
-		for i, field := range row {
-			for _, idx := range conf.UseYankColumns {
-				if i == idx-1 {
-					yank += field + " "
-				}
-			}
-		}
-	}
-
-	if yank != "" {
-		setprimary()
-		if err := clipboard.WriteAll(yank); err != nil {
-			log.Fatalln("error writing string to clipboard:", err)
-		}
 	}
 }

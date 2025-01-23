@@ -69,7 +69,7 @@ test:
 
 singletest:
 	@echo "Call like this: 'make singletest TEST=TestPrepareColumns MOD=lib'"
-	go test -run $(TEST) github.com/tlinden/tablizer/$(MOD)
+	go test -run $(TEST) github.com/tlinden/tablizer/$(MOD) $(OPTS)
 
 cover-report:
 	go test ./... -cover -coverprofile=coverage.out
