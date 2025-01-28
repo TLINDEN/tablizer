@@ -21,7 +21,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/atotto/clipboard"
+	"github.com/tiagomelo/go-clipboard/clipboard"
 	"github.com/tlinden/tablizer/cfg"
 )
 
@@ -43,8 +43,8 @@ func yankColumns(conf cfg.Config, data *Tabdata) {
 	}
 
 	if len(yank) > 0 {
-		setprimary()
-		if err := clipboard.WriteAll(strings.Join(yank, " ")); err != nil {
+		cb := clipboard.New(clipboard.ClipboardOptions{Primary: true})
+		if err := cb.CopyText(strings.Join(yank, " ")); err != nil {
 			log.Fatalln("error writing string to clipboard:", err)
 		}
 	}

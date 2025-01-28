@@ -22,7 +22,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/atotto/clipboard"
+	"github.com/tiagomelo/go-clipboard/clipboard"
 	"github.com/tlinden/tablizer/cfg"
 )
 
@@ -40,6 +40,8 @@ var yanktests = []struct {
 }
 
 func DISABLED_TestYankColumns(t *testing.T) {
+	cb := clipboard.New()
+
 	for _, testdata := range yanktests {
 		testname := fmt.Sprintf("yank-%s-filter-%s",
 			testdata.name, testdata.filter)
@@ -56,7 +58,7 @@ func DISABLED_TestYankColumns(t *testing.T) {
 			var writer bytes.Buffer
 			printData(&writer, conf, &data)
 
-			got, err := clipboard.ReadAll() // hangs indefinetly
+			got, err := cb.PasteText()
 			if err != nil {
 				t.Errorf("failed to fetch yanked text from clipboard")
 			}
