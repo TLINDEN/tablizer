@@ -1,5 +1,5 @@
 /*
-Copyright © 2022-2024 Thomas von Dein
+Copyright © 2022-2025 Thomas von Dein
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -58,6 +58,11 @@ type Pattern struct {
 	Negate    bool
 }
 
+type Filter struct {
+	Regex  *regexp.Regexp
+	Negate bool
+}
+
 // internal config
 type Config struct {
 	Debug          bool
@@ -100,7 +105,7 @@ type Config struct {
 
 	// used for field filtering
 	Rawfilters []string
-	Filters    map[string]*regexp.Regexp
+	Filters    map[string]Filter //map[string]*regexp.Regexp
 
 	// -r <file>
 	InputFile string
@@ -270,12 +275,20 @@ func (conf *Config) PrepareModeFlags(flag Modeflag) {
 }
 
 func (conf *Config) PrepareFilters() error {
-	conf.Filters = make(map[string]*regexp.Regexp, len(conf.Rawfilters))
+	conf.Filters = make(map[string]Filter, len(conf.Rawfilters))
 
-	for _, filter := range conf.Rawfilters {
-		parts := strings.Split(filter, "=")
+	for _, rawfilter := range conf.Rawfilters {
+		filter := Filter{}
+
+		parts := strings.Split(rawfilter, "!=")
 		if len(parts) != MAXPARTS {
-			return errors.New("filter field and value must be separated by =")
+			parts = strings.Split(rawfilter, "=")
+
+			if len(parts) != MAXPARTS {
+				return errors.New("filter field and value must be separated by '=' or '!='")
+			}
+		} else {
+			filter.Negate = true
 		}
 
 		reg, err := regexp.Compile(parts[1])
@@ -284,7 +297,8 @@ func (conf *Config) PrepareFilters() error {
 				parts[0], err)
 		}
 
-		conf.Filters[strings.ToLower(strings.ToLower(parts[0]))] = reg
+		filter.Regex = reg
+		conf.Filters[strings.ToLower(parts[0])] = filter
 	}
 
 	return nil

@@ -17,7 +17,7 @@ SYNOPSIS
           -s, --separator string            Custom field separator
           -k, --sort-by int|name            Sort by column (default: 1)
           -z, --fuzzy                       Use fuzzy search [experimental]
-          -F, --filter field=reg            Filter given field with regex, can be used multiple times
+          -F, --filter field[!]=reg         Filter given field with regex, can be used multiple times
           -T, --transpose-columns string    Transpose the speficied columns (separated by ,)
           -R, --regex-transposer /from/to/  Apply /search/replace/ regexp to fields given in -T
 
@@ -180,6 +180,10 @@ DESCRIPTION
 
     If you specify more than one filter, both filters have to match (AND
     operation).
+
+    These field filters can also be negated:
+
+        fieldname!=regexp
 
     If the option -v is specified, the filtering is inverted.
 
@@ -416,7 +420,7 @@ Operational Flags:
   -s, --separator string            Custom field separator
   -k, --sort-by int|name            Sort by column (default: 1)
   -z, --fuzzy                       Use fuzzy search [experimental]
-  -F, --filter field=reg            Filter given field with regex, can be used multiple times
+  -F, --filter field[!]=reg         Filter given field with regex, can be used multiple times
   -T, --transpose-columns string    Transpose the speficied columns (separated by ,)
   -R, --regex-transposer /from/to/  Apply /search/replace/ regexp to fields given in -T
 
