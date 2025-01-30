@@ -28,7 +28,7 @@ import (
 )
 
 const DefaultSeparator string = `(\s\s+|\t)`
-const Version string = "v1.3.1"
+const Version string = "v1.3.2"
 const MAXPARTS = 2
 
 var DefaultConfigfile = os.Getenv("HOME") + "/.config/tablizer/config"
