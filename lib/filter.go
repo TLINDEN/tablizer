@@ -1,5 +1,5 @@
 /*
-Copyright © 2022-2024 Thomas von Dein
+Copyright © 2022-2025 Thomas von Dein
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -86,15 +86,19 @@ func FilterByFields(conf cfg.Config, data *Tabdata) (*Tabdata, bool, error) {
 		keep := true
 
 		for idx, header := range data.headers {
-			if !Exists(conf.Filters, strings.ToLower(header)) {
+			lcheader := strings.ToLower(header)
+			if !Exists(conf.Filters, lcheader) {
 				// do not filter by unspecified field
 				continue
 			}
 
-			if !conf.Filters[strings.ToLower(header)].MatchString(row[idx]) {
-				// there IS a filter, but it doesn't match
-				keep = false
+			match := conf.Filters[lcheader].Regex.MatchString(row[idx])
+			if conf.Filters[lcheader].Negate {
+				match = !match
+			}
 
+			if !match {
+				keep = false
 				break
 			}
 		}

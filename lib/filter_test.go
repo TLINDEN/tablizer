@@ -1,5 +1,5 @@
 /*
-Copyright © 2024 Thomas von Dein
+Copyright © 2024-2025 Thomas von Dein
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -94,6 +94,20 @@ func TestFilterByFields(t *testing.T) {
 				},
 				entries: [][]string{
 					{"19191", "EDD 1", "x"},
+				},
+			},
+		},
+
+		{
+			name:   "one-field-negative",
+			filter: []string{"one!=asd"},
+			expect: Tabdata{
+				headers: []string{
+					"ONE", "TWO", "THREE",
+				},
+				entries: [][]string{
+					{"19191", "EDD 1", "x"},
+					{"8d8", "AN 1", "y"},
 				},
 			},
 		},
