@@ -28,7 +28,7 @@ import (
 )
 
 const DefaultSeparator string = `(\s\s+|\t)`
-const Version string = "v1.3.2"
+const Version string = "v1.3.3"
 const MAXPARTS = 2
 
 var DefaultConfigfile = os.Getenv("HOME") + "/.config/tablizer/config"
@@ -70,6 +70,8 @@ type Config struct {
 	NoHeaders      bool
 	Columns        string
 	UseColumns     []int
+	YankColumns    string
+	UseYankColumns []int
 	Separator      string
 	OutputMode     int
 	InvertMatch    bool

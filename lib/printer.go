@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 Thomas von Dein
+Copyright © 2022-2025 Thomas von Dein
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -37,6 +37,9 @@ func printData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 	// reduced. That way the user can specify any valid column to sort
 	// by, independently if it's being used for display or not.
 	sortTable(conf, data)
+
+	// put one or more columns into clipboard
+	yankColumns(conf, data)
 
 	// add numbers to headers and remove those we're not interested in
 	numberizeAndReduceHeaders(conf, data)

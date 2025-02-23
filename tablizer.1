@@ -133,7 +133,8 @@
 .\" ========================================================================
 .\"
 .IX Title "TABLIZER 1"
-.TH TABLIZER 1 "2025-01-30" "1" "User Commands"
+.TH TABLIZER 1 "2025-02-23" "1" "User Commands"
+
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -168,6 +169,8 @@ tablizer \- Manipulate tabular output of other programs
 \&      \-C, \-\-csv                         Enable CSV output
 \&      \-A, \-\-ascii                       Default output mode, ascii tabular
 \&      \-L, \-\-hightlight\-lines            Use alternating background colors for tables
+\&      \-y, \-\-yank\-columns                Yank specified columns (separated by ,) to clipboard,
+\&                                        space separated
 \&
 \&    Sort Mode Flags (mutually exclusive):
 \&      \-a, \-\-sort\-age                    sort according to age (duration) string
@@ -462,6 +465,20 @@ more output modes available: \fBorgtbl\fR  which prints an Emacs org-mode
 table and  \fBmarkdown\fR which prints  a Markdown table,  \fByaml\fR, which
 prints  yaml encoding  and \s-1CSV\s0  mode, which  prints a  comma separated
 value file.
+.SS "\s-1PUT FIELDS TO CLIPBOARD\s0"
+.IX Subsection "PUT FIELDS TO CLIPBOARD"
+You can let tablizer put fields to the clipboard using the option
+\&\f(CW\*(C`\-y\*(C'\fR. This best fits the use-case when the result of your filtering
+yields just one row. For example:
+.PP
+.Vb 1
+\&    cloudctl cluster ls | tablizer \-yid matchbox
+.Ve
+.PP
+If \*(L"matchbox\*(R" matches one cluster, you can immediately use the id of
+that cluster somewhere else and paste it. Of course, if there are
+multiple matches, then all id's will be put into the clipboard
+separated by one space.
 .SS "\s-1ENVIRONMENT VARIABLES\s0"
 .IX Subsection "ENVIRONMENT VARIABLES"
 \&\fBtablizer\fR supports  certain environment variables which  use can use

@@ -77,6 +77,14 @@ func PrepareColumns(conf *cfg.Config, data *Tabdata) error {
 
 	conf.UseColumns = usecolumns
 
+	// -y columns
+	useyankcolumns, err := PrepareColumnVars(conf.YankColumns, data)
+	if err != nil {
+		return err
+	}
+
+	conf.UseYankColumns = useyankcolumns
+
 	return nil
 }
 

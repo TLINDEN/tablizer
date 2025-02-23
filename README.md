@@ -35,6 +35,8 @@ Output Flags (mutually exclusive):
   -C, --csv                         Enable CSV output
   -A, --ascii                       Default output mode, ascii tabular
   -L, --hightlight-lines            Use alternating background colors for tables
+  -y, --yank-columns                Yank specified columns (separated by ,) to clipboard,
+                                    space separated
 
 Sort Mode Flags (mutually exclusive):
   -a, --sort-age                    sort according to age (duration) string
