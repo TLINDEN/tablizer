@@ -1,5 +1,5 @@
 /*
-Copyright © 2024 Thomas von Dein
+Copyright © 2024-2025 Thomas von Dein
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,21 +27,21 @@ import (
 
 func TestMatchPattern(t *testing.T) {
 	var input = []struct {
-		name    string
-		fuzzy   bool
-		pattern string
-		line    string
+		name     string
+		fuzzy    bool
+		patterns []*cfg.Pattern
+		line     string
 	}{
 		{
-			name:    "normal",
-			pattern: "haus",
-			line:    "hausparty",
+			name:     "normal",
+			patterns: []*cfg.Pattern{{Pattern: "haus"}},
+			line:     "hausparty",
 		},
 		{
-			name:    "fuzzy",
-			pattern: "hpt",
-			line:    "haus-party-termin",
-			fuzzy:   true,
+			name:     "fuzzy",
+			patterns: []*cfg.Pattern{{Pattern: "hpt"}},
+			line:     "haus-party-termin",
+			fuzzy:    true,
 		},
 	}
 
@@ -55,7 +55,7 @@ func TestMatchPattern(t *testing.T) {
 				conf.UseFuzzySearch = true
 			}
 
-			err := conf.PreparePattern(inputdata.pattern)
+			err := conf.PreparePattern(inputdata.patterns)
 			if err != nil {
 				t.Errorf("PreparePattern returned error: %s", err)
 			}
@@ -94,6 +94,20 @@ func TestFilterByFields(t *testing.T) {
 				},
 				entries: [][]string{
 					{"19191", "EDD 1", "x"},
+				},
+			},
+		},
+
+		{
+			name:   "one-field-negative",
+			filter: []string{"one!=asd"},
+			expect: Tabdata{
+				headers: []string{
+					"ONE", "TWO", "THREE",
+				},
+				entries: [][]string{
+					{"19191", "EDD 1", "x"},
+					{"8d8", "AN 1", "y"},
 				},
 			},
 		},

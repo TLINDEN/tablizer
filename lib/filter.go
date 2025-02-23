@@ -1,5 +1,5 @@
 /*
-Copyright © 2022-2024 Thomas von Dein
+Copyright © 2022-2025 Thomas von Dein
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -27,15 +27,46 @@ import (
 )
 
 /*
- * [!]Match a  line, use fuzzy  search for normal pattern  strings and
- * regexp otherwise.
- */
+* [!]Match a  line, use fuzzy  search for normal pattern  strings and
+* regexp otherwise.
+
+		'foo bar'  foo, /bar/!  => false => line contains foo and not (not bar)
+	    'foo nix'  foo, /bar/!  => ture  => line contains foo and (not bar)
+		'foo bar'  foo, /bar/   => true  => line contains both foo and bar
+		'foo nix'  foo, /bar/   => false => line does not contain bar
+		'foo bar'  foo, /nix/   => false => line does not contain nix
+*/
 func matchPattern(conf cfg.Config, line string) bool {
-	if conf.UseFuzzySearch {
-		return fuzzy.MatchFold(conf.Pattern, line)
+	if len(conf.Patterns) == 0 {
+		// any line always matches ""
+		return true
 	}
 
-	return conf.PatternR.MatchString(line)
+	if conf.UseFuzzySearch {
+		// fuzzy search only considers the 1st pattern
+		return fuzzy.MatchFold(conf.Patterns[0].Pattern, line)
+	}
+
+	var match int
+
+	//fmt.Printf("<%s>\n", line)
+	for _, re := range conf.Patterns {
+		patmatch := re.PatternRe.MatchString(line)
+		if re.Negate {
+			// toggle the meaning of match
+			patmatch = !patmatch
+		}
+
+		if patmatch {
+			match++
+		}
+
+		//fmt.Printf("patmatch: %t, match: %d, pattern: %s, negate: %t\n", patmatch, match, re.Pattern, re.Negate)
+	}
+
+	// fmt.Printf("result: %t\n", match == len(conf.Patterns))
+	//fmt.Println()
+	return match == len(conf.Patterns)
 }
 
 /*
@@ -55,15 +86,19 @@ func FilterByFields(conf cfg.Config, data *Tabdata) (*Tabdata, bool, error) {
 		keep := true
 
 		for idx, header := range data.headers {
-			if !Exists(conf.Filters, strings.ToLower(header)) {
+			lcheader := strings.ToLower(header)
+			if !Exists(conf.Filters, lcheader) {
 				// do not filter by unspecified field
 				continue
 			}
 
-			if !conf.Filters[strings.ToLower(header)].MatchString(row[idx]) {
-				// there IS a filter, but it doesn't match
-				keep = false
+			match := conf.Filters[lcheader].Regex.MatchString(row[idx])
+			if conf.Filters[lcheader].Negate {
+				match = !match
+			}
 
+			if !match {
+				keep = false
 				break
 			}
 		}
@@ -123,8 +158,11 @@ func Exists[K comparable, V any](m map[K]V, v K) bool {
 	return false
 }
 
+/*
+ * Filters the whole input lines, returns filtered lines
+ */
 func FilterByPattern(conf cfg.Config, input io.Reader) (io.Reader, error) {
-	if conf.Pattern == "" {
+	if len(conf.Patterns) == 0 {
 		return input, nil
 	}
 
@@ -136,7 +174,7 @@ func FilterByPattern(conf cfg.Config, input io.Reader) (io.Reader, error) {
 		line := strings.TrimSpace(scanner.Text())
 		if hadFirst {
 			// don't match 1st line, it's the header
-			if conf.Pattern != "" && matchPattern(conf, line) == conf.InvertMatch {
+			if matchPattern(conf, line) == conf.InvertMatch {
 				// by default  -v is false, so if a  line does NOT
 				// match the pattern, we will ignore it. However,
 				// if the user specified -v, the matching is inverted,

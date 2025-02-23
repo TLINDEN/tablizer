@@ -29,13 +29,13 @@ import (
 const RWRR = 0755
 
 func ProcessFiles(conf *cfg.Config, args []string) error {
-	fd, pattern, err := determineIO(conf, args)
+	fd, patterns, err := determineIO(conf, args)
 
 	if err != nil {
 		return err
 	}
 
-	if err := conf.PreparePattern(pattern); err != nil {
+	if err := conf.PreparePattern(patterns); err != nil {
 		return err
 	}
 
@@ -63,9 +63,9 @@ func ProcessFiles(conf *cfg.Config, args []string) error {
 	return nil
 }
 
-func determineIO(conf *cfg.Config, args []string) (io.Reader, string, error) {
+func determineIO(conf *cfg.Config, args []string) (io.Reader, []*cfg.Pattern, error) {
 	var filehandle io.Reader
-	var pattern string
+	var patterns []*cfg.Pattern
 	var haveio bool
 
 	switch {
@@ -76,7 +76,7 @@ func determineIO(conf *cfg.Config, args []string) (io.Reader, string, error) {
 		fd, err := os.OpenFile(conf.InputFile, os.O_RDONLY, RWRR)
 
 		if err != nil {
-			return nil, "", fmt.Errorf("failed to read input file %s: %w", conf.InputFile, err)
+			return nil, nil, fmt.Errorf("failed to read input file %s: %w", conf.InputFile, err)
 		}
 
 		filehandle = fd
@@ -93,13 +93,15 @@ func determineIO(conf *cfg.Config, args []string) (io.Reader, string, error) {
 	}
 
 	if len(args) > 0 {
-		pattern = args[0]
-		conf.Pattern = args[0]
+		patterns = make([]*cfg.Pattern, len(args))
+		for i, arg := range args {
+			patterns[i] = &cfg.Pattern{Pattern: arg}
+		}
 	}
 
 	if !haveio {
-		return nil, "", errors.New("no file specified and nothing to read on stdin")
+		return nil, nil, errors.New("no file specified and nothing to read on stdin")
 	}
 
-	return filehandle, pattern, nil
+	return filehandle, patterns, nil
 }
