@@ -64,7 +64,7 @@ install: buildlocal
 clean:
 	rm -rf $(tool) releases coverage.out
 
-test:
+test: clean
 	go test ./... $(OPTS)
 
 singletest:
