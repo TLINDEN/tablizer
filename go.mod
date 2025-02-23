@@ -5,7 +5,6 @@ go 1.22
 require (
 	github.com/alecthomas/repr v0.4.0
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
-	github.com/atotto/clipboard v0.1.4
 	github.com/gookit/color v1.5.4
 	github.com/hashicorp/hcl/v2 v2.23.0
 	github.com/lithammer/fuzzysearch v1.1.8
@@ -26,7 +25,7 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/tiagomelo/go-clipboard v0.1.2-0.20250126153310-fcc1f95408cf // indirect
+	github.com/tiagomelo/go-clipboard v0.1.2 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/zclconf/go-cty v1.13.3 // indirect
 	golang.org/x/mod v0.18.0 // indirect
