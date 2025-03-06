@@ -28,7 +28,7 @@ import (
 )
 
 const DefaultSeparator string = `(\s\s+|\t)`
-const Version string = "v1.3.3"
+const Version string = "v1.4.0"
 const MAXPARTS = 2
 
 var DefaultConfigfile = os.Getenv("HOME") + "/.config/tablizer/config"
@@ -66,7 +66,7 @@ type Filter struct {
 // internal config
 type Config struct {
 	Debug          bool
-	NoNumbering    bool
+	Numbering      bool
 	NoHeaders      bool
 	Columns        string
 	UseColumns     []int
@@ -332,10 +332,10 @@ func (conf *Config) PrepareTransposers() error {
 func (conf *Config) CheckEnv() {
 	// check for environment vars, command line flags have precedence,
 	// NO_COLOR is being checked by the color module itself.
-	if !conf.NoNumbering {
-		_, set := os.LookupEnv("T_NO_HEADER_NUMBERING")
+	if !conf.Numbering {
+		_, set := os.LookupEnv("T_HEADER_NUMBERING")
 		if set {
-			conf.NoNumbering = true
+			conf.Numbering = true
 		}
 	}
 
@@ -350,7 +350,7 @@ func (conf *Config) CheckEnv() {
 func (conf *Config) ApplyDefaults() {
 	// mode specific defaults
 	if conf.OutputMode == Yaml || conf.OutputMode == CSV {
-		conf.NoNumbering = true
+		conf.Numbering = false
 	}
 }
 

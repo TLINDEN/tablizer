@@ -11,7 +11,7 @@ SYNOPSIS
         Operational Flags:
           -c, --columns string              Only show the speficied columns (separated by ,)
           -v, --invert-match                select non-matching rows
-          -n, --no-numbering                Disable header numbering
+          -n, --numbering                   Enable header numbering
           -N, --no-color                    Disable pattern highlighting
           -H, --no-headers                  Disable headers display
           -s, --separator string            Custom field separator
@@ -303,7 +303,7 @@ DESCRIPTION
     influence program behavior. Commandline flags have always precedence
     over environment variables.
 
-    <T_NO_HEADER_NUMBERING> - disable numbering of header fields, like -n.
+    <T_HEADER_NUMBERING> - enable numbering of header fields, like -n.
     <T_COLUMNS> - comma separated list of columns to output, like -c
     <NO_COLORS> - disable colorization of matches, like -N
 
@@ -428,7 +428,7 @@ Usage:
 Operational Flags:
   -c, --columns string              Only show the speficied columns (separated by ,)
   -v, --invert-match                select non-matching rows
-  -n, --no-numbering                Disable header numbering
+  -n, --numbering                   Enable header numbering
   -N, --no-color                    Disable pattern highlighting
   -H, --no-headers                  Disable headers display
   -s, --separator string            Custom field separator

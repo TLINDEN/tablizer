@@ -216,21 +216,21 @@ func TestNumberizeHeaders(t *testing.T) {
 	}
 
 	var tests = []struct {
-		expect  []string
-		columns []int
-		nonum   bool
+		expect    []string
+		columns   []int
+		numberize bool
 	}{
-		{[]string{"ONE(1)", "TWO(2)", "THREE(3)"}, []int{1, 2, 3}, false},
-		{[]string{"ONE(1)", "TWO(2)"}, []int{1, 2}, false},
-		{[]string{"ONE", "TWO"}, []int{1, 2}, true},
+		{[]string{"ONE(1)", "TWO(2)", "THREE(3)"}, []int{1, 2, 3}, true},
+		{[]string{"ONE(1)", "TWO(2)"}, []int{1, 2}, true},
+		{[]string{"ONE", "TWO"}, []int{1, 2}, false},
 	}
 
 	for _, testdata := range tests {
 		testname := fmt.Sprintf("numberize-headers-columns-%+v-nonum-%t",
-			testdata.columns, testdata.nonum)
+			testdata.columns, testdata.numberize)
 
 		t.Run(testname, func(t *testing.T) {
-			conf := cfg.Config{Columns: "x", UseColumns: testdata.columns, NoNumbering: testdata.nonum}
+			conf := cfg.Config{Columns: "x", UseColumns: testdata.columns, Numbering: testdata.numberize}
 			usedata := data
 			numberizeAndReduceHeaders(conf, &usedata)
 			if !reflect.DeepEqual(usedata.headers, testdata.expect) {

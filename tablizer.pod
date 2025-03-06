@@ -10,7 +10,7 @@ tablizer - Manipulate tabular output of other programs
     Operational Flags:
       -c, --columns string              Only show the speficied columns (separated by ,)
       -v, --invert-match                select non-matching rows
-      -n, --no-numbering                Disable header numbering
+      -n, --numbering                   Enable header numbering
       -N, --no-color                    Disable pattern highlighting
       -H, --no-headers                  Disable headers display
       -s, --separator string            Custom field separator
@@ -329,7 +329,7 @@ precedence over environment variables.
 
 =over
 
-=item <T_NO_HEADER_NUMBERING> - disable numbering of header fields, like B<-n>.
+=item <T_HEADER_NUMBERING> - enable numbering of header fields, like B<-n>.
 
 =item <T_COLUMNS> - comma separated list of columns to output, like B<-c>
 
