@@ -125,7 +125,7 @@ func Execute() {
 	// options
 	rootCmd.PersistentFlags().BoolVarP(&conf.Debug, "debug", "d", false,
 		"Enable debugging")
-	rootCmd.PersistentFlags().BoolVarP(&conf.NoNumbering, "no-numbering", "n", false,
+	rootCmd.PersistentFlags().BoolVarP(&conf.Numbering, "numbering", "n", false,
 		"Disable header numbering")
 	rootCmd.PersistentFlags().BoolVarP(&conf.NoHeaders, "no-headers", "H", false,
 		"Disable header display")

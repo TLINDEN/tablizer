@@ -133,8 +133,7 @@
 .\" ========================================================================
 .\"
 .IX Title "TABLIZER 1"
-.TH TABLIZER 1 "2025-02-23" "1" "User Commands"
-
+.TH TABLIZER 1 "2025-03-06" "1" "User Commands"
 .\" For nroff, turn off justification.  Always turn off hyphenation; it makes
 .\" way too many mistakes in technical documents.
 .if n .ad l
@@ -150,7 +149,7 @@ tablizer \- Manipulate tabular output of other programs
 \&    Operational Flags:
 \&      \-c, \-\-columns string              Only show the speficied columns (separated by ,)
 \&      \-v, \-\-invert\-match                select non\-matching rows
-\&      \-n, \-\-no\-numbering                Disable header numbering
+\&      \-n, \-\-numbering                   Enable header numbering
 \&      \-N, \-\-no\-color                    Disable pattern highlighting
 \&      \-H, \-\-no\-headers                  Disable headers display
 \&      \-s, \-\-separator string            Custom field separator
@@ -484,8 +483,8 @@ separated by one space.
 \&\fBtablizer\fR supports  certain environment variables which  use can use
 to  influence   program  behavior.   Commandline  flags   have  always
 precedence over environment variables.
-.IP "<T_NO_HEADER_NUMBERING> \- disable numbering of header fields, like \fB\-n\fR." 4
-.IX Item "<T_NO_HEADER_NUMBERING> - disable numbering of header fields, like -n."
+.IP "<T_HEADER_NUMBERING> \- enable numbering of header fields, like \fB\-n\fR." 4
+.IX Item "<T_HEADER_NUMBERING> - enable numbering of header fields, like -n."
 .PD 0
 .IP "<T_COLUMNS> \- comma separated list of columns to output, like \fB\-c\fR" 4
 .IX Item "<T_COLUMNS> - comma separated list of columns to output, like -c"

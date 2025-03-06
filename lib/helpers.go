@@ -208,13 +208,13 @@ func numberizeAndReduceHeaders(conf cfg.Config, data *Tabdata) {
 			}
 		}
 
-		if conf.NoNumbering {
-			numberedHeaders = append(numberedHeaders, head)
-			headlen = len(head)
-		} else {
+		if conf.Numbering {
 			numhead := fmt.Sprintf("%s(%d)", head, idx+1)
 			headlen = len(numhead)
 			numberedHeaders = append(numberedHeaders, numhead)
+		} else {
+			numberedHeaders = append(numberedHeaders, head)
+			headlen = len(head)
 		}
 
 		if headlen > maxwidth {

@@ -65,7 +65,7 @@ var tests = []struct {
 	sortby    string // empty == default
 	column    int    // sort by this column (numbers start by 1)
 	desc      bool   // sort in descending order, default == ascending
-	nonum     bool   // hide numbering
+	numberize bool   // add header numbering
 	mode      int    // shell, orgtbl, etc. empty == default: ascii
 	usecol    []int  // columns to display, empty == display all
 	usecolstr string // for testname, must match usecol
@@ -73,8 +73,9 @@ var tests = []struct {
 }{
 	// --------------------- Default settings mode tests ``
 	{
-		mode: cfg.ASCII,
-		name: "default",
+		mode:      cfg.ASCII,
+		numberize: true,
+		name:      "default",
 		expect: `
 NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                    
 beta   	1d10h5m1s  	33      	3/1/2014                  	
@@ -82,8 +83,9 @@ alpha  	4h35m      	170     	2013-Feb-03
 ceta   	33d12h     	9       	06/Jan/2008 15:04:05 -0700`,
 	},
 	{
-		mode: cfg.CSV,
-		name: "csv",
+		mode:      cfg.CSV,
+		numberize: false,
+		name:      "csv",
 		expect: `
 NAME,DURATION,COUNT,WHEN
 beta,1d10h5m1s,33,3/1/2014
@@ -91,8 +93,9 @@ alpha,4h35m,170,2013-Feb-03
 ceta,33d12h,9,06/Jan/2008 15:04:05 -0700`,
 	},
 	{
-		name: "default",
-		mode: cfg.Orgtbl,
+		name:      "orgtbl",
+		numberize: true,
+		mode:      cfg.Orgtbl,
 		expect: `
 +---------+-------------+----------+----------------------------+
 | NAME(1) | DURATION(2) | COUNT(3) |          WHEN(4)           |
@@ -103,8 +106,9 @@ ceta,33d12h,9,06/Jan/2008 15:04:05 -0700`,
 +---------+-------------+----------+----------------------------+`,
 	},
 	{
-		name: "default",
-		mode: cfg.Markdown,
+		name:      "markdown",
+		mode:      cfg.Markdown,
+		numberize: true,
 		expect: `
 | NAME(1) | DURATION(2) | COUNT(3) |          WHEN(4)           |
 |---------|-------------|----------|----------------------------|
@@ -113,18 +117,18 @@ ceta,33d12h,9,06/Jan/2008 15:04:05 -0700`,
 | ceta    | 33d12h      |        9 | 06/Jan/2008 15:04:05 -0700 |`,
 	},
 	{
-		name:  "default",
-		mode:  cfg.Shell,
-		nonum: true,
+		name:      "shell",
+		mode:      cfg.Shell,
+		numberize: false,
 		expect: `
 NAME="beta" DURATION="1d10h5m1s" COUNT="33" WHEN="3/1/2014"
 NAME="alpha" DURATION="4h35m" COUNT="170" WHEN="2013-Feb-03"
 NAME="ceta" DURATION="33d12h" COUNT="9" WHEN="06/Jan/2008 15:04:05 -0700"`,
 	},
 	{
-		name:  "default",
-		mode:  cfg.Yaml,
-		nonum: true,
+		name:      "yaml",
+		mode:      cfg.Yaml,
+		numberize: false,
 		expect: `
 entries:
     - count: 33
@@ -141,8 +145,9 @@ entries:
       when: "06/Jan/2008 15:04:05 -0700"`,
 	},
 	{
-		name: "default",
-		mode: cfg.Extended,
+		name:      "extended",
+		mode:      cfg.Extended,
+		numberize: true,
 		expect: `
     NAME(1): beta
 DURATION(2): 1d10h5m1s
@@ -162,10 +167,11 @@ DURATION(2): 33d12h
 
 	//------------------------ SORT TESTS
 	{
-		name:   "sortbycolumn3",
-		column: 3,
-		sortby: "numeric",
-		desc:   false,
+		name:      "sortbycolumn3",
+		column:    3,
+		sortby:    "numeric",
+		numberize: true,
+		desc:      false,
 		expect: `
 NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                    
 ceta   	33d12h     	9       	06/Jan/2008 15:04:05 -0700	
@@ -173,10 +179,11 @@ beta   	1d10h5m1s  	33      	3/1/2014
 alpha  	4h35m      	170     	2013-Feb-03`,
 	},
 	{
-		name:   "sortbycolumn4",
-		column: 4,
-		sortby: "time",
-		desc:   false,
+		name:      "sortbycolumn4",
+		column:    4,
+		sortby:    "time",
+		desc:      false,
+		numberize: true,
 		expect: `
 NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                    
 ceta   	33d12h     	9       	06/Jan/2008 15:04:05 -0700	
@@ -184,10 +191,11 @@ alpha  	4h35m      	170     	2013-Feb-03
 beta   	1d10h5m1s  	33      	3/1/2014`,
 	},
 	{
-		name:   "sortbycolumn2",
-		column: 2,
-		sortby: "duration",
-		desc:   false,
+		name:      "sortbycolumn2",
+		column:    2,
+		sortby:    "duration",
+		numberize: true,
+		desc:      false,
 		expect: `
 NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                    
 alpha  	4h35m      	170     	2013-Feb-03               	
@@ -199,6 +207,7 @@ ceta   	33d12h     	9       	06/Jan/2008 15:04:05 -0700`,
 	{
 		name:      "usecolumns",
 		usecol:    []int{1, 4},
+		numberize: true,
 		usecolstr: "1,4",
 		expect: `
 NAME(1)	WHEN(4)                    
@@ -209,6 +218,7 @@ ceta   	06/Jan/2008 15:04:05 -0700`,
 	{
 		name:      "usecolumns",
 		usecol:    []int{2},
+		numberize: true,
 		usecolstr: "2",
 		expect: `
 DURATION(2) 
@@ -219,6 +229,7 @@ DURATION(2)
 	{
 		name:      "usecolumns",
 		usecol:    []int{3},
+		numberize: true,
 		usecolstr: "3",
 		expect: `
 COUNT(3) 
@@ -230,6 +241,7 @@ COUNT(3)
 		name:      "usecolumns",
 		column:    0,
 		usecol:    []int{1, 3},
+		numberize: true,
 		usecolstr: "1,3",
 		expect: `
 NAME(1)	COUNT(3) 
@@ -240,6 +252,7 @@ ceta   	9`,
 	{
 		name:      "usecolumns",
 		usecol:    []int{2, 4},
+		numberize: true,
 		usecolstr: "2,4",
 		expect: `
 DURATION(2)	WHEN(4)                    
@@ -251,8 +264,10 @@ DURATION(2)	WHEN(4)
 
 func TestPrinter(t *testing.T) {
 	for _, testdata := range tests {
-		testname := fmt.Sprintf("print-%s-%d-desc-%t-sortby-%s-mode-%d-usecolumns-%s",
-			testdata.name, testdata.column, testdata.desc, testdata.sortby, testdata.mode, testdata.usecolstr)
+		testname := fmt.Sprintf("print-%s-%d-desc-%t-sortby-%s-mode-%d-usecolumns-%s-numberize-%t",
+			testdata.name, testdata.column, testdata.desc, testdata.sortby,
+			testdata.mode, testdata.usecolstr, testdata.numberize)
+
 		t.Run(testname, func(t *testing.T) {
 			// replaces os.Stdout, but we ignore it
 			var writer bytes.Buffer
@@ -262,7 +277,7 @@ func TestPrinter(t *testing.T) {
 				SortDescending: testdata.desc,
 				SortMode:       testdata.sortby,
 				OutputMode:     testdata.mode,
-				NoNumbering:    testdata.nonum,
+				Numbering:      testdata.numberize,
 				UseColumns:     testdata.usecol,
 				NoColor:        true,
 			}
