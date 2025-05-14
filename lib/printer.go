@@ -28,6 +28,8 @@ import (
 
 	"github.com/gookit/color"
 	"github.com/olekukonko/tablewriter"
+	"github.com/olekukonko/tablewriter/renderer"
+	"github.com/olekukonko/tablewriter/tw"
 	"github.com/tlinden/tablizer/cfg"
 	"gopkg.in/yaml.v3"
 )
@@ -76,15 +78,23 @@ Emacs org-mode compatible table (also orgtbl-mode)
 */
 func printOrgmodeData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 	tableString := &strings.Builder{}
-	table := tablewriter.NewWriter(tableString)
+
+	table := tablewriter.NewTable(tableString,
+		tablewriter.WithRenderer(renderer.NewMarkdown()),
+		tablewriter.WithConfig(tablewriter.Config{
+			Row: tw.CellConfig{
+				Formatting: tw.CellFormatting{
+					AutoWrap: tw.WrapNone,
+				},
+			},
+		}),
+	)
 
 	if !conf.NoHeaders {
-		table.SetHeader(data.headers)
+		table.Header(data.headers)
 	}
 
-	for _, row := range data.entries {
-		table.Append(trimRow(row))
-	}
+	table.Bulk(data.entries)
 
 	table.Render()
 
@@ -113,18 +123,26 @@ Markdown table
 */
 func printMarkdownData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 	tableString := &strings.Builder{}
-	table := tablewriter.NewWriter(tableString)
+
+	table := tablewriter.NewTable(tableString,
+		tablewriter.WithRenderer(renderer.NewMarkdown()),
+		tablewriter.WithConfig(tablewriter.Config{
+			Row: tw.CellConfig{
+				Formatting: tw.CellFormatting{
+					AutoWrap: tw.WrapNone,
+				},
+			},
+			Footer: tw.CellConfig{
+				Formatting: tw.CellFormatting{Alignment: tw.AlignRight},
+			},
+		}),
+	)
 
 	if !conf.NoHeaders {
-		table.SetHeader(data.headers)
+		table.Header(data.headers)
 	}
 
-	for _, row := range data.entries {
-		table.Append(trimRow(row))
-	}
-
-	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
-	table.SetCenterSeparator("|")
+	table.Bulk(data.entries)
 
 	table.Render()
 	output(writer, color.Sprint(colorizeData(conf, tableString.String())))
@@ -135,31 +153,60 @@ Simple ASCII table without any borders etc, just like the input we expect
 */
 func printASCIIData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 	tableString := &strings.Builder{}
-	table := tablewriter.NewWriter(tableString)
-
-	if !conf.NoHeaders {
-		table.SetHeader(data.headers)
-	}
-
-	table.AppendBulk(data.entries)
-
-	table.SetAutoWrapText(false)
-	table.SetAutoFormatHeaders(true)
-	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-	table.SetAlignment(tablewriter.ALIGN_LEFT)
-	table.SetCenterSeparator("")
-	table.SetColumnSeparator("")
-	table.SetRowSeparator("")
-	table.SetHeaderLine(false)
-	table.SetBorder(false)
-	table.SetNoWhiteSpace(true)
+	pad := ""
 
 	if !conf.UseHighlight {
 		// the tabs destroy the highlighting
-		table.SetTablePadding("\t") // pad with tabs
+		pad = "\t" // pad with tabs
 	} else {
-		table.SetTablePadding("   ")
+		pad = "   "
 	}
+
+	table := tablewriter.NewTable(tableString,
+		tablewriter.WithRenderer(
+			renderer.NewBlueprint(tw.Rendition{
+				Borders: tw.BorderNone,
+				Symbols: tw.NewSymbols(tw.StyleASCII),
+				Settings: tw.Settings{
+					Separators: tw.Separators{BetweenRows: tw.Off, BetweenColumns: tw.Off},
+					Lines:      tw.Lines{ShowFooterLine: tw.Off, ShowHeaderLine: tw.Off},
+				},
+			})),
+		tablewriter.WithConfig(tablewriter.Config{
+			Row: tw.CellConfig{
+				Formatting: tw.CellFormatting{
+					AutoWrap:  tw.WrapNone,
+					Alignment: tw.AlignLeft,
+				},
+				Padding: tw.CellPadding{
+					Global: tw.Padding{Left: "", Right: pad},
+				},
+			},
+		}),
+	)
+	if !conf.NoHeaders {
+		table.Header(data.headers)
+	}
+
+	// table.SetAutoWrapText(false)
+	// table.SetAutoFormatHeaders(true)
+	// table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
+	// table.SetAlignment(tablewriter.ALIGN_LEFT)
+	// table.SetCenterSeparator("")
+	// table.SetColumnSeparator("")
+	// table.SetRowSeparator("")
+	// table.SetHeaderLine(false)
+	// table.SetBorder(false)
+	// table.SetNoWhiteSpace(true)
+
+	// if !conf.UseHighlight {
+	// 	// the tabs destroy the highlighting
+	// 	table.SetTablePadding("\t") // pad with tabs
+	// } else {
+	// 	table.SetTablePadding("   ")
+	// }
+
+	table.Bulk(data.entries)
 
 	table.Render()
 	output(writer, color.Sprint(colorizeData(conf, tableString.String())))
