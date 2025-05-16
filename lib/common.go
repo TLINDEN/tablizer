@@ -34,3 +34,39 @@ func (data *Tabdata) CloneEmpty() Tabdata {
 
 	return newdata
 }
+
+// add a TAB (\t) in front of every cell, but not the first
+func (data *Tabdata) TabEntries() [][]string {
+	newentries := make([][]string, len(data.entries))
+
+	for rowidx, row := range data.entries {
+		newentries[rowidx] = make([]string, len(row))
+
+		for colidx, cell := range row {
+			switch colidx {
+			case 0:
+				newentries[rowidx][colidx] = cell
+			default:
+				newentries[rowidx][colidx] = "\t" + cell
+			}
+		}
+	}
+
+	return newentries
+}
+
+// add a TAB (\t) in front of every header, but not the first
+func (data *Tabdata) TabHeaders() []string {
+	newheaders := make([]string, len(data.headers))
+
+	for colidx, cell := range data.headers {
+		switch colidx {
+		case 0:
+			newheaders[colidx] = cell
+		default:
+			newheaders[colidx] = "\t" + cell
+		}
+	}
+
+	return newheaders
+}

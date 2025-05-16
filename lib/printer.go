@@ -26,6 +26,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/alecthomas/repr"
 	"github.com/gookit/color"
 	"github.com/olekukonko/tablewriter"
 	"github.com/olekukonko/tablewriter/renderer"
@@ -153,14 +154,6 @@ Simple ASCII table without any borders etc, just like the input we expect
 */
 func printASCIIData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 	tableString := &strings.Builder{}
-	pad := ""
-
-	if !conf.UseHighlight {
-		// the tabs destroy the highlighting
-		pad = "\t" // pad with tabs
-	} else {
-		pad = "   "
-	}
 
 	table := tablewriter.NewTable(tableString,
 		tablewriter.WithRenderer(
@@ -179,34 +172,19 @@ func printASCIIData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 					Alignment: tw.AlignLeft,
 				},
 				Padding: tw.CellPadding{
-					Global: tw.Padding{Left: "", Right: pad},
+					Global: tw.Padding{Left: "", Right: ""},
 				},
 			},
+			Debug: true,
 		}),
 	)
+
 	if !conf.NoHeaders {
-		table.Header(data.headers)
+		table.Header(data.TabHeaders())
 	}
 
-	// table.SetAutoWrapText(false)
-	// table.SetAutoFormatHeaders(true)
-	// table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-	// table.SetAlignment(tablewriter.ALIGN_LEFT)
-	// table.SetCenterSeparator("")
-	// table.SetColumnSeparator("")
-	// table.SetRowSeparator("")
-	// table.SetHeaderLine(false)
-	// table.SetBorder(false)
-	// table.SetNoWhiteSpace(true)
-
-	// if !conf.UseHighlight {
-	// 	// the tabs destroy the highlighting
-	// 	table.SetTablePadding("\t") // pad with tabs
-	// } else {
-	// 	table.SetTablePadding("   ")
-	// }
-
-	table.Bulk(data.entries)
+	repr.Println(data.TabHeaders())
+	table.Bulk(data.TabEntries())
 
 	table.Render()
 	output(writer, color.Sprint(colorizeData(conf, tableString.String())))
