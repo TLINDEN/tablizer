@@ -26,7 +26,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/alecthomas/repr"
 	"github.com/gookit/color"
 	"github.com/olekukonko/tablewriter"
 	"github.com/olekukonko/tablewriter/renderer"
@@ -166,6 +165,14 @@ func printASCIIData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 				},
 			})),
 		tablewriter.WithConfig(tablewriter.Config{
+			Header: tw.CellConfig{
+				Formatting: tw.CellFormatting{
+					AutoFormat: tw.Off,
+				},
+				Padding: tw.CellPadding{
+					Global: tw.Padding{Left: "", Right: ""},
+				},
+			},
 			Row: tw.CellConfig{
 				Formatting: tw.CellFormatting{
 					AutoWrap:  tw.WrapNone,
@@ -175,6 +182,7 @@ func printASCIIData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 					Global: tw.Padding{Left: "", Right: ""},
 				},
 			},
+
 			Debug: true,
 		}),
 	)
@@ -183,11 +191,14 @@ func printASCIIData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 		table.Header(data.TabHeaders())
 	}
 
-	repr.Println(data.TabHeaders())
 	table.Bulk(data.TabEntries())
-
 	table.Render()
-	output(writer, color.Sprint(colorizeData(conf, tableString.String())))
+
+	// tablewriter adds leading spaces, we need to remove'em
+	spacereg := regexp.MustCompile(`(?m)^\s*`)
+
+	output(writer, color.Sprint(colorizeData(conf,
+		spacereg.ReplaceAllString(tableString.String(), ""))))
 }
 
 /*

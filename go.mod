@@ -10,7 +10,7 @@ require (
 	github.com/gookit/color v1.5.4
 	github.com/hashicorp/hcl/v2 v2.23.0
 	github.com/lithammer/fuzzysearch v1.1.8
-	github.com/olekukonko/tablewriter v1.0.4
+	github.com/olekukonko/tablewriter v1.0.6
 	github.com/rogpeppe/go-internal v1.14.1
 	github.com/spf13/cobra v1.9.1
 	github.com/tiagomelo/go-clipboard v0.1.2
@@ -29,7 +29,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7 // indirect
 	github.com/olekukonko/errors v1.1.0 // indirect
-	github.com/olekukonko/ll v0.0.6-0.20250511102614-9564773e9d27 // indirect
+	github.com/olekukonko/ll v0.0.8 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/spf13/pflag v1.0.6 // indirect
