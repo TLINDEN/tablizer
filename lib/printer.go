@@ -127,13 +127,18 @@ func printMarkdownData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 	table := tablewriter.NewTable(tableString,
 		tablewriter.WithRenderer(renderer.NewMarkdown()),
 		tablewriter.WithConfig(tablewriter.Config{
+			Header: tw.CellConfig{
+				Formatting: tw.CellFormatting{AutoFormat: tw.Off},
+			},
 			Row: tw.CellConfig{
 				Formatting: tw.CellFormatting{
-					AutoWrap: tw.WrapNone,
+					AutoWrap:   tw.WrapNone,
+					Alignment:  tw.AlignLeft,
+					AutoFormat: tw.Off,
 				},
-			},
-			Footer: tw.CellConfig{
-				Formatting: tw.CellFormatting{Alignment: tw.AlignRight},
+				Padding: tw.CellPadding{
+					Global: tw.Padding{Left: "", Right: ""},
+				},
 			},
 		}),
 	)
@@ -145,7 +150,10 @@ func printMarkdownData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 	table.Bulk(data.entries)
 
 	table.Render()
-	output(writer, color.Sprint(colorizeData(conf, tableString.String())))
+
+	// we need to remove the colons in |:---:|:---:|
+	colonreg := regexp.MustCompile(`(:\-|\-:)`)
+	output(writer, color.Sprint(colorizeData(conf, colonreg.ReplaceAllString(tableString.String(), "--"))))
 }
 
 /*
