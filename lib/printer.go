@@ -185,6 +185,7 @@ func printASCIIData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 
 			Debug: true,
 		}),
+		tablewriter.WithPadding(tw.PaddingNone),
 	)
 
 	if !conf.NoHeaders {
@@ -194,11 +195,7 @@ func printASCIIData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 	table.Bulk(data.TabEntries())
 	table.Render()
 
-	// tablewriter adds leading spaces, we need to remove'em
-	spacereg := regexp.MustCompile(`(?m)^\s*`)
-
-	output(writer, color.Sprint(colorizeData(conf,
-		spacereg.ReplaceAllString(tableString.String(), ""))))
+	output(writer, color.Sprint(colorizeData(conf, tableString.String())))
 }
 
 /*
