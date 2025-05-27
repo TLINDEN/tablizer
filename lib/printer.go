@@ -22,7 +22,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"regexp"
 	"strconv"
 	"strings"
 
@@ -80,14 +79,41 @@ func printOrgmodeData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 	tableString := &strings.Builder{}
 
 	table := tablewriter.NewTable(tableString,
-		tablewriter.WithRenderer(renderer.NewMarkdown()),
-		tablewriter.WithConfig(tablewriter.Config{
-			Row: tw.CellConfig{
-				Formatting: tw.CellFormatting{
-					AutoWrap: tw.WrapNone,
+		tablewriter.WithRenderer(
+			renderer.NewBlueprint(
+				tw.Rendition{
+					Borders: tw.Border{
+						Left:   tw.On,
+						Right:  tw.On,
+						Top:    tw.On,
+						Bottom: tw.On,
+					},
+					Settings: tw.Settings{
+						Separators: tw.Separators{
+							ShowHeader:     tw.On,
+							ShowFooter:     tw.Off,
+							BetweenRows:    tw.Off,
+							BetweenColumns: 0,
+						},
+					},
+					Symbols: tw.NewSymbols(tw.StyleASCII),
+				})),
+
+		tablewriter.WithConfig(
+			tablewriter.Config{
+				Header: tw.CellConfig{
+					Formatting: tw.CellFormatting{
+						Alignment:  tw.AlignLeft,
+						AutoFormat: tw.Off,
+					},
+				},
+				Row: tw.CellConfig{
+					Formatting: tw.CellFormatting{
+						Alignment: tw.AlignLeft,
+					},
 				},
 			},
-		}),
+		),
 	)
 
 	if !conf.NoHeaders {
@@ -98,24 +124,7 @@ func printOrgmodeData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 
 	table.Render()
 
-	/* fix output for org-mode (orgtbl)
-	   tableWriter output:
-	   +------+------+
-	   | cell | cell |
-	   +------+------+
-
-	   Needed for org-mode compatibility:
-	   |------+------|
-	   | cell | cell |
-	   |------+------|
-	*/
-	leftR := regexp.MustCompile(`(?m)^\\+`)
-	rightR := regexp.MustCompile(`\\+(?m)$`)
-
-	output(writer, color.Sprint(
-		colorizeData(conf,
-			rightR.ReplaceAllString(
-				leftR.ReplaceAllString(tableString.String(), "|"), "|"))))
+	output(writer, color.Sprint(colorizeData(conf, tableString.String())))
 }
 
 /*
@@ -125,22 +134,41 @@ func printMarkdownData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 	tableString := &strings.Builder{}
 
 	table := tablewriter.NewTable(tableString,
-		tablewriter.WithRenderer(renderer.NewMarkdown()),
-		tablewriter.WithConfig(tablewriter.Config{
-			Header: tw.CellConfig{
-				Formatting: tw.CellFormatting{AutoFormat: tw.Off},
-			},
-			Row: tw.CellConfig{
-				Formatting: tw.CellFormatting{
-					AutoWrap:   tw.WrapNone,
-					Alignment:  tw.AlignLeft,
-					AutoFormat: tw.Off,
+		tablewriter.WithRenderer(
+			renderer.NewBlueprint(
+				tw.Rendition{
+					Borders: tw.Border{
+						Left:   tw.On,
+						Right:  tw.On,
+						Top:    tw.Off,
+						Bottom: tw.Off,
+					},
+					Settings: tw.Settings{
+						Separators: tw.Separators{
+							ShowHeader:     tw.On,
+							ShowFooter:     tw.Off,
+							BetweenRows:    tw.Off,
+							BetweenColumns: 0,
+						},
+					},
+					Symbols: tw.NewSymbols(tw.StyleMarkdown),
+				})),
+
+		tablewriter.WithConfig(
+			tablewriter.Config{
+				Header: tw.CellConfig{
+					Formatting: tw.CellFormatting{
+						Alignment:  tw.AlignLeft,
+						AutoFormat: tw.Off,
+					},
 				},
-				Padding: tw.CellPadding{
-					Global: tw.Padding{Left: "", Right: ""},
+				Row: tw.CellConfig{
+					Formatting: tw.CellFormatting{
+						Alignment: tw.AlignLeft,
+					},
 				},
 			},
-		}),
+		),
 	)
 
 	if !conf.NoHeaders {
@@ -151,9 +179,7 @@ func printMarkdownData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 
 	table.Render()
 
-	// we need to remove the colons in |:---:|:---:|
-	colonreg := regexp.MustCompile(`(:\-|\-:)`)
-	output(writer, color.Sprint(colorizeData(conf, colonreg.ReplaceAllString(tableString.String(), "--"))))
+	output(writer, color.Sprint(colorizeData(conf, tableString.String())))
 }
 
 /*

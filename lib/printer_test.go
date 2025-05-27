@@ -77,7 +77,7 @@ var tests = []struct {
 		numberize: true,
 		name:      "default",
 		expect: `
-NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                    
+NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                   
 beta   	1d10h5m1s  	33      	3/1/2014                  
 alpha  	4h35m      	170     	2013-Feb-03               
 ceta   	33d12h     	9       	06/Jan/2008 15:04:05 -0700`,
@@ -98,11 +98,11 @@ ceta,33d12h,9,06/Jan/2008 15:04:05 -0700`,
 		mode:      cfg.Orgtbl,
 		expect: `
 +---------+-------------+----------+----------------------------+
-| NAME(1) | DURATION(2) | COUNT(3) |          WHEN(4)           |
+| NAME(1) | DURATION(2) | COUNT(3) | WHEN(4)                    |
 +---------+-------------+----------+----------------------------+
-| beta    | 1d10h5m1s   |       33 | 3/1/2014                   |
-| alpha   | 4h35m       |      170 | 2013-Feb-03                |
-| ceta    | 33d12h      |        9 | 06/Jan/2008 15:04:05 -0700 |
+| beta    | 1d10h5m1s   | 33       | 3/1/2014                   |
+| alpha   | 4h35m       | 170      | 2013-Feb-03                |
+| ceta    | 33d12h      | 9        | 06/Jan/2008 15:04:05 -0700 |
 +---------+-------------+----------+----------------------------+`,
 	},
 	{
@@ -110,11 +110,11 @@ ceta,33d12h,9,06/Jan/2008 15:04:05 -0700`,
 		mode:      cfg.Markdown,
 		numberize: true,
 		expect: `
-| NAME(1) | DURATION(2) | COUNT(3) |          WHEN(4)           |
+| NAME(1) | DURATION(2) | COUNT(3) | WHEN(4)                    |
 |---------|-------------|----------|----------------------------|
-| beta    | 1d10h5m1s   |       33 | 3/1/2014                   |
-| alpha   | 4h35m       |      170 | 2013-Feb-03                |
-| ceta    | 33d12h      |        9 | 06/Jan/2008 15:04:05 -0700 |`,
+| beta    | 1d10h5m1s   | 33       | 3/1/2014                   |
+| alpha   | 4h35m       | 170      | 2013-Feb-03                |
+| ceta    | 33d12h      | 9        | 06/Jan/2008 15:04:05 -0700 |`,
 	},
 	{
 		name:      "shell",
