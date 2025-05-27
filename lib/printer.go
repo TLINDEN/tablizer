@@ -22,12 +22,13 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/gookit/color"
 	"github.com/olekukonko/tablewriter"
+	"github.com/olekukonko/tablewriter/renderer"
+	"github.com/olekukonko/tablewriter/tw"
 	"github.com/tlinden/tablizer/cfg"
 	"gopkg.in/yaml.v3"
 )
@@ -76,36 +77,58 @@ Emacs org-mode compatible table (also orgtbl-mode)
 */
 func printOrgmodeData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 	tableString := &strings.Builder{}
-	table := tablewriter.NewWriter(tableString)
+
+	table := tablewriter.NewTable(tableString,
+		tablewriter.WithRenderer(
+			renderer.NewBlueprint(
+				tw.Rendition{
+					Borders: tw.Border{
+						Left:   tw.On,
+						Right:  tw.On,
+						Top:    tw.On,
+						Bottom: tw.On,
+					},
+					Settings: tw.Settings{
+						Separators: tw.Separators{
+							ShowHeader:     tw.On,
+							ShowFooter:     tw.Off,
+							BetweenRows:    tw.Off,
+							BetweenColumns: 0,
+						},
+					},
+					Symbols: tw.NewSymbols(tw.StyleASCII),
+				})),
+
+		tablewriter.WithConfig(
+			tablewriter.Config{
+				Header: tw.CellConfig{
+					Formatting: tw.CellFormatting{
+						Alignment:  tw.AlignLeft,
+						AutoFormat: tw.Off,
+					},
+				},
+				Row: tw.CellConfig{
+					Formatting: tw.CellFormatting{
+						Alignment: tw.AlignLeft,
+					},
+				},
+			},
+		),
+	)
 
 	if !conf.NoHeaders {
-		table.SetHeader(data.headers)
+		table.Header(data.headers)
 	}
 
-	for _, row := range data.entries {
-		table.Append(trimRow(row))
+	if err := table.Bulk(data.entries); err != nil {
+		log.Fatalf("Failed to add data to table renderer: %s", err)
 	}
 
-	table.Render()
+	if err := table.Render(); err != nil {
+		log.Fatalf("Failed to render table: %s", err)
+	}
 
-	/* fix output for org-mode (orgtbl)
-	   tableWriter output:
-	   +------+------+
-	   | cell | cell |
-	   +------+------+
-
-	   Needed for org-mode compatibility:
-	   |------+------|
-	   | cell | cell |
-	   |------+------|
-	*/
-	leftR := regexp.MustCompile(`(?m)^\\+`)
-	rightR := regexp.MustCompile(`\\+(?m)$`)
-
-	output(writer, color.Sprint(
-		colorizeData(conf,
-			rightR.ReplaceAllString(
-				leftR.ReplaceAllString(tableString.String(), "|"), "|"))))
+	output(writer, color.Sprint(colorizeData(conf, tableString.String())))
 }
 
 /*
@@ -113,20 +136,57 @@ Markdown table
 */
 func printMarkdownData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 	tableString := &strings.Builder{}
-	table := tablewriter.NewWriter(tableString)
+
+	table := tablewriter.NewTable(tableString,
+		tablewriter.WithRenderer(
+			renderer.NewBlueprint(
+				tw.Rendition{
+					Borders: tw.Border{
+						Left:   tw.On,
+						Right:  tw.On,
+						Top:    tw.Off,
+						Bottom: tw.Off,
+					},
+					Settings: tw.Settings{
+						Separators: tw.Separators{
+							ShowHeader:     tw.On,
+							ShowFooter:     tw.Off,
+							BetweenRows:    tw.Off,
+							BetweenColumns: 0,
+						},
+					},
+					Symbols: tw.NewSymbols(tw.StyleMarkdown),
+				})),
+
+		tablewriter.WithConfig(
+			tablewriter.Config{
+				Header: tw.CellConfig{
+					Formatting: tw.CellFormatting{
+						Alignment:  tw.AlignLeft,
+						AutoFormat: tw.Off,
+					},
+				},
+				Row: tw.CellConfig{
+					Formatting: tw.CellFormatting{
+						Alignment: tw.AlignLeft,
+					},
+				},
+			},
+		),
+	)
 
 	if !conf.NoHeaders {
-		table.SetHeader(data.headers)
+		table.Header(data.headers)
 	}
 
-	for _, row := range data.entries {
-		table.Append(trimRow(row))
+	if err := table.Bulk(data.entries); err != nil {
+		log.Fatalf("Failed to add data to table renderer: %s", err)
 	}
 
-	table.SetBorders(tablewriter.Border{Left: true, Top: false, Right: true, Bottom: false})
-	table.SetCenterSeparator("|")
+	if err := table.Render(); err != nil {
+		log.Fatalf("Failed to render table: %s", err)
+	}
 
-	table.Render()
 	output(writer, color.Sprint(colorizeData(conf, tableString.String())))
 }
 
@@ -135,33 +195,53 @@ Simple ASCII table without any borders etc, just like the input we expect
 */
 func printASCIIData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 	tableString := &strings.Builder{}
-	table := tablewriter.NewWriter(tableString)
+
+	table := tablewriter.NewTable(tableString,
+		tablewriter.WithRenderer(
+			renderer.NewBlueprint(tw.Rendition{
+				Borders: tw.BorderNone,
+				Symbols: tw.NewSymbols(tw.StyleASCII),
+				Settings: tw.Settings{
+					Separators: tw.Separators{BetweenRows: tw.Off, BetweenColumns: tw.Off},
+					Lines:      tw.Lines{ShowFooterLine: tw.Off, ShowHeaderLine: tw.Off},
+				},
+			})),
+		tablewriter.WithConfig(tablewriter.Config{
+			Header: tw.CellConfig{
+				Formatting: tw.CellFormatting{
+					AutoFormat: tw.Off,
+				},
+				Padding: tw.CellPadding{
+					Global: tw.Padding{Left: "", Right: ""},
+				},
+			},
+			Row: tw.CellConfig{
+				Formatting: tw.CellFormatting{
+					AutoWrap:  tw.WrapNone,
+					Alignment: tw.AlignLeft,
+				},
+				Padding: tw.CellPadding{
+					Global: tw.Padding{Left: "", Right: ""},
+				},
+			},
+
+			Debug: true,
+		}),
+		tablewriter.WithPadding(tw.PaddingNone),
+	)
 
 	if !conf.NoHeaders {
-		table.SetHeader(data.headers)
+		table.Header(data.TabHeaders())
 	}
 
-	table.AppendBulk(data.entries)
-
-	table.SetAutoWrapText(false)
-	table.SetAutoFormatHeaders(true)
-	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-	table.SetAlignment(tablewriter.ALIGN_LEFT)
-	table.SetCenterSeparator("")
-	table.SetColumnSeparator("")
-	table.SetRowSeparator("")
-	table.SetHeaderLine(false)
-	table.SetBorder(false)
-	table.SetNoWhiteSpace(true)
-
-	if !conf.UseHighlight {
-		// the tabs destroy the highlighting
-		table.SetTablePadding("\t") // pad with tabs
-	} else {
-		table.SetTablePadding("   ")
+	if err := table.Bulk(data.TabEntries()); err != nil {
+		log.Fatalf("Failed to add data to table renderer: %s", err)
 	}
 
-	table.Render()
+	if err := table.Render(); err != nil {
+		log.Fatalf("Failed to render table: %s", err)
+	}
+
 	output(writer, color.Sprint(colorizeData(conf, tableString.String())))
 }
 

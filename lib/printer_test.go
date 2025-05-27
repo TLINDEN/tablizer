@@ -77,9 +77,9 @@ var tests = []struct {
 		numberize: true,
 		name:      "default",
 		expect: `
-NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                    
-beta   	1d10h5m1s  	33      	3/1/2014                  	
-alpha  	4h35m      	170     	2013-Feb-03               	
+NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                   
+beta   	1d10h5m1s  	33      	3/1/2014                  
+alpha  	4h35m      	170     	2013-Feb-03               
 ceta   	33d12h     	9       	06/Jan/2008 15:04:05 -0700`,
 	},
 	{
@@ -98,11 +98,11 @@ ceta,33d12h,9,06/Jan/2008 15:04:05 -0700`,
 		mode:      cfg.Orgtbl,
 		expect: `
 +---------+-------------+----------+----------------------------+
-| NAME(1) | DURATION(2) | COUNT(3) |          WHEN(4)           |
+| NAME(1) | DURATION(2) | COUNT(3) | WHEN(4)                    |
 +---------+-------------+----------+----------------------------+
-| beta    | 1d10h5m1s   |       33 | 3/1/2014                   |
-| alpha   | 4h35m       |      170 | 2013-Feb-03                |
-| ceta    | 33d12h      |        9 | 06/Jan/2008 15:04:05 -0700 |
+| beta    | 1d10h5m1s   | 33       | 3/1/2014                   |
+| alpha   | 4h35m       | 170      | 2013-Feb-03                |
+| ceta    | 33d12h      | 9        | 06/Jan/2008 15:04:05 -0700 |
 +---------+-------------+----------+----------------------------+`,
 	},
 	{
@@ -110,11 +110,11 @@ ceta,33d12h,9,06/Jan/2008 15:04:05 -0700`,
 		mode:      cfg.Markdown,
 		numberize: true,
 		expect: `
-| NAME(1) | DURATION(2) | COUNT(3) |          WHEN(4)           |
+| NAME(1) | DURATION(2) | COUNT(3) | WHEN(4)                    |
 |---------|-------------|----------|----------------------------|
-| beta    | 1d10h5m1s   |       33 | 3/1/2014                   |
-| alpha   | 4h35m       |      170 | 2013-Feb-03                |
-| ceta    | 33d12h      |        9 | 06/Jan/2008 15:04:05 -0700 |`,
+| beta    | 1d10h5m1s   | 33       | 3/1/2014                   |
+| alpha   | 4h35m       | 170      | 2013-Feb-03                |
+| ceta    | 33d12h      | 9        | 06/Jan/2008 15:04:05 -0700 |`,
 	},
 	{
 		name:      "shell",
@@ -173,9 +173,9 @@ DURATION(2): 33d12h
 		numberize: true,
 		desc:      false,
 		expect: `
-NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                    
-ceta   	33d12h     	9       	06/Jan/2008 15:04:05 -0700	
-beta   	1d10h5m1s  	33      	3/1/2014                  	
+NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                   
+ceta   	33d12h     	9       	06/Jan/2008 15:04:05 -0700
+beta   	1d10h5m1s  	33      	3/1/2014                  
 alpha  	4h35m      	170     	2013-Feb-03`,
 	},
 	{
@@ -185,9 +185,9 @@ alpha  	4h35m      	170     	2013-Feb-03`,
 		desc:      false,
 		numberize: true,
 		expect: `
-NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                    
-ceta   	33d12h     	9       	06/Jan/2008 15:04:05 -0700	
-alpha  	4h35m      	170     	2013-Feb-03               	
+NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                   
+ceta   	33d12h     	9       	06/Jan/2008 15:04:05 -0700
+alpha  	4h35m      	170     	2013-Feb-03               
 beta   	1d10h5m1s  	33      	3/1/2014`,
 	},
 	{
@@ -197,9 +197,9 @@ beta   	1d10h5m1s  	33      	3/1/2014`,
 		numberize: true,
 		desc:      false,
 		expect: `
-NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                    
-alpha  	4h35m      	170     	2013-Feb-03               	
-beta   	1d10h5m1s  	33      	3/1/2014                  	
+NAME(1)	DURATION(2)	COUNT(3)	WHEN(4)                   
+alpha  	4h35m      	170     	2013-Feb-03               
+beta   	1d10h5m1s  	33      	3/1/2014                  
 ceta   	33d12h     	9       	06/Jan/2008 15:04:05 -0700`,
 	},
 
@@ -210,9 +210,9 @@ ceta   	33d12h     	9       	06/Jan/2008 15:04:05 -0700`,
 		numberize: true,
 		usecolstr: "1,4",
 		expect: `
-NAME(1)	WHEN(4)                    
-beta   	3/1/2014                  	
-alpha  	2013-Feb-03               	
+NAME(1)	WHEN(4)                   
+beta   	3/1/2014                  
+alpha  	2013-Feb-03               
 ceta   	06/Jan/2008 15:04:05 -0700`,
 	},
 	{
@@ -221,9 +221,9 @@ ceta   	06/Jan/2008 15:04:05 -0700`,
 		numberize: true,
 		usecolstr: "2",
 		expect: `
-DURATION(2) 
-1d10h5m1s  	
-4h35m      	
+DURATION(2)
+1d10h5m1s  
+4h35m      
 33d12h`,
 	},
 	{
@@ -232,9 +232,9 @@ DURATION(2)
 		numberize: true,
 		usecolstr: "3",
 		expect: `
-COUNT(3) 
-33      	
-170     	
+COUNT(3)
+33      
+170     
 9`,
 	},
 	{
@@ -244,9 +244,9 @@ COUNT(3)
 		numberize: true,
 		usecolstr: "1,3",
 		expect: `
-NAME(1)	COUNT(3) 
-beta   	33      	
-alpha  	170     	
+NAME(1)	COUNT(3)
+beta   	33      
+alpha  	170     
 ceta   	9`,
 	},
 	{
@@ -255,9 +255,9 @@ ceta   	9`,
 		numberize: true,
 		usecolstr: "2,4",
 		expect: `
-DURATION(2)	WHEN(4)                    
-1d10h5m1s  	3/1/2014                  	
-4h35m      	2013-Feb-03               	
+DURATION(2)	WHEN(4)                   
+1d10h5m1s  	3/1/2014                  
+4h35m      	2013-Feb-03               
 33d12h     	06/Jan/2008 15:04:05 -0700`,
 	},
 }
