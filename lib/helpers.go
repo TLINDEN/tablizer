@@ -254,17 +254,6 @@ func reduceColumns(conf cfg.Config, data *Tabdata) {
 	}
 }
 
-// FIXME: remove this when we only use Tablewriter and strip in ParseFile()!
-func trimRow(row []string) []string {
-	var fixedrow = make([]string, len(row))
-
-	for idx, cell := range row {
-		fixedrow[idx] = strings.TrimSpace(cell)
-	}
-
-	return fixedrow
-}
-
 // FIXME: refactor this beast!
 func colorizeData(conf cfg.Config, output string) string {
 	switch {

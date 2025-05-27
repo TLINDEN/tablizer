@@ -120,9 +120,13 @@ func printOrgmodeData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 		table.Header(data.headers)
 	}
 
-	table.Bulk(data.entries)
+	if err := table.Bulk(data.entries); err != nil {
+		log.Fatalf("Failed to add data to table renderer: %w", err)
+	}
 
-	table.Render()
+	if err := table.Render(); err != nil {
+		log.Fatalf("Failed to render table: %w", err)
+	}
 
 	output(writer, color.Sprint(colorizeData(conf, tableString.String())))
 }
@@ -175,9 +179,13 @@ func printMarkdownData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 		table.Header(data.headers)
 	}
 
-	table.Bulk(data.entries)
+	if err := table.Bulk(data.entries); err != nil {
+		log.Fatalf("Failed to add data to table renderer: %w", err)
+	}
 
-	table.Render()
+	if err := table.Render(); err != nil {
+		log.Fatalf("Failed to render table: %w", err)
+	}
 
 	output(writer, color.Sprint(colorizeData(conf, tableString.String())))
 }
@@ -226,8 +234,13 @@ func printASCIIData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 		table.Header(data.TabHeaders())
 	}
 
-	table.Bulk(data.TabEntries())
-	table.Render()
+	if err := table.Bulk(data.TabEntries()); err != nil {
+		log.Fatalf("Failed to add data to table renderer: %w", err)
+	}
+
+	if err := table.Render(); err != nil {
+		log.Fatalf("Failed to render table: %w", err)
+	}
 
 	output(writer, color.Sprint(colorizeData(conf, tableString.String())))
 }
