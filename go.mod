@@ -10,7 +10,7 @@ require (
 	github.com/gookit/color v1.5.4
 	github.com/hashicorp/hcl/v2 v2.23.0
 	github.com/lithammer/fuzzysearch v1.1.8
-	github.com/olekukonko/tablewriter v1.0.6
+	github.com/olekukonko/tablewriter v1.0.7
 	github.com/rogpeppe/go-internal v1.14.1
 	github.com/spf13/cobra v1.9.1
 	github.com/tiagomelo/go-clipboard v0.1.2
