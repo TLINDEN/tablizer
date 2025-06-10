@@ -196,13 +196,15 @@ Simple ASCII table without any borders etc, just like the input we expect
 func printASCIIData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 	tableString := &strings.Builder{}
 
+	styleTSV := tw.NewSymbolCustom("space").WithColumn("\t")
+
 	table := tablewriter.NewTable(tableString,
 		tablewriter.WithRenderer(
 			renderer.NewBlueprint(tw.Rendition{
 				Borders: tw.BorderNone,
-				Symbols: tw.NewSymbols(tw.StyleASCII),
+				Symbols: styleTSV,
 				Settings: tw.Settings{
-					Separators: tw.Separators{BetweenRows: tw.Off, BetweenColumns: tw.Off},
+					Separators: tw.Separators{BetweenRows: tw.Off, BetweenColumns: tw.On},
 					Lines:      tw.Lines{ShowFooterLine: tw.Off, ShowHeaderLine: tw.Off},
 				},
 			})),
@@ -231,10 +233,10 @@ func printASCIIData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 	)
 
 	if !conf.NoHeaders {
-		table.Header(data.TabHeaders())
+		table.Header(data.headers)
 	}
 
-	if err := table.Bulk(data.TabEntries()); err != nil {
+	if err := table.Bulk(data.entries); err != nil {
 		log.Fatalf("Failed to add data to table renderer: %s", err)
 	}
 
