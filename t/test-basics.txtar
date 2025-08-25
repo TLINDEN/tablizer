@@ -6,10 +6,6 @@ stdout Usage
 exec tablizer -V
 stdout version
 
-# manpage
-exec tablizer -m
-stdout SYNOPSIS
-
 # completion
 exec tablizer --completion bash
 stdout __tablizer_init_completion
