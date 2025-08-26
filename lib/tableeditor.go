@@ -18,9 +18,9 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package lib
 
 import (
+	"fmt"
 	"strings"
 
-	"github.com/alecthomas/repr"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/evertras/bubble-table/table"
 	"github.com/tlinden/tablizer/cfg"
@@ -36,6 +36,8 @@ type Model struct {
 	// Table dimensions
 	horizontalMargin int
 	verticalMargin   int
+
+	id string
 }
 
 const (
@@ -44,6 +46,11 @@ const (
 
 	// Add a fixed margin to account for description & instructions
 	fixedVerticalMargin = 0
+
+	columnKeyID          = "id"
+	columnKeyName        = "name"
+	columnKeyDescription = "description"
+	columnKeyCount       = "count"
 )
 
 var (
@@ -72,6 +79,7 @@ func NewModel(data *Tabdata) Model {
 	columns := make([]table.Column, len(data.headers))
 	rows := make([]table.Row, len(data.entries))
 	lengths := make([]int, len(data.headers))
+	var id string
 
 	// give columns at least the header width
 	for idx, header := range data.headers {
@@ -89,7 +97,11 @@ func NewModel(data *Tabdata) Model {
 
 	// setup column data
 	for idx, header := range data.headers {
-		columns[idx] = table.NewColumn(header, header, lengths[idx]+2).WithFiltered(true)
+		columns[idx] = table.NewColumn(strings.ToLower(header), header, lengths[idx]+2).
+			WithFiltered(true)
+		if id == "" {
+			id = strings.ToLower(header)
+		}
 	}
 
 	// setup table data
@@ -97,16 +109,21 @@ func NewModel(data *Tabdata) Model {
 		rowdata := make(table.RowData, len(entry))
 
 		for i, cell := range entry {
-			rowdata[data.headers[i]] = cell + " "
+			rowdata[strings.ToLower(data.headers[i])] = cell + " "
 		}
 
-		rows[idx] = table.Row{Data: rowdata}
+		rows[idx] = table.NewRow(rowdata)
 	}
+
+	keys := table.DefaultKeyMap()
+	keys.RowDown.SetKeys("j", "down", "s")
+	keys.RowUp.SetKeys("k", "up", "w")
 
 	// our final interactive table filled with our prepared data
 	return Model{
-		Table: table.
-			New(columns).
+		Table: table.New(columns).
+			WithRows(rows).
+			WithKeyMap(keys).
 			Filtered(true).
 			Focused(true).
 			SelectableRows(true).
@@ -115,8 +132,9 @@ func NewModel(data *Tabdata) Model {
 			WithHeaderVisibility(true).
 			WithMaxTotalWidth(150).
 			WithPageSize(20).
-			Border(customBorder).
-			WithRows(rows),
+			Border(customBorder),
+		id:               id,
+		horizontalMargin: 10,
 	}
 }
 
@@ -136,10 +154,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
-		case "ctrl+c", "q":
+		case "ctrl+c", "q", "esc":
 			// FIXME: feed the reprocessed data to printData(), then call tea.Quit
+			// FIXME: we need to reset the screen somehow, otherwise printing doesn't work.
+			fmt.Println()
 			for _, row := range m.Table.SelectedRows() {
-				repr.Println(row.Data)
+				// selectedIDs = append(selectedIDs, row.Data[m.id].(string))
+				//repr.Println(row.Data)
+				fmt.Printf("Selected: %s\n", row.Data[m.id].(string))
 			}
 
 			cmds = append(cmds, tea.Quit)
@@ -151,7 +173,25 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.recalculateTable()
 	}
 
+	m.updateFooter()
+
 	return m, tea.Batch(cmds...)
+}
+
+func (m *Model) updateFooter() {
+	selected := m.Table.SelectedRows()
+	footer := fmt.Sprintf("selected: %d", len(selected))
+
+	// highlightedRow := m.Table.HighlightedRow()
+
+	// footerText := fmt.Sprintf(
+	// 	"Pg. %d/%d - Currently looking at ID: %s",
+	// 	m.Table.CurrentPage(),
+	// 	m.Table.MaxPages(),
+	// 	highlightedRow.Data[m.id],
+	// )
+
+	m.Table = m.Table.WithStaticFooter(footer)
 }
 
 func (m *Model) recalculateTable() {
