@@ -17,36 +17,15 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
-	"log"
 	"os"
-	"os/exec"
 	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/tlinden/tablizer/cfg"
 	"github.com/tlinden/tablizer/lib"
 )
-
-func man() {
-	man := exec.Command("less", "-")
-
-	var buffer bytes.Buffer
-
-	buffer.Write([]byte(manpage))
-
-	man.Stdout = os.Stdout
-	man.Stdin = &buffer
-	man.Stderr = os.Stderr
-
-	err := man.Run()
-
-	if err != nil {
-		log.Fatal(err)
-	}
-}
 
 func completion(cmd *cobra.Command, mode string) error {
 	switch mode {
@@ -94,7 +73,7 @@ func Execute() {
 			}
 
 			if ShowManual {
-				man()
+				Pager("tablizer manual page", manpage)
 
 				return
 			}
