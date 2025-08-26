@@ -20,13 +20,14 @@ package lib
 import (
 	"strings"
 
+	"github.com/alecthomas/repr"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/evertras/bubble-table/table"
 	"github.com/tlinden/tablizer/cfg"
 )
 
 type Model struct {
-	table table.Model
+	Table table.Model
 
 	// Window dimensions
 	totalWidth  int
@@ -42,7 +43,7 @@ const (
 	minHeight = 1
 
 	// Add a fixed margin to account for description & instructions
-	fixedVerticalMargin = 4
+	fixedVerticalMargin = 0
 )
 
 var (
@@ -104,7 +105,7 @@ func NewModel(data *Tabdata) Model {
 
 	// our final interactive table filled with our prepared data
 	return Model{
-		table: table.
+		Table: table.
 			New(columns).
 			Filtered(true).
 			Focused(true).
@@ -128,13 +129,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds []tea.Cmd
 	)
 
-	m.table, cmd = m.table.Update(msg)
+	m.Table, cmd = m.Table.Update(msg)
 	cmds = append(cmds, cmd)
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
+			// FIXME: feed the reprocessed data to printData(), then call tea.Quit
+			for _, row := range m.Table.SelectedRows() {
+				repr.Println(row.Data)
+			}
+
 			cmds = append(cmds, tea.Quit)
 		case "left":
 			if m.calculateWidth() > minWidth {
@@ -171,7 +177,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *Model) recalculateTable() {
-	m.table = m.table.
+	m.Table = m.Table.
 		WithTargetWidth(m.calculateWidth()).
 		WithMinimumHeight(m.calculateHeight())
 }
@@ -187,7 +193,7 @@ func (m Model) calculateHeight() int {
 func (m Model) View() string {
 	body := strings.Builder{}
 
-	body.WriteString(m.table.View())
+	body.WriteString(m.Table.View())
 
 	return body.String()
 }
@@ -197,7 +203,5 @@ func tableEditor(conf *cfg.Config, data *Tabdata) error {
 
 	_, err := program.Run()
 
-	// for _, row := range m.table.SelectedRows() {
-	// }
 	return err
 }
