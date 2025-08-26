@@ -114,6 +114,7 @@ func NewModel(data *Tabdata) Model {
 			WithFooterVisibility(true).
 			WithHeaderVisibility(true).
 			WithMaxTotalWidth(150).
+			WithPageSize(20).
 			Border(customBorder).
 			WithRows(rows),
 	}
@@ -142,29 +143,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			cmds = append(cmds, tea.Quit)
-		case "left":
-			if m.calculateWidth() > minWidth {
-				m.horizontalMargin++
-				m.recalculateTable()
-			}
-
-		case "right":
-			if m.horizontalMargin > 0 {
-				m.horizontalMargin--
-				m.recalculateTable()
-			}
-
-		case "up":
-			if m.calculateHeight() > minHeight {
-				m.verticalMargin++
-				m.recalculateTable()
-			}
-
-		case "down":
-			if m.verticalMargin > 0 {
-				m.verticalMargin--
-				m.recalculateTable()
-			}
 		}
 	case tea.WindowSizeMsg:
 		m.totalWidth = msg.Width
@@ -179,7 +157,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *Model) recalculateTable() {
 	m.Table = m.Table.
 		WithTargetWidth(m.calculateWidth()).
-		WithMinimumHeight(m.calculateHeight())
+		WithMinimumHeight(m.calculateHeight()).
+		WithPageSize(m.calculateHeight() - 7)
 }
 
 func (m Model) calculateWidth() int {
