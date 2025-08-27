@@ -19,9 +19,11 @@ package lib
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/evertras/bubble-table/table"
 	"github.com/tlinden/tablizer/cfg"
 )
@@ -37,7 +39,8 @@ type Model struct {
 	horizontalMargin int
 	verticalMargin   int
 
-	id string
+	quitting  bool
+	unchanged bool
 }
 
 const (
@@ -47,10 +50,7 @@ const (
 	// Add a fixed margin to account for description & instructions
 	fixedVerticalMargin = 0
 
-	columnKeyID          = "id"
-	columnKeyName        = "name"
-	columnKeyDescription = "description"
-	columnKeyCount       = "count"
+	HELP = "/:filter esc:clear-filter q:commit c-c:abort space:select a:select-all | "
 )
 
 var (
@@ -79,7 +79,6 @@ func NewModel(data *Tabdata) Model {
 	columns := make([]table.Column, len(data.headers))
 	rows := make([]table.Row, len(data.entries))
 	lengths := make([]int, len(data.headers))
-	var id string
 
 	// give columns at least the header width
 	for idx, header := range data.headers {
@@ -99,9 +98,6 @@ func NewModel(data *Tabdata) Model {
 	for idx, header := range data.headers {
 		columns[idx] = table.NewColumn(strings.ToLower(header), header, lengths[idx]+2).
 			WithFiltered(true)
-		if id == "" {
-			id = strings.ToLower(header)
-		}
 	}
 
 	// setup table data
@@ -133,9 +129,25 @@ func NewModel(data *Tabdata) Model {
 			WithMaxTotalWidth(150).
 			WithPageSize(20).
 			Border(customBorder),
-		id:               id,
 		horizontalMargin: 10,
 	}
+}
+
+func (m Model) ToggleSelected() {
+	rows := m.Table.GetVisibleRows()
+	selected := m.Table.SelectedRows()
+
+	if len(selected) > 0 {
+		for i, row := range selected {
+			rows[i] = row.Selected(false)
+		}
+	} else {
+		for i, row := range rows {
+			rows[i] = row.Selected(true)
+		}
+	}
+
+	m.Table.WithRows(rows)
 }
 
 func (m Model) Init() tea.Cmd {
@@ -151,28 +163,33 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	m.Table, cmd = m.Table.Update(msg)
 	cmds = append(cmds, cmd)
 
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch msg.String() {
-		case "ctrl+c", "q", "esc":
-			// FIXME: feed the reprocessed data to printData(), then call tea.Quit
-			// FIXME: we need to reset the screen somehow, otherwise printing doesn't work.
-			fmt.Println()
-			for _, row := range m.Table.SelectedRows() {
-				// selectedIDs = append(selectedIDs, row.Data[m.id].(string))
-				//repr.Println(row.Data)
-				fmt.Printf("Selected: %s\n", row.Data[m.id].(string))
+	if !m.Table.GetIsFilterInputFocused() {
+		switch msg := msg.(type) {
+		case tea.KeyMsg:
+			switch msg.String() {
+			case "q":
+				m.quitting = true
+				m.unchanged = false
+				cmds = append(cmds, tea.Quit)
+
+			case "ctrl+c":
+				m.quitting = true
+				m.unchanged = true
+				cmds = append(cmds, tea.Quit)
+
+			case "a":
+				m.ToggleSelected()
+
+			case "c":
+				m.Table.WithFilterInputValue("")
 			}
+		case tea.WindowSizeMsg:
+			m.totalWidth = msg.Width
+			m.totalHeight = msg.Height
 
-			cmds = append(cmds, tea.Quit)
+			m.recalculateTable()
 		}
-	case tea.WindowSizeMsg:
-		m.totalWidth = msg.Width
-		m.totalHeight = msg.Height
-
-		m.recalculateTable()
 	}
-
 	m.updateFooter()
 
 	return m, tea.Batch(cmds...)
@@ -182,23 +199,20 @@ func (m *Model) updateFooter() {
 	selected := m.Table.SelectedRows()
 	footer := fmt.Sprintf("selected: %d", len(selected))
 
-	// highlightedRow := m.Table.HighlightedRow()
+	if m.Table.GetIsFilterInputFocused() {
+		footer = fmt.Sprintf("/%s %s", m.Table.GetCurrentFilter(), footer)
+	} else if m.Table.GetIsFilterActive() {
+		footer = fmt.Sprintf("Filter: %s %s", m.Table.GetCurrentFilter(), footer)
+	}
 
-	// footerText := fmt.Sprintf(
-	// 	"Pg. %d/%d - Currently looking at ID: %s",
-	// 	m.Table.CurrentPage(),
-	// 	m.Table.MaxPages(),
-	// 	highlightedRow.Data[m.id],
-	// )
-
-	m.Table = m.Table.WithStaticFooter(footer)
+	m.Table = m.Table.WithStaticFooter(HELP + footer)
 }
 
 func (m *Model) recalculateTable() {
 	m.Table = m.Table.
 		WithTargetWidth(m.calculateWidth()).
 		WithMinimumHeight(m.calculateHeight()).
-		WithPageSize(m.calculateHeight() - 7)
+		WithPageSize(m.calculateHeight() - 8)
 }
 
 func (m Model) calculateWidth() int {
@@ -212,15 +226,43 @@ func (m Model) calculateHeight() int {
 func (m Model) View() string {
 	body := strings.Builder{}
 
-	body.WriteString(m.Table.View())
+	if !m.quitting {
+		body.WriteString(m.Table.View())
+	}
 
 	return body.String()
 }
 
-func tableEditor(conf *cfg.Config, data *Tabdata) error {
-	program := tea.NewProgram(NewModel(data))
+func tableEditor(conf *cfg.Config, data *Tabdata) (*Tabdata, error) {
+	// we render to STDERR to avoid dead lock when the user redirects STDOUT
+	// see https://github.com/charmbracelet/bubbletea/issues/860
+	lipgloss.SetDefaultRenderer(lipgloss.NewRenderer(os.Stderr))
+	program := tea.NewProgram(
+		NewModel(data),
+		tea.WithOutput(os.Stderr),
+		tea.WithAltScreen())
 
-	_, err := program.Run()
+	m, err := program.Run()
 
-	return err
+	if err != nil {
+		return nil, err
+	}
+
+	if m.(Model).unchanged {
+		return data, err
+	}
+
+	table := m.(Model).Table
+	data.entries = make([][]string, len(table.SelectedRows()))
+
+	for pos, row := range m.(Model).Table.SelectedRows() {
+		entry := make([]string, len(data.headers))
+		for idx, field := range data.headers {
+			entry[idx] = row.Data[strings.ToLower(field)].(string)
+		}
+
+		data.entries[pos] = entry
+	}
+
+	return data, err
 }

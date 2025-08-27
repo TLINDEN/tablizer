@@ -59,7 +59,12 @@ func ProcessFiles(conf *cfg.Config, args []string) error {
 	}
 
 	if conf.Interactive {
-		return tableEditor(conf, &data)
+		newdata, err := tableEditor(conf, &data)
+		if err != nil {
+			return err
+		}
+
+		data = *newdata
 	}
 
 	printData(os.Stdout, *conf, &data)
