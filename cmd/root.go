@@ -73,7 +73,7 @@ func Execute() {
 			}
 
 			if ShowManual {
-				Pager("tablizer manual page", manpage)
+				lib.Pager("tablizer manual page", manpage)
 
 				return
 			}
