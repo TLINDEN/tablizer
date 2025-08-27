@@ -130,7 +130,7 @@ func Execute() {
 		"Yank the speficied columns (separated by ,) to the clipboard")
 	rootCmd.PersistentFlags().StringVarP(&conf.TransposeColumns, "transpose-columns", "T", "",
 		"Transpose the speficied columns (separated by ,)")
-	rootCmd.PersistentFlags().BoolVarP(&conf.Interactive, "interactive", "", false,
+	rootCmd.PersistentFlags().BoolVarP(&conf.Interactive, "interactive", "I", false,
 		"interactive mode (experimental)")
 
 	// sort options

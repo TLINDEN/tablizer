@@ -20,6 +20,7 @@ SYNOPSIS
           -F, --filter field[!]=reg         Filter given field with regex, can be used multiple times
           -T, --transpose-columns string    Transpose the speficied columns (separated by ,)
           -R, --regex-transposer /from/to/  Apply /search/replace/ regexp to fields given in -T
+          -I, --interactive                 Interactively filter and select rows
 
         Output Flags (mutually exclusive):
           -X, --extended                    Enable extended output
@@ -437,6 +438,7 @@ Operational Flags:
   -F, --filter field[!]=reg         Filter given field with regex, can be used multiple times
   -T, --transpose-columns string    Transpose the speficied columns (separated by ,)
   -R, --regex-transposer /from/to/  Apply /search/replace/ regexp to fields given in -T
+  -I, --interactive                 Interactively filter and select rows
 
 Output Flags (mutually exclusive):
   -X, --extended                    Enable extended output
