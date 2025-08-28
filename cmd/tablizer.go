@@ -190,6 +190,20 @@ DESCRIPTION
 
     If the option -v is specified, the filtering is inverted.
 
+  INTERACTIVE FILTERING
+    You can also use the interactive mode, enabled with "-I" to filter and
+    select rows. This mode is complementary, that is, other filter options
+    are still being respected.
+
+    To enter e filter, hit "/", enter a filter string and finish with
+    "ENTER". Use "SPACE" to select/deselect rows, use "a" to select all
+    (visible) rows.
+
+    Commit your selection with "q". The selected rows are being fed to the
+    requested output mode as usual. Abort with "CTRL-c", in which case the
+    results of the interactive mode are being ignored and all rows are being
+    fed to output.
+
   COLUMNS
     The parameter -c can be used to specify, which columns to display. By
     default tablizer numerizes the header names and these numbers can be
@@ -416,6 +430,9 @@ LICENSE
     yaml (gopkg.in/yaml.v3)
         Released under the MIT License, Copyright (c) 2006-2011 Kirill
         Simonov
+
+    bubble-table (https://github.com/Evertras/bubble-table)
+        Released under the MIT License, Copyright (c) 2022 Brandon Fulljames
 
 AUTHORS
     Thomas von Dein tom AT vondein DOT org

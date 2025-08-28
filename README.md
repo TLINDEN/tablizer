@@ -6,25 +6,29 @@
 
 Tablizer  can   be  used   to  re-format   tabular  output   of  other
 programs. While you  could do this using standard unix  tools, in some
-cases it's a hard job.
+cases it's a hard job. With tablizer you can filter by column[s],
+ignore certain column[s] by regex, name or number. It can output the
+tabular data in a range of formats (see below). There's even an
+interactive filter/selection tool available.
 
 Usage:
 ```default
 Usage:
-  tablizer [regex] [file, ...] [flags]
+  tablizer [regex,...] [file, ...] [flags]
 
 Operational Flags:
   -c, --columns string              Only show the speficied columns (separated by ,)
   -v, --invert-match                select non-matching rows
-  -n, --no-numbering                Disable header numbering
+  -n, --numbering                   Enable header numbering
   -N, --no-color                    Disable pattern highlighting
   -H, --no-headers                  Disable headers display
   -s, --separator string            Custom field separator
-  -k, --sort-by int                 Sort by column (default: 1)
+  -k, --sort-by int|name            Sort by column (default: 1)
   -z, --fuzzy                       Use fuzzy search [experimental]
   -F, --filter field[!]=reg         Filter given field with regex, can be used multiple times
   -T, --transpose-columns string    Transpose the speficied columns (separated by ,)
   -R, --regex-transposer /from/to/  Apply /search/replace/ regexp to fields given in -T
+  -I, --interactive                 Interactively filter and select rows
 
 Output Flags (mutually exclusive):
   -X, --extended                    Enable extended output

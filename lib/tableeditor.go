@@ -46,8 +46,6 @@ type FilterTable struct {
 }
 
 const (
-	minWidth = 30
-
 	// Add a fixed margin to account for description & instructions
 	fixedVerticalMargin = 0
 
@@ -129,9 +127,6 @@ func NewModel(data *Tabdata) FilterTable {
 			WithSelectedText(" ", "✓").
 			WithFooterVisibility(true).
 			WithHeaderVisibility(true).
-			// FIXME: do we need these?
-			//WithMaxTotalWidth(150).
-			//WithPageSize(20).
 			Border(customBorder),
 		horizontalMargin: 10,
 		Rows:             len(data.entries),
