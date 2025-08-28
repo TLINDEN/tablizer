@@ -1,4 +1,4 @@
-package cmd
+package lib
 
 // pager setup using bubbletea
 // file shamlelessly copied from:
@@ -28,18 +28,18 @@ var (
 	}()
 )
 
-type model struct {
+type Doc struct {
 	content  string
 	title    string
 	ready    bool
 	viewport viewport.Model
 }
 
-func (m model) Init() tea.Cmd {
+func (m Doc) Init() tea.Cmd {
 	return nil
 }
 
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Doc) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var (
 		cmd  tea.Cmd
 		cmds []tea.Cmd
@@ -79,21 +79,21 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m model) View() string {
+func (m Doc) View() string {
 	if !m.ready {
 		return "\n  Initializing..."
 	}
 	return fmt.Sprintf("%s\n%s\n%s", m.headerView(), m.viewport.View(), m.footerView())
 }
 
-func (m model) headerView() string {
+func (m Doc) headerView() string {
 	// title := titleStyle.Render("RPN Help Overview")
 	title := titleStyle.Render(m.title)
 	line := strings.Repeat("─", max(0, m.viewport.Width-lipgloss.Width(title)))
 	return lipgloss.JoinHorizontal(lipgloss.Center, title, line)
 }
 
-func (m model) footerView() string {
+func (m Doc) footerView() string {
 	info := infoStyle.Render(fmt.Sprintf("%3.f%%", m.viewport.ScrollPercent()*100))
 	line := strings.Repeat("─", max(0, m.viewport.Width-lipgloss.Width(info)))
 	return lipgloss.JoinHorizontal(lipgloss.Center, line, info)
@@ -108,7 +108,7 @@ func max(a, b int) int {
 
 func Pager(title, message string) {
 	p := tea.NewProgram(
-		model{content: message, title: title},
+		Doc{content: message, title: title},
 		tea.WithAltScreen(),       // use the full size of the terminal in its "alternate screen buffer"
 		tea.WithMouseCellMotion(), // turn on mouse support so we can track the mouse wheel
 	)

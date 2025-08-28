@@ -19,6 +19,7 @@ tablizer - Manipulate tabular output of other programs
       -F, --filter field[!]=reg         Filter given field with regex, can be used multiple times
       -T, --transpose-columns string    Transpose the speficied columns (separated by ,)
       -R, --regex-transposer /from/to/  Apply /search/replace/ regexp to fields given in -T
+      -I, --interactive                 Interactively filter and select rows
 
     Output Flags (mutually exclusive):
       -X, --extended                    Enable extended output
@@ -202,6 +203,20 @@ These field filters can also be negated:
 
 If the option B<-v> is specified, the filtering is inverted.
 
+=head2 INTERACTIVE FILTERING
+
+You can also use the interactive mode, enabled with C<-I> to filter
+and select rows. This mode is complementary, that is, other filter
+options are still being respected.
+
+To enter e filter, hit C</>, enter a filter string and finish with
+C<ENTER>. Use C<SPACE> to select/deselect rows, use C<a> to select all
+(visible) rows.
+
+Commit your selection with C<q>. The selected rows are being fed to
+the requested output mode as usual. Abort with C<CTRL-c>, in which
+case the results of the interactive mode are being ignored and all
+rows are being fed to output.
 
 =head2 COLUMNS
 
@@ -464,6 +479,10 @@ Released under the MIT License, Copyright (c) 201 by Oleku Konko
 =item yaml (gopkg.in/yaml.v3)
 
 Released under the MIT License, Copyright (c) 2006-2011 Kirill Simonov
+
+=item bubble-table (https://github.com/Evertras/bubble-table)
+
+Released under the MIT License, Copyright (c) 2022 Brandon Fulljames
 
 =back
 

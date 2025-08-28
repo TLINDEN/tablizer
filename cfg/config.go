@@ -78,6 +78,7 @@ type Config struct {
 	Patterns       []*Pattern
 	UseFuzzySearch bool
 	UseHighlight   bool
+	Interactive    bool
 
 	SortMode        string
 	SortDescending  bool
