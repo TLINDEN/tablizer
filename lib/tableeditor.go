@@ -43,6 +43,11 @@ type FilterTable struct {
 
 	quitting  bool
 	unchanged bool
+
+	selectedColumn int
+	maxColumns     int
+	headerIdx      map[string]int
+	dataCopy       [][]string
 }
 
 const (
@@ -74,16 +79,21 @@ var (
 
 		InnerDivider: "│",
 	}
+
+	StyleSelected = lipgloss.NewStyle().Background(lipgloss.Color("#696969")).Foreground(lipgloss.Color("#ffffff"))
+	NoStyle       = lipgloss.NewStyle()
 )
 
 func NewModel(data *Tabdata) FilterTable {
 	columns := make([]table.Column, len(data.headers))
 	rows := make([]table.Row, len(data.entries))
 	lengths := make([]int, len(data.headers))
+	hidx := make(map[string]int, len(data.headers))
 
 	// give columns at least the header width
 	for idx, header := range data.headers {
 		lengths[idx] = len(header)
+		hidx[strings.ToLower(header)] = idx
 	}
 
 	// determine max width per column
@@ -106,7 +116,11 @@ func NewModel(data *Tabdata) FilterTable {
 		rowdata := make(table.RowData, len(entry))
 
 		for i, cell := range entry {
-			rowdata[strings.ToLower(data.headers[i])] = cell + " "
+			if i == 0 {
+				rowdata[strings.ToLower(data.headers[i])] = table.NewStyledCell(cell+" ", StyleSelected)
+			} else {
+				rowdata[strings.ToLower(data.headers[i])] = cell + " "
+			}
 		}
 
 		rows[idx] = table.NewRow(rowdata)
@@ -129,7 +143,11 @@ func NewModel(data *Tabdata) FilterTable {
 			WithHeaderVisibility(true).
 			Border(customBorder),
 		horizontalMargin: 10,
+		maxColumns:       len(data.headers),
 		Rows:             len(data.entries),
+		selectedColumn:   0,
+		headerIdx:        hidx,
+		dataCopy:         data.entries,
 	}
 }
 
@@ -179,6 +197,9 @@ func (m FilterTable) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			case "a":
 				m.ToggleSelected()
+
+			case "tab":
+				m.SelectNextColumn()
 			}
 		case tea.WindowSizeMsg:
 			m.totalWidth = msg.Width
@@ -187,6 +208,7 @@ func (m FilterTable) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.recalculateTable()
 		}
 	}
+
 	m.updateFooter()
 
 	return m, tea.Batch(cmds...)
@@ -235,6 +257,31 @@ func (m FilterTable) View() string {
 	return body.String()
 }
 
+func (m *FilterTable) SelectNextColumn() {
+	if m.selectedColumn == m.maxColumns-1 {
+		m.selectedColumn = 0
+	} else {
+		m.selectedColumn++
+	}
+
+	for idx, row := range m.Table.GetVisibleRows() {
+		for field, _ := range row.Data {
+			//   we  cannot  use  the value  of  row.Data[field]  here
+			//  directly because  if  it is  styled,  it will  contain
+			// braces  when printed (for  whatever reason). So  we use
+			//  the  unaltered  data  copy and  apply  out  styles  as
+			// appropriate
+			cell := m.dataCopy[idx][m.headerIdx[field]] + " "
+			if m.headerIdx[field] == m.selectedColumn {
+				row.Data[field] = table.NewStyledCell(cell, StyleSelected)
+			} else {
+				row.Data[field] = table.NewStyledCell(cell, NoStyle)
+			}
+		}
+	}
+	fmt.Println()
+}
+
 func tableEditor(conf *cfg.Config, data *Tabdata) (*Tabdata, error) {
 	// we render to STDERR to avoid dead lock when the user redirects STDOUT
 	// see https://github.com/charmbracelet/bubbletea/issues/860
@@ -255,13 +302,19 @@ func tableEditor(conf *cfg.Config, data *Tabdata) (*Tabdata, error) {
 		return data, err
 	}
 
-	table := m.(FilterTable).Table
-	data.entries = make([][]string, len(table.SelectedRows()))
+	filteredtable := m.(FilterTable)
 
+	data.entries = make([][]string, len(filteredtable.Table.SelectedRows()))
 	for pos, row := range m.(FilterTable).Table.SelectedRows() {
 		entry := make([]string, len(data.headers))
 		for idx, field := range data.headers {
-			entry[idx] = row.Data[strings.ToLower(field)].(string)
+			cell := row.Data[strings.ToLower(field)]
+			switch cell.(type) {
+			case string:
+				entry[idx] = cell.(string)
+			case table.StyledCell:
+				entry[idx] = cell.(table.StyledCell).Data.(string)
+			}
 		}
 
 		data.entries[pos] = entry
