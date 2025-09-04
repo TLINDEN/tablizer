@@ -111,16 +111,26 @@ func NewModel(data *Tabdata) FilterTable {
 			WithFiltered(true)
 	}
 
+	filtertbl := FilterTable{
+		horizontalMargin: 10,
+		maxColumns:       len(data.headers),
+		Rows:             len(data.entries),
+		selectedColumn:   0,
+		headerIdx:        hidx,
+		dataCopy:         data.entries,
+	}
+
+	controllerWrapper := func(input table.StyledCellFuncInput) lipgloss.Style {
+		return CellController(input, filtertbl)
+	}
+
 	// setup table data
 	for idx, entry := range data.entries {
 		rowdata := make(table.RowData, len(entry))
 
 		for i, cell := range entry {
-			if i == 0 {
-				rowdata[strings.ToLower(data.headers[i])] = table.NewStyledCell(cell+" ", StyleSelected)
-			} else {
-				rowdata[strings.ToLower(data.headers[i])] = cell + " "
-			}
+			rowdata[strings.ToLower(data.headers[i])] =
+				table.NewStyledCellWithStyleFunc(cell+" ", controllerWrapper)
 		}
 
 		rows[idx] = table.NewRow(rowdata)
@@ -131,25 +141,27 @@ func NewModel(data *Tabdata) FilterTable {
 	keys.RowUp.SetKeys("k", "up", "w")
 
 	// our final interactive table filled with our prepared data
-	return FilterTable{
-		Table: table.New(columns).
-			WithRows(rows).
-			WithKeyMap(keys).
-			Filtered(true).
-			WithFuzzyFilter().
-			Focused(true).
-			SelectableRows(true).
-			WithSelectedText(" ", "✓").
-			WithFooterVisibility(true).
-			WithHeaderVisibility(true).
-			Border(customBorder),
-		horizontalMargin: 10,
-		maxColumns:       len(data.headers),
-		Rows:             len(data.entries),
-		selectedColumn:   0,
-		headerIdx:        hidx,
-		dataCopy:         data.entries,
+	filtertbl.Table = table.New(columns).
+		WithRows(rows).
+		WithKeyMap(keys).
+		Filtered(true).
+		WithFuzzyFilter().
+		Focused(true).
+		SelectableRows(true).
+		WithSelectedText(" ", "✓").
+		WithFooterVisibility(true).
+		WithHeaderVisibility(true).
+		Border(customBorder)
+
+	return filtertbl
+}
+
+func CellController(input table.StyledCellFuncInput, m FilterTable) lipgloss.Style {
+	if m.headerIdx[input.Column.Key()] == m.selectedColumn {
+		return StyleSelected
 	}
+
+	return NoStyle
 }
 
 func (m FilterTable) ToggleSelected() {
@@ -258,29 +270,13 @@ func (m FilterTable) View() string {
 	return body.String()
 }
 
+// FIXME: has no effect since FilterTable is being copied in Update()
 func (m *FilterTable) SelectNextColumn() {
 	if m.selectedColumn == m.maxColumns-1 {
 		m.selectedColumn = 0
 	} else {
 		m.selectedColumn++
 	}
-
-	for idx, row := range m.Table.GetVisibleRows() {
-		for field, _ := range row.Data {
-			//   we  cannot  use  the value  of  row.Data[field]  here
-			//  directly because  if  it is  styled,  it will  contain
-			// braces  when printed (for  whatever reason). So  we use
-			//  the  unaltered  data  copy and  apply  out  styles  as
-			// appropriate
-			cell := m.dataCopy[idx][m.headerIdx[field]] + " "
-			if m.headerIdx[field] == m.selectedColumn {
-				row.Data[field] = table.NewStyledCell(cell, StyleSelected)
-			} else {
-				row.Data[field] = table.NewStyledCell(cell, NoStyle)
-			}
-		}
-	}
-	fmt.Println()
 }
 
 func tableEditor(conf *cfg.Config, data *Tabdata) (*Tabdata, error) {
