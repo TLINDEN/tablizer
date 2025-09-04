@@ -136,6 +136,7 @@ func NewModel(data *Tabdata) FilterTable {
 			WithRows(rows).
 			WithKeyMap(keys).
 			Filtered(true).
+			WithFuzzyFilter().
 			Focused(true).
 			SelectableRows(true).
 			WithSelectedText(" ", "✓").
