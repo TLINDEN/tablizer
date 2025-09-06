@@ -44,10 +44,9 @@ type FilterTable struct {
 	quitting  bool
 	unchanged bool
 
-	selectedColumn int
-	maxColumns     int
-	headerIdx      map[string]int
-	dataCopy       [][]string
+	maxColumns int
+	headerIdx  map[string]int
+	dataCopy   [][]string
 }
 
 const (
@@ -82,6 +81,8 @@ var (
 
 	StyleSelected = lipgloss.NewStyle().Background(lipgloss.Color("#696969")).Foreground(lipgloss.Color("#ffffff"))
 	NoStyle       = lipgloss.NewStyle()
+
+	selectedColumn = 0
 )
 
 func NewModel(data *Tabdata) FilterTable {
@@ -115,7 +116,6 @@ func NewModel(data *Tabdata) FilterTable {
 		horizontalMargin: 10,
 		maxColumns:       len(data.headers),
 		Rows:             len(data.entries),
-		selectedColumn:   0,
 		headerIdx:        hidx,
 		dataCopy:         data.entries,
 	}
@@ -157,7 +157,7 @@ func NewModel(data *Tabdata) FilterTable {
 }
 
 func CellController(input table.StyledCellFuncInput, m FilterTable) lipgloss.Style {
-	if m.headerIdx[input.Column.Key()] == m.selectedColumn {
+	if m.headerIdx[input.Column.Key()] == selectedColumn {
 		return StyleSelected
 	}
 
@@ -271,11 +271,13 @@ func (m FilterTable) View() string {
 }
 
 // FIXME: has no effect since FilterTable is being copied in Update()
+// for the time being we're using a global variable. Maybe we can use
+// the new GlobalMetadata field and store this kind of stuff there.
 func (m *FilterTable) SelectNextColumn() {
-	if m.selectedColumn == m.maxColumns-1 {
-		m.selectedColumn = 0
+	if selectedColumn == m.maxColumns-1 {
+		selectedColumn = 0
 	} else {
-		m.selectedColumn++
+		selectedColumn++
 	}
 }
 
