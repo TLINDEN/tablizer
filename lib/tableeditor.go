@@ -28,6 +28,24 @@ import (
 	"github.com/tlinden/tablizer/cfg"
 )
 
+// This one exists outside of the bubble loop, and is referred to as
+// pointer reciever. That way we can use it as our primary storage
+// container.
+type Container struct {
+	selectedColumn int
+	data           *Tabdata
+}
+
+func (container *Container) Sort(mode string, desc bool) {
+	conf := cfg.Config{
+		SortMode:        mode,
+		SortDescending:  desc,
+		UseSortByColumn: []int{container.selectedColumn + 1},
+	}
+
+	sortTable(conf, container.data)
+}
+
 type FilterTable struct {
 	Table table.Model
 
@@ -46,7 +64,10 @@ type FilterTable struct {
 
 	maxColumns int
 	headerIdx  map[string]int
-	dataCopy   [][]string
+
+	container *Container
+
+	columns []table.Column
 }
 
 const (
@@ -81,11 +102,9 @@ var (
 
 	StyleSelected = lipgloss.NewStyle().Background(lipgloss.Color("#696969")).Foreground(lipgloss.Color("#ffffff"))
 	NoStyle       = lipgloss.NewStyle()
-
-	selectedColumn = 0
 )
 
-func NewModel(data *Tabdata) FilterTable {
+func NewModel(data *Tabdata, container *Container) FilterTable {
 	columns := make([]table.Column, len(data.headers))
 	rows := make([]table.Row, len(data.entries))
 	lengths := make([]int, len(data.headers))
@@ -117,7 +136,8 @@ func NewModel(data *Tabdata) FilterTable {
 		maxColumns:       len(data.headers),
 		Rows:             len(data.entries),
 		headerIdx:        hidx,
-		dataCopy:         data.entries,
+		container:        container,
+		columns:          columns,
 	}
 
 	controllerWrapper := func(input table.StyledCellFuncInput) lipgloss.Style {
@@ -136,14 +156,14 @@ func NewModel(data *Tabdata) FilterTable {
 		rows[idx] = table.NewRow(rowdata)
 	}
 
-	keys := table.DefaultKeyMap()
-	keys.RowDown.SetKeys("j", "down", "s")
-	keys.RowUp.SetKeys("k", "up", "w")
+	// keys := table.DefaultKeyMap()
+	// keys.RowDown.SetKeys("j", "down", "s")
+	// keys.RowUp.SetKeys("k", "up", "w")
 
 	// our final interactive table filled with our prepared data
 	filtertbl.Table = table.New(columns).
 		WithRows(rows).
-		WithKeyMap(keys).
+		//WithKeyMap(keys).
 		Filtered(true).
 		WithFuzzyFilter().
 		Focused(true).
@@ -157,7 +177,7 @@ func NewModel(data *Tabdata) FilterTable {
 }
 
 func CellController(input table.StyledCellFuncInput, m FilterTable) lipgloss.Style {
-	if m.headerIdx[input.Column.Key()] == selectedColumn {
+	if m.headerIdx[input.Column.Key()] == m.container.selectedColumn {
 		return StyleSelected
 	}
 
@@ -185,6 +205,40 @@ func (m FilterTable) Init() tea.Cmd {
 	return nil
 }
 
+// FIXME: possibly re-use it in NewModel() to avoid duplicate code
+func (m *FilterTable) Sort(mode string, desc bool) {
+	m.container.Sort(mode, desc)
+
+	controllerWrapper := func(input table.StyledCellFuncInput) lipgloss.Style {
+		return CellController(input, *m)
+	}
+
+	rows := make([]table.Row, len(m.container.data.entries))
+	for idx, entry := range m.container.data.entries {
+		rowdata := make(table.RowData, len(entry))
+
+		for i, cell := range entry {
+			rowdata[strings.ToLower(m.container.data.headers[i])] =
+				table.NewStyledCellWithStyleFunc(cell+" ", controllerWrapper)
+		}
+
+		rows[idx] = table.NewRow(rowdata)
+	}
+
+	m.Table = table.New(m.columns).
+		WithRows(rows).
+		Filtered(true).
+		WithFuzzyFilter().
+		Focused(true).
+		SelectableRows(true).
+		WithSelectedText(" ", "✓").
+		WithFooterVisibility(true).
+		WithHeaderVisibility(true).
+		Border(customBorder)
+
+	//m.Table.WithRows(rows)
+}
+
 func (m FilterTable) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var (
 		cmd  tea.Cmd
@@ -208,11 +262,36 @@ func (m FilterTable) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.unchanged = true
 				cmds = append(cmds, tea.Quit)
 
-			case "a":
+			case "ctrl-a":
 				m.ToggleSelected()
 
 			case "tab":
 				m.SelectNextColumn()
+
+			case "s":
+				m.Sort("alphanumeric", false)
+
+			case "S":
+				m.Sort("alphanumeric", true)
+
+			case "n":
+				m.Sort("numeric", false)
+
+			case "N":
+				m.Sort("numeric", true)
+
+			case "d":
+				m.Sort("duration", false)
+
+			case "D":
+				m.Sort("duration", true)
+
+			case "t":
+				m.Sort("time", false)
+
+			case "T":
+				m.Sort("time", true)
+
 			}
 		case tea.WindowSizeMsg:
 			m.totalWidth = msg.Width
@@ -274,10 +353,10 @@ func (m FilterTable) View() string {
 // for the time being we're using a global variable. Maybe we can use
 // the new GlobalMetadata field and store this kind of stuff there.
 func (m *FilterTable) SelectNextColumn() {
-	if selectedColumn == m.maxColumns-1 {
-		selectedColumn = 0
+	if m.container.selectedColumn == m.maxColumns-1 {
+		m.container.selectedColumn = 0
 	} else {
-		selectedColumn++
+		m.container.selectedColumn++
 	}
 }
 
@@ -286,8 +365,10 @@ func tableEditor(conf *cfg.Config, data *Tabdata) (*Tabdata, error) {
 	// see https://github.com/charmbracelet/bubbletea/issues/860
 	lipgloss.SetDefaultRenderer(lipgloss.NewRenderer(os.Stderr))
 
+	container := &Container{data: data}
+
 	program := tea.NewProgram(
-		NewModel(data),
+		NewModel(data, container),
 		tea.WithOutput(os.Stderr),
 		tea.WithAltScreen())
 
