@@ -33,15 +33,19 @@ import (
 // container.
 type Container struct {
 	selectedColumn int
+	showHelp       bool
+	descending     bool
 	data           *Tabdata
 }
 
-func (container *Container) Sort(mode string, desc bool) {
+func (container *Container) Sort(mode string) {
 	conf := cfg.Config{
 		SortMode:        mode,
-		SortDescending:  desc,
+		SortDescending:  container.descending,
 		UseSortByColumn: []int{container.selectedColumn + 1},
 	}
+
+	container.descending = !container.descending
 
 	sortTable(conf, container.data)
 }
@@ -74,9 +78,21 @@ const (
 	// Add a fixed margin to account for description & instructions
 	fixedVerticalMargin = 0
 
-	ExtraRows = 8
+	ExtraRows = 5
 
-	HELP = "/:filter esc:clear-filter q:commit c-c:abort space:select a:select-all | "
+	HELP = "?:help | "
+
+	HelpRows = 7
+
+	LongHelp = `
+Key bindings usable in interactive filter table:
+q         commit and quit           s     sort alphanumerically			  
+ctrl-c    discard and quit          d     sort by duration
+up|down   navigate rows             t     sort by time
+TAB       navigage columns          f     fuzzy filter
+space     [de]select row            ESC   finish filter input
+a         [de]select all rows       ?     show help buffer
+`
 )
 
 var (
@@ -201,13 +217,17 @@ func (m FilterTable) ToggleSelected() {
 	m.Table.WithRows(rows)
 }
 
+func (m FilterTable) ToggleHelp() {
+	m.container.showHelp = !m.container.showHelp
+}
+
 func (m FilterTable) Init() tea.Cmd {
 	return nil
 }
 
 // FIXME: possibly re-use it in NewModel() to avoid duplicate code
-func (m *FilterTable) Sort(mode string, desc bool) {
-	m.container.Sort(mode, desc)
+func (m *FilterTable) Sort(mode string) {
+	m.container.Sort(mode)
 
 	controllerWrapper := func(input table.StyledCellFuncInput) lipgloss.Style {
 		return CellController(input, *m)
@@ -262,36 +282,26 @@ func (m FilterTable) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.unchanged = true
 				cmds = append(cmds, tea.Quit)
 
-			case "ctrl-a":
+			case "a":
 				m.ToggleSelected()
 
 			case "tab":
 				m.SelectNextColumn()
 
-			case "s":
-				m.Sort("alphanumeric", false)
+			case "?":
+				m.ToggleHelp()
 
-			case "S":
-				m.Sort("alphanumeric", true)
+			case "s":
+				m.Sort("alphanumeric")
 
 			case "n":
-				m.Sort("numeric", false)
-
-			case "N":
-				m.Sort("numeric", true)
+				m.Sort("numeric")
 
 			case "d":
-				m.Sort("duration", false)
-
-			case "D":
-				m.Sort("duration", true)
+				m.Sort("duration")
 
 			case "t":
-				m.Sort("time", false)
-
-			case "T":
-				m.Sort("time", true)
-
+				m.Sort("time")
 			}
 		case tea.WindowSizeMsg:
 			m.totalWidth = msg.Width
@@ -331,12 +341,17 @@ func (m FilterTable) calculateWidth() int {
 }
 
 func (m FilterTable) calculateHeight() int {
-	if m.Rows+ExtraRows < m.totalHeight {
-		// FIXME: avoid full screen somehow
-		return m.Rows + ExtraRows
+	height := m.Rows + ExtraRows
+	if m.container.showHelp {
+		height = height + HelpRows
 	}
 
-	return m.totalHeight - m.verticalMargin - fixedVerticalMargin
+	if height >= m.totalHeight {
+		// FIXME: avoid full screen somehow
+		height = m.totalHeight - m.verticalMargin - fixedVerticalMargin
+	}
+
+	return height
 }
 
 func (m FilterTable) View() string {
@@ -344,6 +359,10 @@ func (m FilterTable) View() string {
 
 	if !m.quitting {
 		body.WriteString(m.Table.View())
+
+		if m.container.showHelp {
+			body.WriteString(LongHelp)
+		}
 	}
 
 	return body.String()
