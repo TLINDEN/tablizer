@@ -430,11 +430,11 @@ func tableEditor(conf *cfg.Config, data *Tabdata) (*Tabdata, error) {
 		entry := make([]string, len(data.headers))
 		for idx, field := range data.headers {
 			cell := row.Data[strings.ToLower(field)]
-			switch cell.(type) {
+			switch value := cell.(type) {
 			case string:
-				entry[idx] = cell.(string)
+				entry[idx] = value
 			case table.StyledCell:
-				entry[idx] = cell.(table.StyledCell).Data.(string)
+				entry[idx] = value.Data.(string)
 			}
 		}
 
