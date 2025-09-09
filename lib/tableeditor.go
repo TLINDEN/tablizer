@@ -79,25 +79,14 @@ type FilterTable struct {
 	columns []table.Column
 }
 
+type HelpLine []string
+type HelpColumn []HelpLine
+
 const (
 	// header+footer
 	ExtraRows = 5
 
 	HelpFooter = "?:help | "
-
-	// number of lines taken by help below, adjust accordingly!
-	HelpRows = 7
-
-	// shown when the user presses ?
-	LongHelp = `
-Key bindings usable in interactive filter table:
-q         commit and quit           s     sort alphanumerically			  
-ctrl-c    discard and quit          d     sort by duration
-up|down   navigate rows             t     sort by time
-TAB       navigage columns          f     fuzzy filter
-space     [de]select row            ESC   finish filter input
-a         [de]select all rows       ?     show help buffer
-`
 )
 
 var (
@@ -128,9 +117,86 @@ var (
 			Foreground(lipgloss.Color("#ffffff")).
 			Align(lipgloss.Left)
 
+	StyleHeader = lipgloss.NewStyle().
+			Background(lipgloss.Color("#ffffff")).
+			Foreground(lipgloss.Color("#696969")).
+			Align(lipgloss.Left)
+
+	// help buffer styles
+	StyleKey  = lipgloss.NewStyle().Bold(true)
+	StyleHelp = lipgloss.NewStyle().Foreground(lipgloss.Color("#ff4500"))
+
 	// the default style
 	NoStyle = lipgloss.NewStyle().Align(lipgloss.Left)
+
+	HelpData = []HelpColumn{
+		{
+			HelpLine{"up", "navigate up"},
+			HelpLine{"down", "navigate down"},
+			HelpLine{"tab", "navigate columns"},
+		},
+		{
+			HelpLine{"s", "sort alpha-numerically"},
+			HelpLine{"n", "sort numerically"},
+			HelpLine{"t", "sort by time"},
+			HelpLine{"d", "sort by duration"},
+		},
+		{
+			HelpLine{"spc", "[de]select a row"},
+			HelpLine{"a", "[de]select all visible rows"},
+			HelpLine{"f", "enter fuzzy filter"},
+			HelpLine{"esc", "finish filter input"},
+		},
+		{
+			HelpLine{"?", "show help buffer"},
+			HelpLine{"q", "commit and quit"},
+			HelpLine{"c-c", "discard and quit"},
+		},
+	}
+
+	// rendered from Help above
+	Help = ""
+
+	// number of lines taken by help below, adjust accordingly!
+	HelpRows = 0
 )
+
+// generate  a  lipgloss  styled  help buffer  consisting  of  various
+// columns
+func generateHelp() {
+	help := strings.Builder{}
+	helpcols := []string{}
+	maxrows := 0
+
+	for _, col := range HelpData {
+		help.Reset()
+
+		// determine max key width to avoid excess spaces between keys and help
+		keylen := 0
+		for _, line := range col {
+			if len(line[0]) > keylen {
+				keylen = len(line[0])
+			}
+		}
+
+		keylenstr := fmt.Sprintf("%d", keylen)
+
+		for _, line := range col {
+			// 0: key, 1: help text
+			help.WriteString(StyleKey.Render(fmt.Sprintf("%-"+keylenstr+"s", line[0])))
+			help.WriteString("  " + StyleHelp.Render(line[1]) + "   \n")
+		}
+
+		helpcols = append(helpcols, help.String())
+
+		if len(col) > maxrows {
+			maxrows = len(col)
+		}
+	}
+
+	HelpRows = maxrows + 1
+	Help = "\n" + lipgloss.JoinHorizontal(lipgloss.Top, helpcols...)
+}
 
 // initializes the table model
 func NewModel(data *Tabdata, ctx *Context) FilterTable {
@@ -164,8 +230,10 @@ func NewModel(data *Tabdata, ctx *Context) FilterTable {
 
 	// setup column data with flexColumns
 	for idx, header := range data.headers {
-		columns[idx] = table.NewFlexColumn(strings.ToLower(header),
-			header, lengths[idx]).WithFiltered(true).WithStyle(NoStyle)
+		// FIXME: doesn't work
+		//columns[idx] = table.NewFlexColumn(strings.ToLower(header), StyleHeader.Render(header),
+		columns[idx] = table.NewFlexColumn(strings.ToLower(header), header,
+			lengths[idx]).WithFiltered(true).WithStyle(NoStyle)
 	}
 
 	// separate variable so we can share the row filling code
@@ -179,6 +247,9 @@ func NewModel(data *Tabdata, ctx *Context) FilterTable {
 
 	filtertbl.Table = table.New(columns)
 	filtertbl.fillRows()
+
+	// finally construct help buffer
+	generateHelp()
 
 	return filtertbl
 }
@@ -375,7 +446,7 @@ func (m FilterTable) View() string {
 		body.WriteString(m.Table.View())
 
 		if m.ctx.showHelp {
-			body.WriteString(LongHelp)
+			body.WriteString(Help)
 		}
 	}
 
