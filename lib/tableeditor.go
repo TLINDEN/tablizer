@@ -75,9 +75,7 @@ type FilterTable struct {
 }
 
 const (
-	// Add a fixed margin to account for description & instructions
-	fixedVerticalMargin = 0
-
+	// header+footer
 	ExtraRows = 5
 
 	HELP = "?:help | "
@@ -122,7 +120,6 @@ var (
 
 func NewModel(data *Tabdata, ctx *Context) FilterTable {
 	columns := make([]table.Column, len(data.headers))
-	rows := make([]table.Row, len(data.entries))
 	lengths := make([]int, len(data.headers))
 	hidx := make(map[string]int, len(data.headers))
 
@@ -143,8 +140,11 @@ func NewModel(data *Tabdata, ctx *Context) FilterTable {
 
 	// setup column data
 	for idx, header := range data.headers {
-		columns[idx] = table.NewColumn(strings.ToLower(header), header, lengths[idx]+2).
-			WithFiltered(true)
+		//   FIXME: since  the 3rd  parameter is  not length  but flex
+		// factor, we  get wrong results when resizing. So  we need to
+		// calculate proper flex factors somehow
+		columns[idx] = table.NewFlexColumn(strings.ToLower(header),
+			header, lengths[idx]+2).WithFiltered(true)
 	}
 
 	filtertbl := FilterTable{
@@ -155,38 +155,8 @@ func NewModel(data *Tabdata, ctx *Context) FilterTable {
 		columns:    columns,
 	}
 
-	controllerWrapper := func(input table.StyledCellFuncInput) lipgloss.Style {
-		return CellController(input, filtertbl)
-	}
-
-	// setup table data
-	for idx, entry := range data.entries {
-		rowdata := make(table.RowData, len(entry))
-
-		for i, cell := range entry {
-			rowdata[strings.ToLower(data.headers[i])] =
-				table.NewStyledCellWithStyleFunc(cell+" ", controllerWrapper)
-		}
-
-		rows[idx] = table.NewRow(rowdata)
-	}
-
-	// keys := table.DefaultKeyMap()
-	// keys.RowDown.SetKeys("j", "down", "s")
-	// keys.RowUp.SetKeys("k", "up", "w")
-
-	// our final interactive table filled with our prepared data
-	filtertbl.Table = table.New(columns).
-		WithRows(rows).
-		//WithKeyMap(keys).
-		Filtered(true).
-		WithFuzzyFilter().
-		Focused(true).
-		SelectableRows(true).
-		WithSelectedText(" ", "✓").
-		WithFooterVisibility(true).
-		WithHeaderVisibility(true).
-		Border(customBorder)
+	filtertbl.Table = table.New(columns)
+	filtertbl.fillRows()
 
 	return filtertbl
 }
@@ -227,7 +197,10 @@ func (m FilterTable) Init() tea.Cmd {
 // FIXME: possibly re-use it in NewModel() to avoid duplicate code
 func (m *FilterTable) Sort(mode string) {
 	m.ctx.Sort(mode)
+	m.fillRows()
+}
 
+func (m *FilterTable) fillRows() {
 	controllerWrapper := func(input table.StyledCellFuncInput) lipgloss.Style {
 		return CellController(input, *m)
 	}
@@ -244,7 +217,7 @@ func (m *FilterTable) Sort(mode string) {
 		rows[idx] = table.NewRow(rowdata)
 	}
 
-	m.Table = table.New(m.columns).
+	m.Table = m.Table.
 		WithRows(rows).
 		Filtered(true).
 		WithFuzzyFilter().
@@ -254,8 +227,6 @@ func (m *FilterTable) Sort(mode string) {
 		WithFooterVisibility(true).
 		WithHeaderVisibility(true).
 		Border(customBorder)
-
-	//m.Table.WithRows(rows)
 }
 
 func (m FilterTable) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -321,8 +292,7 @@ func (m FilterTable) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m *FilterTable) updateFooter() {
 	selected := m.Table.SelectedRows()
-	footer := fmt.Sprintf("selected: %d, wwidth: %d, width: %d, height: %d, help: %t",
-		len(selected), m.ctx.totalWidth, m.calculateWidth(), m.calculateHeight(), m.ctx.showHelp)
+	footer := fmt.Sprintf("selected: %d ", len(selected))
 
 	if m.Table.GetIsFilterInputFocused() {
 		footer = fmt.Sprintf("/%s %s", m.Table.GetCurrentFilter(), footer)
@@ -348,13 +318,13 @@ func (m *FilterTable) calculateHeight() int {
 	height := m.Rows + ExtraRows
 
 	if height >= m.ctx.totalHeight {
-		height = m.ctx.totalHeight - m.ctx.verticalMargin - fixedVerticalMargin
+		height = m.ctx.totalHeight - m.ctx.verticalMargin
 	} else {
 		height = m.ctx.totalHeight
 	}
 
 	if m.ctx.showHelp {
-		height = height - HelpRows - 1
+		height = height - HelpRows
 	}
 
 	return height
@@ -374,9 +344,6 @@ func (m FilterTable) View() string {
 	return body.String()
 }
 
-// FIXME: has no effect since FilterTable is being copied in Update()
-// for the time being we're using a global variable. Maybe we can use
-// the new GlobalMetadata field and store this kind of stuff there.
 func (m *FilterTable) SelectNextColumn() {
 	if m.ctx.selectedColumn == m.maxColumns-1 {
 		m.ctx.selectedColumn = 0
@@ -388,9 +355,11 @@ func (m *FilterTable) SelectNextColumn() {
 func tableEditor(conf *cfg.Config, data *Tabdata) (*Tabdata, error) {
 	// we render to STDERR to avoid dead lock when the user redirects STDOUT
 	// see https://github.com/charmbracelet/bubbletea/issues/860
+	//
+	// TODO: doesn't work with libgloss v2 anymore!
 	lipgloss.SetDefaultRenderer(lipgloss.NewRenderer(os.Stderr))
 
-	ctx := &Context{data: data, showHelp: true}
+	ctx := &Context{data: data}
 
 	program := tea.NewProgram(
 		NewModel(data, ctx),
