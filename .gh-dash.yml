@@ -1,0 +1,96 @@
+prSections:
+  - title: Responsible PRs
+    filters: repo:tlinden/tablizer is:open NOT dependabot
+    layout:
+      repoName:
+        hidden: true
+
+  - title: Responsible Dependabot PRs
+    filters: repo:tlinden/tablizer is:open dependabot
+    layout:
+      repoName:
+        hidden: true
+
+issuesSections:
+  - title: Responsible Issues
+    filters: is:open repo:tlinden/tablizer -author:@me
+    layout:
+      repoName:
+        hidden: true
+
+  - title: Note-to-Self Issues
+    filters: is:open repo:tlinden/tablizer author:@me
+    layout:
+      creator:
+        hidden: true
+      repoName:
+        hidden: true
+
+defaults:
+  preview:
+    open: false
+    width: 100
+
+keybindings:
+  universal:
+    - key: "shift+down"
+      builtin: pageDown
+    - key: "shift+up"
+      builtin: pageUp
+  prs:
+    - key: g
+      name: gitu
+      command: >
+        cd {{.RepoPath}} && /home/scip/bin/gitu
+    - key: M
+      name: squash-merge
+      command: gh pr merge --rebase --squash --admin --repo {{.RepoName}} {{.PrNumber}}
+    - key: i
+      name: show ci checks
+      command: gh pr checks --repo {{.RepoName}} {{.PrNumber}} | glow -p
+    - key: e
+      name: edit pr
+      command: ~/.config/gh-dash/edit-gh-pr {{.RepoName}} {{.PrNumber}}
+    - key: E
+      name: open repo in emacs
+      command: emacsclient {{.RepoPath}} &
+  issues:
+    - key: v
+      name: view
+      command: gh issue view --repo {{.RepoName}} {{.IssueNumber}} | glow -p
+    - key: l
+      name: add label
+      command: gh issue --repo {{.RepoName}} edit {{.IssueNumber}} --add-label $(gum choose bug enhancement question dependencies wontfix)
+    - key: L
+      name: remove label
+      command: gh issue --repo {{.RepoName}} edit {{.IssueNumber}} --remove-label $(gum choose bug enhancement question dependencies wontfix)
+    - key: E
+      name: open repo in emacs
+      command: emacsclient {{.RepoPath}} &
+
+theme:
+  ui:
+    sectionsShowCount: true
+    table:
+      compact: false
+      showSeparator: true
+  colors:
+    text:
+      primary: "#E2E1ED"
+      secondary: "#6770cb"
+      inverted: "#242347"
+      faint: "#b0793b"
+      warning: "#E0AF68"
+      success: "#3DF294"
+    background:
+      selected: "#1B1B33"
+    border:
+      primary: "#383B5B"
+      secondary: "#39386B"
+      faint: "#8d3e0b"
+
+repoPaths: 
+    :owner/:repo: ~/dev/:repo
+
+pager:
+  diff: delta
