@@ -31,27 +31,11 @@ import (
 // This one exists outside of the bubble loop, and is referred to as
 // pointer reciever. That way we can use it as our primary storage
 // container.
-type Container struct {
+type Context struct {
 	selectedColumn int
 	showHelp       bool
 	descending     bool
 	data           *Tabdata
-}
-
-func (container *Container) Sort(mode string) {
-	conf := cfg.Config{
-		SortMode:        mode,
-		SortDescending:  container.descending,
-		UseSortByColumn: []int{container.selectedColumn + 1},
-	}
-
-	container.descending = !container.descending
-
-	sortTable(conf, container.data)
-}
-
-type FilterTable struct {
-	Table table.Model
 
 	// Window dimensions
 	totalWidth  int
@@ -60,6 +44,22 @@ type FilterTable struct {
 	// Table dimensions
 	horizontalMargin int
 	verticalMargin   int
+}
+
+func (ctx *Context) Sort(mode string) {
+	conf := cfg.Config{
+		SortMode:        mode,
+		SortDescending:  ctx.descending,
+		UseSortByColumn: []int{ctx.selectedColumn + 1},
+	}
+
+	ctx.descending = !ctx.descending
+
+	sortTable(conf, ctx.data)
+}
+
+type FilterTable struct {
+	Table table.Model
 
 	Rows int
 
@@ -69,7 +69,7 @@ type FilterTable struct {
 	maxColumns int
 	headerIdx  map[string]int
 
-	container *Container
+	ctx *Context
 
 	columns []table.Column
 }
@@ -120,7 +120,7 @@ var (
 	NoStyle       = lipgloss.NewStyle()
 )
 
-func NewModel(data *Tabdata, container *Container) FilterTable {
+func NewModel(data *Tabdata, ctx *Context) FilterTable {
 	columns := make([]table.Column, len(data.headers))
 	rows := make([]table.Row, len(data.entries))
 	lengths := make([]int, len(data.headers))
@@ -148,12 +148,11 @@ func NewModel(data *Tabdata, container *Container) FilterTable {
 	}
 
 	filtertbl := FilterTable{
-		horizontalMargin: 10,
-		maxColumns:       len(data.headers),
-		Rows:             len(data.entries),
-		headerIdx:        hidx,
-		container:        container,
-		columns:          columns,
+		maxColumns: len(data.headers),
+		Rows:       len(data.entries),
+		headerIdx:  hidx,
+		ctx:        ctx,
+		columns:    columns,
 	}
 
 	controllerWrapper := func(input table.StyledCellFuncInput) lipgloss.Style {
@@ -193,7 +192,7 @@ func NewModel(data *Tabdata, container *Container) FilterTable {
 }
 
 func CellController(input table.StyledCellFuncInput, m FilterTable) lipgloss.Style {
-	if m.headerIdx[input.Column.Key()] == m.container.selectedColumn {
+	if m.headerIdx[input.Column.Key()] == m.ctx.selectedColumn {
 		return StyleSelected
 	}
 
@@ -218,7 +217,7 @@ func (m FilterTable) ToggleSelected() {
 }
 
 func (m FilterTable) ToggleHelp() {
-	m.container.showHelp = !m.container.showHelp
+	m.ctx.showHelp = !m.ctx.showHelp
 }
 
 func (m FilterTable) Init() tea.Cmd {
@@ -227,18 +226,18 @@ func (m FilterTable) Init() tea.Cmd {
 
 // FIXME: possibly re-use it in NewModel() to avoid duplicate code
 func (m *FilterTable) Sort(mode string) {
-	m.container.Sort(mode)
+	m.ctx.Sort(mode)
 
 	controllerWrapper := func(input table.StyledCellFuncInput) lipgloss.Style {
 		return CellController(input, *m)
 	}
 
-	rows := make([]table.Row, len(m.container.data.entries))
-	for idx, entry := range m.container.data.entries {
+	rows := make([]table.Row, len(m.ctx.data.entries))
+	for idx, entry := range m.ctx.data.entries {
 		rowdata := make(table.RowData, len(entry))
 
 		for i, cell := range entry {
-			rowdata[strings.ToLower(m.container.data.headers[i])] =
+			rowdata[strings.ToLower(m.ctx.data.headers[i])] =
 				table.NewStyledCellWithStyleFunc(cell+" ", controllerWrapper)
 		}
 
@@ -290,6 +289,7 @@ func (m FilterTable) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			case "?":
 				m.ToggleHelp()
+				m.recalculateTable()
 
 			case "s":
 				m.Sort("alphanumeric")
@@ -303,12 +303,15 @@ func (m FilterTable) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "t":
 				m.Sort("time")
 			}
-		case tea.WindowSizeMsg:
-			m.totalWidth = msg.Width
-			m.totalHeight = msg.Height
-
-			m.recalculateTable()
 		}
+	}
+
+	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.ctx.totalWidth = msg.Width
+		m.ctx.totalHeight = msg.Height
+
+		m.recalculateTable()
 	}
 
 	m.updateFooter()
@@ -318,7 +321,8 @@ func (m FilterTable) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m *FilterTable) updateFooter() {
 	selected := m.Table.SelectedRows()
-	footer := fmt.Sprintf("selected: %d", len(selected))
+	footer := fmt.Sprintf("selected: %d, wwidth: %d, width: %d, height: %d, help: %t",
+		len(selected), m.ctx.totalWidth, m.calculateWidth(), m.calculateHeight(), m.ctx.showHelp)
 
 	if m.Table.GetIsFilterInputFocused() {
 		footer = fmt.Sprintf("/%s %s", m.Table.GetCurrentFilter(), footer)
@@ -336,19 +340,21 @@ func (m *FilterTable) recalculateTable() {
 		WithPageSize(m.calculateHeight() - ExtraRows)
 }
 
-func (m FilterTable) calculateWidth() int {
-	return m.totalWidth - m.horizontalMargin
+func (m *FilterTable) calculateWidth() int {
+	return m.ctx.totalWidth - m.ctx.horizontalMargin
 }
 
-func (m FilterTable) calculateHeight() int {
+func (m *FilterTable) calculateHeight() int {
 	height := m.Rows + ExtraRows
-	if m.container.showHelp {
-		height = height + HelpRows
+
+	if height >= m.ctx.totalHeight {
+		height = m.ctx.totalHeight - m.ctx.verticalMargin - fixedVerticalMargin
+	} else {
+		height = m.ctx.totalHeight
 	}
 
-	if height >= m.totalHeight {
-		// FIXME: avoid full screen somehow
-		height = m.totalHeight - m.verticalMargin - fixedVerticalMargin
+	if m.ctx.showHelp {
+		height = height - HelpRows - 1
 	}
 
 	return height
@@ -360,7 +366,7 @@ func (m FilterTable) View() string {
 	if !m.quitting {
 		body.WriteString(m.Table.View())
 
-		if m.container.showHelp {
+		if m.ctx.showHelp {
 			body.WriteString(LongHelp)
 		}
 	}
@@ -372,10 +378,10 @@ func (m FilterTable) View() string {
 // for the time being we're using a global variable. Maybe we can use
 // the new GlobalMetadata field and store this kind of stuff there.
 func (m *FilterTable) SelectNextColumn() {
-	if m.container.selectedColumn == m.maxColumns-1 {
-		m.container.selectedColumn = 0
+	if m.ctx.selectedColumn == m.maxColumns-1 {
+		m.ctx.selectedColumn = 0
 	} else {
-		m.container.selectedColumn++
+		m.ctx.selectedColumn++
 	}
 }
 
@@ -384,10 +390,10 @@ func tableEditor(conf *cfg.Config, data *Tabdata) (*Tabdata, error) {
 	// see https://github.com/charmbracelet/bubbletea/issues/860
 	lipgloss.SetDefaultRenderer(lipgloss.NewRenderer(os.Stderr))
 
-	container := &Container{data: data}
+	ctx := &Context{data: data, showHelp: true}
 
 	program := tea.NewProgram(
-		NewModel(data, container),
+		NewModel(data, ctx),
 		tea.WithOutput(os.Stderr),
 		tea.WithAltScreen())
 
