@@ -118,9 +118,8 @@ var (
 			Align(lipgloss.Left)
 
 	StyleHeader = lipgloss.NewStyle().
-			Background(lipgloss.Color("#ffffff")).
-			Foreground(lipgloss.Color("#696969")).
-			Align(lipgloss.Left)
+			Foreground(lipgloss.Color("#ff4500")).
+			Align(lipgloss.Left).Bold(true)
 
 	// help buffer styles
 	StyleKey  = lipgloss.NewStyle().Bold(true)
@@ -230,9 +229,9 @@ func NewModel(data *Tabdata, ctx *Context) FilterTable {
 
 	// setup column data with flexColumns
 	for idx, header := range data.headers {
-		// FIXME: doesn't work
-		//columns[idx] = table.NewFlexColumn(strings.ToLower(header), StyleHeader.Render(header),
-		columns[idx] = table.NewFlexColumn(strings.ToLower(header), header,
+		columns[idx] = table.NewFlexColumn(
+			strings.ToLower(header),
+			StyleHeader.Render(header),
 			lengths[idx]).WithFiltered(true).WithStyle(NoStyle)
 	}
 
