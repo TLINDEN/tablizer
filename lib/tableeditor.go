@@ -327,6 +327,7 @@ func (m *FilterTable) fillRows() {
 		WithSelectedText(" ", "✓").
 		WithFooterVisibility(true).
 		WithHeaderVisibility(true).
+		HighlightStyle(StyleSelected).
 		Border(customBorder)
 }
 
