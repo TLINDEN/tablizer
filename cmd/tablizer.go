@@ -6,7 +6,7 @@ NAME
 
 SYNOPSIS
         Usage:
-          tablizer [regex,...] [file, ...] [flags]
+          tablizer [regex,...] [-r file] [flags]
     
         Operational Flags:
           -c, --columns string              Only show the speficied columns (separated by ,)
@@ -41,12 +41,13 @@ SYNOPSIS
           -t, --sort-time                   sort according to time string
 
         Other Flags:
-              --completion <shell>         Generate the autocompletion script for <shell>
-          -f, --config <file>              Configuration file (default: ~/.config/tablizer/config)
-          -d, --debug                      Enable debugging
-          -h, --help                       help for tablizer
-          -m, --man                        Display manual page
-          -V, --version                    Print program version
+          -r  --read-file <file>            Use <file> as input instead of STDIN
+              --completion <shell>          Generate the autocompletion script for <shell>
+          -f, --config <file>               Configuration file (default: ~/.config/tablizer/config)
+          -d, --debug                       Enable debugging
+          -h, --help                        help for tablizer
+          -m, --man                         Display manual page
+          -V, --version                     Print program version
 
 DESCRIPTION
     Many programs generate tabular output. But sometimes you need to
@@ -441,7 +442,7 @@ AUTHORS
 var usage = `
 
 Usage:
-  tablizer [regex,...] [file, ...] [flags]
+  tablizer [regex,...] [-r file] [flags]
 
 Operational Flags:
   -c, --columns string              Only show the speficied columns (separated by ,)
@@ -476,12 +477,13 @@ Sort Mode Flags (mutually exclusive):
   -t, --sort-time                   sort according to time string
 
 Other Flags:
-      --completion <shell>         Generate the autocompletion script for <shell>
-  -f, --config <file>              Configuration file (default: ~/.config/tablizer/config)
-  -d, --debug                      Enable debugging
-  -h, --help                       help for tablizer
-  -m, --man                        Display manual page
-  -V, --version                    Print program version
+  -r  --read-file <file>            Use <file> as input instead of STDIN
+      --completion <shell>          Generate the autocompletion script for <shell>
+  -f, --config <file>               Configuration file (default: ~/.config/tablizer/config)
+  -d, --debug                       Enable debugging
+  -h, --help                        help for tablizer
+  -m, --man                         Display manual page
+  -V, --version                     Print program version
 
 
 `

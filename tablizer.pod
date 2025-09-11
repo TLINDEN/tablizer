@@ -5,7 +5,7 @@ tablizer - Manipulate tabular output of other programs
 =head1 SYNOPSIS
 
     Usage:
-      tablizer [regex,...] [file, ...] [flags]
+      tablizer [regex,...] [-r file] [flags]
     
     Operational Flags:
       -c, --columns string              Only show the speficied columns (separated by ,)
@@ -40,12 +40,13 @@ tablizer - Manipulate tabular output of other programs
       -t, --sort-time                   sort according to time string
 
     Other Flags:
-          --completion <shell>         Generate the autocompletion script for <shell>
-      -f, --config <file>              Configuration file (default: ~/.config/tablizer/config)
-      -d, --debug                      Enable debugging
-      -h, --help                       help for tablizer
-      -m, --man                        Display manual page
-      -V, --version                    Print program version
+      -r  --read-file <file>            Use <file> as input instead of STDIN
+          --completion <shell>          Generate the autocompletion script for <shell>
+      -f, --config <file>               Configuration file (default: ~/.config/tablizer/config)
+      -d, --debug                       Enable debugging
+      -h, --help                        help for tablizer
+      -m, --man                         Display manual page
+      -V, --version                     Print program version
 
 
 =head1 DESCRIPTION
