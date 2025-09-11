@@ -11,7 +11,13 @@ ignore certain column[s] by regex, name or number. It can output the
 tabular data in a range of formats (see below). There's even an
 interactive filter/selection tool available.
 
-Usage:
+## Demo
+
+![demo cast](vhsdemo/demo.gif)
+
+
+## Usage
+
 ```default
 Usage:
   tablizer [regex,...] [file, ...] [flags]
@@ -148,10 +154,6 @@ a dash. If you need to work with `/` characters, you can also use any
 other separator, for instance: `-R '| |-|'`.
 
 
-
-## Demo
-
-![demo cast](vhsdemo/demo.gif)
 
 ## Installation
 
