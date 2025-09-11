@@ -25,6 +25,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/evertras/bubble-table/table"
+	"github.com/mattn/go-isatty"
 	"github.com/tlinden/tablizer/cfg"
 )
 
@@ -468,7 +469,14 @@ func tableEditor(conf *cfg.Config, data *Tabdata) (*Tabdata, error) {
 	// see https://github.com/charmbracelet/bubbletea/issues/860
 	//
 	// TODO: doesn't work with libgloss v2 anymore!
-	lipgloss.SetDefaultRenderer(lipgloss.NewRenderer(os.Stderr))
+
+	out := os.Stderr
+
+	if isatty.IsTerminal(os.Stdout.Fd()) {
+		out = os.Stdout
+	}
+
+	lipgloss.SetDefaultRenderer(lipgloss.NewRenderer(out))
 
 	ctx := &Context{data: data}
 
@@ -479,7 +487,7 @@ func tableEditor(conf *cfg.Config, data *Tabdata) (*Tabdata, error) {
 	// still be used inside pipes.
 	program := tea.NewProgram(
 		NewModel(data, ctx),
-		tea.WithOutput(os.Stderr),
+		tea.WithOutput(out),
 		tea.WithAltScreen())
 
 	m, err := program.Run()
