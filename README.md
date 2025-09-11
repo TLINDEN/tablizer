@@ -151,7 +151,7 @@ other separator, for instance: `-R '| |-|'`.
 
 ## Demo
 
-[![asciicast](demo/tablizer-demo.gif)](https://asciinema.org/a/9FKc3HPnlg8D2X8otheleEa9t)
+![demo cast](vhsdemo/demo.gif)
 
 ## Installation
 
