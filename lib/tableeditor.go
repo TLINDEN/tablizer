@@ -25,6 +25,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/evertras/bubble-table/table"
+	"github.com/lithammer/fuzzysearch/fuzzy"
 	"github.com/mattn/go-isatty"
 	"github.com/tlinden/tablizer/cfg"
 )
@@ -71,6 +72,7 @@ type FilterTable struct {
 
 	quitting  bool
 	unchanged bool
+	blink     bool
 
 	maxColumns int
 	headerIdx  map[string]int
@@ -87,7 +89,7 @@ const (
 	// header+footer
 	ExtraRows = 5
 
-	HelpFooter = "?:help | "
+	HelpFooter = "?:help"
 )
 
 var (
@@ -128,6 +130,12 @@ var (
 
 	// the default style
 	NoStyle = lipgloss.NewStyle().Align(lipgloss.Left)
+
+	// filter Style
+	StyleFilter = StyleHelp
+
+	// style for ?:help hint
+	StyleHelpHint = lipgloss.NewStyle().Foreground(lipgloss.Color("#00ff7f"))
 
 	HelpData = []HelpColumn{
 		{
@@ -321,7 +329,8 @@ func (m *FilterTable) fillRows() {
 	m.Table = m.Table.
 		WithRows(rows).
 		Filtered(true).
-		WithFuzzyFilter().
+		//WithFuzzyFilter().
+		WithFilterFunc(filterFuncFuzzy).
 		Focused(true).
 		SelectableRows(true).
 		WithSelectedText(" ", "✓").
@@ -396,18 +405,34 @@ func (m FilterTable) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-// Add some info to the footer
-func (m *FilterTable) updateFooter() {
-	selected := m.Table.SelectedRows()
-	footer := fmt.Sprintf("selected: %d ", len(selected))
+func (m *FilterTable) getBlink() string {
+	m.blink = !m.blink
 
-	if m.Table.GetIsFilterInputFocused() {
-		footer = fmt.Sprintf("/%s %s", m.Table.GetCurrentFilter(), footer)
-	} else if m.Table.GetIsFilterActive() {
-		footer = fmt.Sprintf("Filter: %s %s", m.Table.GetCurrentFilter(), footer)
+	if m.blink {
+		return "_"
 	}
 
-	m.Table = m.Table.WithStaticFooter(HelpFooter + footer)
+	return " "
+}
+
+// Add some info to the footer
+func (m *FilterTable) updateFooter() {
+	filter := ""
+
+	if m.Table.GetIsFilterInputFocused() {
+		filter = StyleFilter.Render(fmt.Sprintf("Enter filter [ESC: abort, Enter: finish]> %s%s",
+			m.Table.GetCurrentFilter(),
+			m.getBlink()))
+	} else if m.Table.GetIsFilterActive() {
+		filter = StyleFilter.Render(fmt.Sprintf("Filter: %s", m.Table.GetCurrentFilter()))
+	}
+
+	selected := m.Table.SelectedRows()
+
+	m.Table = m.Table.WithStaticFooter(
+		filter +
+			fmt.Sprintf("                   selected rows: %d ", len(selected)) +
+			"| " + StyleHelpHint.Render(HelpFooter))
 }
 
 // Called on resize event (or if help has been toggled)
@@ -461,6 +486,50 @@ func (m *FilterTable) SelectNextColumn() {
 	} else {
 		m.ctx.selectedColumn++
 	}
+}
+
+// this is being called for every row
+func filterFuncFuzzy(input table.FilterFuncInput) bool {
+	filter := strings.TrimSpace(input.Filter)
+	if filter == "" {
+		return true
+	}
+
+	var builder strings.Builder
+	for _, col := range input.Columns {
+		if !col.Filterable() {
+			continue
+		}
+		value, ok := input.Row.Data[col.Key()]
+		if !ok {
+			continue
+		}
+		if sc, ok := value.(table.StyledCell); ok {
+			value = sc.Data
+		}
+		builder.WriteString(fmt.Sprint(value)) // uses Stringer if implemented
+		builder.WriteByte(' ')
+	}
+
+	haystack := strings.ToLower(builder.String())
+	if haystack == "" {
+		return false
+	}
+
+	for _, token := range strings.Fields(strings.ToLower(filter)) {
+		if token[0] == '\'' {
+			// just compare
+			if !strings.Contains(haystack, strings.ToLower(token[1:])) {
+				return false
+			}
+
+		} else if !fuzzy.MatchFold(token, haystack) {
+			return false
+		}
+
+	}
+
+	return true
 }
 
 // entry point from outside tablizer into table editor
