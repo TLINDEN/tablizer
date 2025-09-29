@@ -204,8 +204,8 @@ func printASCIIData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 				Borders: tw.BorderNone,
 				Symbols: styleTSV,
 				Settings: tw.Settings{
-					Separators: tw.Separators{BetweenRows: tw.Off, BetweenColumns: tw.On},
-					Lines:      tw.Lines{ShowFooterLine: tw.Off, ShowHeaderLine: tw.Off},
+					Separators: tw.SeparatorsNone,
+					Lines:      tw.LinesNone,
 				},
 			})),
 		tablewriter.WithConfig(tablewriter.Config{
@@ -213,23 +213,18 @@ func printASCIIData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 				Formatting: tw.CellFormatting{
 					AutoFormat: tw.Off,
 				},
-				Padding: tw.CellPadding{
-					Global: tw.Padding{Left: "", Right: ""},
-				},
+				Padding: tw.CellPadding{Global: tw.Padding{Left: "", Right: " "}},
 			},
 			Row: tw.CellConfig{
 				Formatting: tw.CellFormatting{
 					AutoWrap:  tw.WrapNone,
 					Alignment: tw.AlignLeft,
 				},
-				Padding: tw.CellPadding{
-					Global: tw.Padding{Left: "", Right: ""},
-				},
+				Padding: tw.CellPadding{Global: tw.Padding{Right: " "}},
 			},
 
 			Debug: true,
 		}),
-		tablewriter.WithPadding(tw.PaddingNone),
 	)
 
 	if !conf.NoHeaders {
