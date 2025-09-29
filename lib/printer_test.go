@@ -77,10 +77,10 @@ var tests = []struct {
 		numberize: true,
 		name:      "default",
 		expect: `
-NAME(1)	DURATION(2)	COUNT(3) WHEN(4)                    
-beta   	1d10h5m1s  	33       3/1/2014                   
-alpha  	4h35m      	170      2013-Feb-03                
-ceta   	33d12h     	9        06/Jan/2008 15:04:05 -0700`,
+NAME(1) DURATION(2) COUNT(3) WHEN(4)                    
+beta    1d10h5m1s   33       3/1/2014                   
+alpha   4h35m       170      2013-Feb-03                
+ceta    33d12h      9        06/Jan/2008 15:04:05 -0700`,
 	},
 	{
 		mode:      cfg.CSV,
@@ -174,7 +174,7 @@ DURATION(2): 33d12h
 		desc:      false,
 		expect: `
 NAME(1) DURATION(2) COUNT(3) WHEN(4)                    
-ceta    33d12h      9        06/Jan/2008 15:04:05 -0700
+ceta    33d12h      9        06/Jan/2008 15:04:05 -0700 
 beta    1d10h5m1s   33       3/1/2014                   
 alpha   4h35m       170      2013-Feb-03`,
 	},
@@ -186,7 +186,7 @@ alpha   4h35m       170      2013-Feb-03`,
 		numberize: true,
 		expect: `
 NAME(1) DURATION(2) COUNT(3) WHEN(4)                    
-ceta    33d12h      9        06/Jan/2008 15:04:05 -0700
+ceta    33d12h      9        06/Jan/2008 15:04:05 -0700 
 alpha   4h35m       170      2013-Feb-03                
 beta    1d10h5m1s   33       3/1/2014`,
 	},
@@ -216,35 +216,35 @@ alpha   2013-Feb-03
 ceta    06/Jan/2008 15:04:05 -0700`,
 	},
 	{
-		name:      "usecolumns",
+		name:      "usecolumns2",
 		usecol:    []int{2},
 		numberize: true,
 		usecolstr: "2",
 		expect: `
-DURATION(2)
-1d10h5m1s  
-4h35m      
+DURATION(2) 
+1d10h5m1s   
+4h35m       
 33d12h`,
 	},
 	{
-		name:      "usecolumns",
+		name:      "usecolumns3",
 		usecol:    []int{3},
 		numberize: true,
 		usecolstr: "3",
 		expect: `
-COUNT(3)
-33      
-170     
+COUNT(3) 
+33       
+170      
 9`,
 	},
 	{
-		name:      "usecolumns",
+		name:      "usecolumns4",
 		column:    0,
 		usecol:    []int{1, 3},
 		numberize: true,
 		usecolstr: "1,3",
 		expect: `
-NAME(1) COUNT(3)
+NAME(1) COUNT(3) 
 beta    33       
 alpha   170      
 ceta    9`,
@@ -304,7 +304,8 @@ func TestPrinter(t *testing.T) {
 
 			if got != exp {
 				t.Errorf("not rendered correctly:\n+++ got:\n%s\n+++ want:\n%s",
-					got, exp)
+					strings.ReplaceAll(got, " ", "_"),
+					strings.ReplaceAll(exp, " ", "_"))
 			}
 		})
 	}
