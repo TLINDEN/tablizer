@@ -9,45 +9,46 @@ SYNOPSIS
           tablizer [regex,...] [-r file] [flags]
     
         Operational Flags:
-          -c, --columns string              Only show the speficied columns (separated by ,)
-          -v, --invert-match                select non-matching rows
-          -n, --numbering                   Enable header numbering
-          -N, --no-color                    Disable pattern highlighting
-          -H, --no-headers                  Disable headers display
-          -s, --separator string            Custom field separator
-          -k, --sort-by int|name            Sort by column (default: 1)
-          -z, --fuzzy                       Use fuzzy search [experimental]
-          -F, --filter field[!]=reg         Filter given field with regex, can be used multiple times
-          -T, --transpose-columns string    Transpose the speficied columns (separated by ,)
-          -R, --regex-transposer /from/to/  Apply /search/replace/ regexp to fields given in -T
-          -I, --interactive                 Interactively filter and select rows
+          -c, --columns string               Only show the speficied columns (separated by ,)
+          -v, --invert-match                 select non-matching rows
+          -n, --numbering                    Enable header numbering
+          -N, --no-color                     Disable pattern highlighting
+          -H, --no-headers                   Disable headers display
+          -s, --separator <string>           Custom field separator
+          -k, --sort-by <int|name>           Sort by column (default: 1)
+          -z, --fuzzy                        Use fuzzy search [experimental]
+          -F, --filter <field[!]=reg>        Filter given field with regex, can be used multiple times
+          -T, --transpose-columns string     Transpose the speficied columns (separated by ,)
+          -R, --regex-transposer </from/to/> Apply /search/replace/ regexp to fields given in -T
+          -I, --interactive                  Interactively filter and select rows
 
         Output Flags (mutually exclusive):
-          -X, --extended                    Enable extended output
-          -M, --markdown                    Enable markdown table output
-          -O, --orgtbl                      Enable org-mode table output
-          -S, --shell                       Enable shell evaluable output
-          -Y, --yaml                        Enable yaml output
-          -C, --csv                         Enable CSV output
-          -A, --ascii                       Default output mode, ascii tabular
-          -L, --hightlight-lines            Use alternating background colors for tables
-          -y, --yank-columns                Yank specified columns (separated by ,) to clipboard,
-                                            space separated
+          -X, --extended                     Enable extended output
+          -M, --markdown                     Enable markdown table output
+          -O, --orgtbl                       Enable org-mode table output
+          -S, --shell                        Enable shell evaluable output
+          -Y, --yaml                         Enable yaml output
+          -C, --csv                          Enable CSV output
+          -A, --ascii                        Default output mode, ascii tabular
+          -L, --hightlight-lines             Use alternating background colors for tables
+          -y, --yank-columns                 Yank specified columns (separated by ,) to clipboard,
+                                             space separated
+              --ofs <char>                   Output field separator, used by -A and -C. 
 
         Sort Mode Flags (mutually exclusive):
-          -a, --sort-age                    sort according to age (duration) string
-          -D, --sort-desc                   Sort in descending order (default: ascending)
-          -i, --sort-numeric                sort according to string numerical value
-          -t, --sort-time                   sort according to time string
+          -a, --sort-age                     sort according to age (duration) string
+          -D, --sort-desc                    Sort in descending order (default: ascending)
+          -i, --sort-numeric                 sort according to string numerical value
+          -t, --sort-time                    sort according to time string
 
         Other Flags:
-          -r  --read-file <file>            Use <file> as input instead of STDIN
-              --completion <shell>          Generate the autocompletion script for <shell>
-          -f, --config <file>               Configuration file (default: ~/.config/tablizer/config)
-          -d, --debug                       Enable debugging
-          -h, --help                        help for tablizer
-          -m, --man                         Display manual page
-          -V, --version                     Print program version
+          -r  --read-file <file>             Use <file> as input instead of STDIN
+              --completion <shell>           Generate the autocompletion script for <shell>
+          -f, --config <file>                Configuration file (default: ~/.config/tablizer/config)
+          -d, --debug                        Enable debugging
+          -h, --help                         help for tablizer
+          -m, --man                          Display manual page
+          -V, --version                      Print program version
 
 DESCRIPTION
     Many programs generate tabular output. But sometimes you need to
@@ -75,16 +76,16 @@ DESCRIPTION
        kubectl get pods | tablizer
 
        # read a file
-       tablizer filename
+       tablizer -r filename
 
        # search for pattern in a file (works like grep)
-       tablizer regex filename
+       tablizer regex -r filename
 
        # search for pattern in STDIN
        kubectl get pods | tablizer regex
 
-    The output looks like the original one but every header field will have
-    a numer associated with it, e.g.:
+    The output looks like the original one. You can add the option -n, then
+    every header field will have a numer associated with it, e.g.:
 
        NAME(1) READY(2) STATUS(3) RESTARTS(4) AGE(5)
 
@@ -96,7 +97,13 @@ DESCRIPTION
     You can specify the numbers in any order but output will always follow
     the original order.
 
-    The numbering can be suppressed by using the -n option.
+    However, you may also just use the header names instead of numbers, eg:
+
+       kubectl get pods | tablizer -cname,status
+
+    You can also use regular expressions with -c, eg:
+
+       kubectl get pods | tablizer -c '[ae]'
 
     By default tablizer shows a header containing the names of each column.
     This can be disabled using the -H option. Be aware that this only
@@ -445,45 +452,46 @@ Usage:
   tablizer [regex,...] [-r file] [flags]
 
 Operational Flags:
-  -c, --columns string              Only show the speficied columns (separated by ,)
-  -v, --invert-match                select non-matching rows
-  -n, --numbering                   Enable header numbering
-  -N, --no-color                    Disable pattern highlighting
-  -H, --no-headers                  Disable headers display
-  -s, --separator string            Custom field separator
-  -k, --sort-by int|name            Sort by column (default: 1)
-  -z, --fuzzy                       Use fuzzy search [experimental]
-  -F, --filter field[!]=reg         Filter given field with regex, can be used multiple times
-  -T, --transpose-columns string    Transpose the speficied columns (separated by ,)
-  -R, --regex-transposer /from/to/  Apply /search/replace/ regexp to fields given in -T
-  -I, --interactive                 Interactively filter and select rows
+  -c, --columns string               Only show the speficied columns (separated by ,)
+  -v, --invert-match                 select non-matching rows
+  -n, --numbering                    Enable header numbering
+  -N, --no-color                     Disable pattern highlighting
+  -H, --no-headers                   Disable headers display
+  -s, --separator <string>           Custom field separator
+  -k, --sort-by <int|name>           Sort by column (default: 1)
+  -z, --fuzzy                        Use fuzzy search [experimental]
+  -F, --filter <field[!]=reg>        Filter given field with regex, can be used multiple times
+  -T, --transpose-columns string     Transpose the speficied columns (separated by ,)
+  -R, --regex-transposer </from/to/> Apply /search/replace/ regexp to fields given in -T
+  -I, --interactive                  Interactively filter and select rows
 
 Output Flags (mutually exclusive):
-  -X, --extended                    Enable extended output
-  -M, --markdown                    Enable markdown table output
-  -O, --orgtbl                      Enable org-mode table output
-  -S, --shell                       Enable shell evaluable output
-  -Y, --yaml                        Enable yaml output
-  -C, --csv                         Enable CSV output
-  -A, --ascii                       Default output mode, ascii tabular
-  -L, --hightlight-lines            Use alternating background colors for tables
-  -y, --yank-columns                Yank specified columns (separated by ,) to clipboard,
-                                    space separated
+  -X, --extended                     Enable extended output
+  -M, --markdown                     Enable markdown table output
+  -O, --orgtbl                       Enable org-mode table output
+  -S, --shell                        Enable shell evaluable output
+  -Y, --yaml                         Enable yaml output
+  -C, --csv                          Enable CSV output
+  -A, --ascii                        Default output mode, ascii tabular
+  -L, --hightlight-lines             Use alternating background colors for tables
+  -y, --yank-columns                 Yank specified columns (separated by ,) to clipboard,
+                                     space separated
+      --ofs <char>                   Output field separator, used by -A and -C. 
 
 Sort Mode Flags (mutually exclusive):
-  -a, --sort-age                    sort according to age (duration) string
-  -D, --sort-desc                   Sort in descending order (default: ascending)
-  -i, --sort-numeric                sort according to string numerical value
-  -t, --sort-time                   sort according to time string
+  -a, --sort-age                     sort according to age (duration) string
+  -D, --sort-desc                    Sort in descending order (default: ascending)
+  -i, --sort-numeric                 sort according to string numerical value
+  -t, --sort-time                    sort according to time string
 
 Other Flags:
-  -r  --read-file <file>            Use <file> as input instead of STDIN
-      --completion <shell>          Generate the autocompletion script for <shell>
-  -f, --config <file>               Configuration file (default: ~/.config/tablizer/config)
-  -d, --debug                       Enable debugging
-  -h, --help                        help for tablizer
-  -m, --man                         Display manual page
-  -V, --version                     Print program version
+  -r  --read-file <file>             Use <file> as input instead of STDIN
+      --completion <shell>           Generate the autocompletion script for <shell>
+  -f, --config <file>                Configuration file (default: ~/.config/tablizer/config)
+  -d, --debug                        Enable debugging
+  -h, --help                         help for tablizer
+  -m, --man                          Display manual page
+  -V, --version                      Print program version
 
 
 `

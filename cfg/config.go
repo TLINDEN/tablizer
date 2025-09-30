@@ -28,7 +28,7 @@ import (
 )
 
 const DefaultSeparator string = `(\s\s+|\t)`
-const Version string = "v1.5.4"
+const Version string = "v1.5.5"
 const MAXPARTS = 2
 
 var DefaultConfigfile = os.Getenv("HOME") + "/.config/tablizer/config"
@@ -112,6 +112,8 @@ type Config struct {
 
 	// -r <file>
 	InputFile string
+
+	OFS string
 }
 
 // maps outputmode short flags to output mode, ie. -O => -o orgtbl

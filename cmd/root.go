@@ -132,6 +132,8 @@ func Execute() {
 		"Transpose the speficied columns (separated by ,)")
 	rootCmd.PersistentFlags().BoolVarP(&conf.Interactive, "interactive", "I", false,
 		"interactive mode (experimental)")
+	rootCmd.PersistentFlags().StringVarP(&conf.OFS, "ofs", "", "",
+		"Output field separator (' ' for ascii table, ',' for CSV)")
 
 	// sort options
 	rootCmd.PersistentFlags().StringVarP(&conf.SortByColumn, "sort-by", "k", "",
