@@ -185,8 +185,7 @@ func parseJSON(conf cfg.Config, input io.Reader) (Tabdata, error) {
 	var data Tabdata
 	var rawdata []map[string]string
 
-	var scanner *bufio.Scanner
-	scanner = bufio.NewScanner(input)
+	scanner := bufio.NewScanner(input)
 	var rawjson string
 
 	for scanner.Scan() {
@@ -209,7 +208,7 @@ func parseJSON(conf cfg.Config, input io.Reader) (Tabdata, error) {
 	headers := make(map[string]int, len(rawdata))
 	var idx int
 
-	for key, _ := range rawdata[0] {
+	for key := range rawdata[0] {
 		data.headers = append(data.headers, key)
 		headers[key] = idx
 
