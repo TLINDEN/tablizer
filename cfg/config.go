@@ -79,6 +79,7 @@ type Config struct {
 	UseFuzzySearch bool
 	UseHighlight   bool
 	Interactive    bool
+	InputJSON      bool
 
 	SortMode        string
 	SortDescending  bool

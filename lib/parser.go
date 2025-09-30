@@ -20,6 +20,7 @@ package lib
 import (
 	"bufio"
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"io"
 	"regexp"
@@ -39,6 +40,8 @@ func Parse(conf cfg.Config, input io.Reader) (Tabdata, error) {
 	// first step, parse the data
 	if len(conf.Separator) == 1 {
 		data, err = parseCSV(conf, input)
+	} else if conf.InputJSON {
+		data, err = parseJSON(conf, input)
 	} else {
 		data, err = parseTabular(conf, input)
 	}
@@ -167,6 +170,72 @@ func parseTabular(conf cfg.Config, input io.Reader) (Tabdata, error) {
 
 	if scanner.Err() != nil {
 		return data, fmt.Errorf("failed to read from io.Reader: %w", scanner.Err())
+	}
+
+	return data, nil
+}
+
+/*
+Parse JSON input.  We only support an array of  maps.
+
+FIXME:  does not  preserve order,  so,  columns are  added in  some
+random order as JSON maps are unordered
+*/
+func parseJSON(conf cfg.Config, input io.Reader) (Tabdata, error) {
+	var data Tabdata
+	var rawdata []map[string]string
+
+	var scanner *bufio.Scanner
+	scanner = bufio.NewScanner(input)
+	var rawjson string
+
+	for scanner.Scan() {
+		rawjson += scanner.Text()
+	}
+
+	if scanner.Err() != nil {
+		return data, fmt.Errorf("failed to read from io.Reader: %w", scanner.Err())
+	}
+
+	if err := json.Unmarshal([]byte(rawjson), &rawdata); err != nil {
+		return data, fmt.Errorf("failed to unmarshal json: %w", err)
+	}
+
+	if len(rawdata) == 0 {
+		return data, nil
+	}
+
+	// setup header fields
+	headers := make(map[string]int, len(rawdata))
+	var idx int
+
+	for key, _ := range rawdata[0] {
+		data.headers = append(data.headers, key)
+		headers[key] = idx
+
+		idx++
+	}
+
+	// setup data entries
+	for _, entry := range rawdata {
+		row := make([]string, len(data.headers))
+		var line string
+
+		for idx, field := range data.headers {
+			if Exists(entry, field) {
+				row[idx] = entry[field]
+			} else {
+				row[idx] = ""
+			}
+			line += " " + row[idx]
+		}
+
+		// apply line filter
+		if matchPattern(conf, line) == conf.InvertMatch {
+			continue
+		}
+
+		data.entries = append(data.entries, row)
 	}
 
 	return data, nil
