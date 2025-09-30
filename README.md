@@ -23,44 +23,46 @@ Usage:
   tablizer [regex,...] [file, ...] [flags]
 
 Operational Flags:
-  -c, --columns string              Only show the speficied columns (separated by ,)
-  -v, --invert-match                select non-matching rows
-  -n, --numbering                   Enable header numbering
-  -N, --no-color                    Disable pattern highlighting
-  -H, --no-headers                  Disable headers display
-  -s, --separator string            Custom field separator
-  -k, --sort-by int|name            Sort by column (default: 1)
-  -z, --fuzzy                       Use fuzzy search [experimental]
-  -F, --filter field[!]=reg         Filter given field with regex, can be used multiple times
-  -T, --transpose-columns string    Transpose the speficied columns (separated by ,)
-  -R, --regex-transposer /from/to/  Apply /search/replace/ regexp to fields given in -T
-  -I, --interactive                 Interactively filter and select rows
+  -c, --columns string               Only show the speficied columns (separated by ,)
+  -v, --invert-match                 select non-matching rows
+  -n, --numbering                    Enable header numbering
+  -N, --no-color                     Disable pattern highlighting
+  -H, --no-headers                   Disable headers display
+  -s, --separator <string>           Custom field separator
+  -k, --sort-by <int|name>           Sort by column (default: 1)
+  -z, --fuzzy                        Use fuzzy search [experimental]
+  -F, --filter <field[!]=reg>        Filter given field with regex, can be used multiple times
+  -T, --transpose-columns string     Transpose the speficied columns (separated by ,)
+  -R, --regex-transposer </from/to/> Apply /search/replace/ regexp to fields given in -T
+  -I, --interactive                  Interactively filter and select rows
 
 Output Flags (mutually exclusive):
-  -X, --extended                    Enable extended output
-  -M, --markdown                    Enable markdown table output
-  -O, --orgtbl                      Enable org-mode table output
-  -S, --shell                       Enable shell evaluable output
-  -Y, --yaml                        Enable yaml output
-  -C, --csv                         Enable CSV output
-  -A, --ascii                       Default output mode, ascii tabular
-  -L, --hightlight-lines            Use alternating background colors for tables
-  -y, --yank-columns                Yank specified columns (separated by ,) to clipboard,
-                                    space separated
+  -X, --extended                     Enable extended output
+  -M, --markdown                     Enable markdown table output
+  -O, --orgtbl                       Enable org-mode table output
+  -S, --shell                        Enable shell evaluable output
+  -Y, --yaml                         Enable yaml output
+  -C, --csv                          Enable CSV output
+  -A, --ascii                        Default output mode, ascii tabular
+  -L, --hightlight-lines             Use alternating background colors for tables
+  -y, --yank-columns                 Yank specified columns (separated by ,) to clipboard,
+                                     space separated
+      --ofs <char>                   Output field separator, used by -A and -C. 
 
 Sort Mode Flags (mutually exclusive):
-  -a, --sort-age                    sort according to age (duration) string
-  -D, --sort-desc                   Sort in descending order (default: ascending)
-  -i, --sort-numeric                sort according to string numerical value
-  -t, --sort-time                   sort according to time string
+  -a, --sort-age                     sort according to age (duration) string
+  -D, --sort-desc                    Sort in descending order (default: ascending)
+  -i, --sort-numeric                 sort according to string numerical value
+  -t, --sort-time                    sort according to time string
 
 Other Flags:
-      --completion <shell>         Generate the autocompletion script for <shell>
-  -f, --config <file>              Configuration file (default: ~/.config/tablizer/config)
-  -d, --debug                      Enable debugging
-  -h, --help                       help for tablizer
-  -m, --man                        Display manual page
-  -V, --version                    Print program version
+  -r  --read-file <file>             Use <file> as input instead of STDIN
+      --completion <shell>           Generate the autocompletion script for <shell>
+  -f, --config <file>                Configuration file (default: ~/.config/tablizer/config)
+  -d, --debug                        Enable debugging
+  -h, --help                         help for tablizer
+  -m, --man                          Display manual page
+  -V, --version                      Print program version
 ```
 
 Let's take this output:
@@ -77,13 +79,13 @@ to do this with tablizer:
 
 ```
 % kubectl get pods | tablizer 
-NAME(1)                      READY(2) STATUS(3)  RESTARTS(4)    AGE(5)
+NAME                         READY    STATUS     RESTARTS       AGE
 repldepl-7bcd8d5b64-7zq4l    1/1      Running    1 (69m ago)    5h26m
 repldepl-7bcd8d5b64-m48n8    1/1      Running    1 (69m ago)    5h26m
 repldepl-7bcd8d5b64-q2bf4    1/1      Running    1 (69m ago)    5h26m
 
 % kubectl get pods | tablizer -c 1,3
-NAME(1)                      STATUS(3)
+NAME                         STATUS
 repldepl-7bcd8d5b64-7zq4l    Running
 repldepl-7bcd8d5b64-m48n8    Running
 repldepl-7bcd8d5b64-q2bf4    Running 
@@ -121,14 +123,14 @@ You can also specify a regex pattern to reduce the output:
 
 ```
 % kubectl get pods | tablizer q2bf4
-NAME(1)                      READY(2) STATUS(3)  RESTARTS(4)    AGE(5)
+NAME                         READY    STATUS     RESTARTS       AGE
 repldepl-7bcd8d5b64-q2bf4    1/1      Running    1 (69m ago)    5h26m
 ```
 
 Sometimes a filter regex is to broad  and you wish to filter only on a
 particular column. This is possible using `-F`:
 ```
-% kubectl get pods | tablizer -n -Fname=2
+% kubectl get pods | tablizer -Fname=2
 NAME                            READY   STATUS  RESTARTS        AGE
 repldepl-7bcd8d5b64-q2bf4       1/1     Running 1 (69m ago)     5h26m
 ```
@@ -142,7 +144,7 @@ You can also use it to modify certain cells using regular expression
 matching. For example:
 
 ```shell
-kubectl get pods | tablizer -n -T4 -R '/ /-/'
+kubectl get pods | tablizer -T4 -R '/ /-/'
 NAME                            READY   STATUS  RESTARTS        AGE
 repldepl-7bcd8d5b64-7zq4l       1/1     Running 1-(69m-ago)     5h26m
 repldepl-7bcd8d5b64-m48n8       1/1     Running 1-(69m-ago)     5h26m
@@ -152,6 +154,11 @@ repldepl-7bcd8d5b64-q2bf4       1/1     Running 1-(69m-ago)     5h26m
 Here, we modified the 4th column (`-T4`) by replacing every space with
 a dash. If you need to work with `/` characters, you can also use any
 other separator, for instance: `-R '| |-|'`.
+
+There's also an interactive mode, invoked with the option B<-I>, where
+you can interactively filter and select rows:
+
+<img width="937" height="293" alt="interactive" src="https://github.com/user-attachments/assets/0d4d65e2-d156-43ed-8021-39047c7939ed" />
 
 
 

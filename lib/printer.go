@@ -62,7 +62,7 @@ func printData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 	case cfg.Yaml:
 		printYamlData(writer, data)
 	case cfg.CSV:
-		printCSVData(writer, data)
+		printCSVData(writer, conf, data)
 	default:
 		printASCIIData(writer, conf, data)
 	}
@@ -194,6 +194,11 @@ func printMarkdownData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 Simple ASCII table without any borders etc, just like the input we expect
 */
 func printASCIIData(writer io.Writer, conf cfg.Config, data *Tabdata) {
+	OFS := "  "
+	if conf.OFS != "" {
+		OFS = conf.OFS
+	}
+
 	tableString := &strings.Builder{}
 
 	styleTSV := tw.NewSymbolCustom("space").WithColumn("\t")
@@ -213,14 +218,14 @@ func printASCIIData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 				Formatting: tw.CellFormatting{
 					AutoFormat: tw.Off,
 				},
-				Padding: tw.CellPadding{Global: tw.Padding{Left: "", Right: " "}},
+				Padding: tw.CellPadding{Global: tw.Padding{Left: "", Right: OFS}},
 			},
 			Row: tw.CellConfig{
 				Formatting: tw.CellFormatting{
 					AutoWrap:  tw.WrapNone,
 					Alignment: tw.AlignLeft,
 				},
-				Padding: tw.CellPadding{Global: tw.Padding{Right: " "}},
+				Padding: tw.CellPadding{Global: tw.Padding{Right: OFS}},
 			},
 
 			Debug: true,
@@ -323,8 +328,14 @@ func printYamlData(writer io.Writer, data *Tabdata) {
 	output(writer, string(yamlstr))
 }
 
-func printCSVData(writer io.Writer, data *Tabdata) {
+func printCSVData(writer io.Writer, conf cfg.Config, data *Tabdata) {
+	OFS := ","
+	if conf.OFS != "" {
+		OFS = conf.OFS
+	}
+
 	csvout := csv.NewWriter(writer)
+	csvout.Comma = []rune(OFS)[0]
 
 	if err := csvout.Write(data.headers); err != nil {
 		log.Fatalln("error writing record to csv:", err)

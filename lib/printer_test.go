@@ -280,6 +280,11 @@ func TestPrinter(t *testing.T) {
 				Numbering:      testdata.numberize,
 				UseColumns:     testdata.usecol,
 				NoColor:        true,
+				OFS:            " ",
+			}
+
+			if conf.OutputMode == cfg.CSV {
+				conf.OFS = ","
 			}
 
 			if testdata.column > 0 {
@@ -304,8 +309,10 @@ func TestPrinter(t *testing.T) {
 
 			if got != exp {
 				t.Errorf("not rendered correctly:\n+++ got:\n%s\n+++ want:\n%s",
-					strings.ReplaceAll(got, " ", "_"),
-					strings.ReplaceAll(exp, " ", "_"))
+					got, exp,
+					// strings.ReplaceAll(got, " ", "_"),
+					// strings.ReplaceAll(exp, " ", "_")
+				)
 			}
 		})
 	}
