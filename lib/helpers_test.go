@@ -19,9 +19,9 @@ package lib
 
 import (
 	"fmt"
-	"reflect"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/tlinden/tablizer/cfg"
 )
 
@@ -39,9 +39,8 @@ func TestContains(t *testing.T) {
 		testname := fmt.Sprintf("contains-%d,%d,%t", tt.list, tt.search, tt.want)
 		t.Run(testname, func(t *testing.T) {
 			answer := contains(tt.list, tt.search)
-			if answer != tt.want {
-				t.Errorf("got %t, want %t", answer, tt.want)
-			}
+
+			assert.EqualValues(t, tt.want, answer)
 		})
 	}
 }
@@ -77,14 +76,12 @@ func TestPrepareColumns(t *testing.T) {
 		t.Run(testname, func(t *testing.T) {
 			conf := cfg.Config{Columns: testdata.input}
 			err := PrepareColumns(&conf, &data)
-			if err != nil {
-				if !testdata.wanterror {
-					t.Errorf("got error: %v", err)
-				}
+
+			if testdata.wanterror {
+				assert.Error(t, err)
 			} else {
-				if !reflect.DeepEqual(conf.UseColumns, testdata.exp) {
-					t.Errorf("got: %v, expected: %v", conf.UseColumns, testdata.exp)
-				}
+				assert.NoError(t, err)
+				assert.EqualValues(t, testdata.exp, conf.UseColumns)
 			}
 		})
 	}
@@ -153,18 +150,13 @@ func TestPrepareTransposerColumns(t *testing.T) {
 		t.Run(testname, func(t *testing.T) {
 			conf := cfg.Config{TransposeColumns: testdata.input, Transposers: testdata.transp}
 			err := PrepareTransposerColumns(&conf, &data)
-			if err != nil {
-				if !testdata.wanterror {
-					t.Errorf("got error: %v", err)
-				}
-			} else {
-				if len(conf.UseTransposeColumns) != testdata.exp {
-					t.Errorf("got %d, want %d", conf.UseTransposeColumns, testdata.exp)
-				}
 
-				if len(conf.Transposers) != len(conf.UseTransposeColumns) {
-					t.Errorf("got %d, want %d", conf.UseTransposeColumns, testdata.exp)
-				}
+			if testdata.wanterror {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				assert.EqualValues(t, testdata.exp, len(conf.UseTransposeColumns))
+				assert.EqualValues(t, len(conf.UseTransposeColumns), len(conf.Transposers))
 			}
 		})
 	}
@@ -202,10 +194,8 @@ func TestReduceColumns(t *testing.T) {
 			c := cfg.Config{Columns: "x", UseColumns: testdata.columns}
 			data := Tabdata{entries: input}
 			reduceColumns(c, &data)
-			if !reflect.DeepEqual(data.entries, testdata.expect) {
-				t.Errorf("reduceColumns returned invalid data:\ngot: %+v\nexp: %+v",
-					data.entries, testdata.expect)
-			}
+
+			assert.EqualValues(t, testdata.expect, data.entries)
 		})
 	}
 }
@@ -233,10 +223,8 @@ func TestNumberizeHeaders(t *testing.T) {
 			conf := cfg.Config{Columns: "x", UseColumns: testdata.columns, Numbering: testdata.numberize}
 			usedata := data
 			numberizeAndReduceHeaders(conf, &usedata)
-			if !reflect.DeepEqual(usedata.headers, testdata.expect) {
-				t.Errorf("numberizeAndReduceHeaders returned invalid data:\ngot: %+v\nexp: %+v",
-					usedata.headers, testdata.expect)
-			}
+
+			assert.EqualValues(t, testdata.expect, usedata.headers)
 		})
 	}
 }

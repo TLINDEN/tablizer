@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/tlinden/tablizer/cfg"
 )
 
@@ -41,9 +42,7 @@ func TestDuration2Seconds(t *testing.T) {
 		testname := fmt.Sprintf("duration-%s", testdata.dur)
 		t.Run(testname, func(t *testing.T) {
 			seconds := duration2int(testdata.dur)
-			if seconds != testdata.expect {
-				t.Errorf("got %d, want %d", seconds, testdata.expect)
-			}
+			assert.EqualValues(t, testdata.expect, seconds)
 		})
 	}
 }
@@ -74,9 +73,7 @@ func TestCompare(t *testing.T) {
 		t.Run(testname, func(t *testing.T) {
 			c := cfg.Config{SortMode: testdata.mode, SortDescending: testdata.desc}
 			got := compare(&c, testdata.a, testdata.b)
-			if got != testdata.want {
-				t.Errorf("got %d, want %d", got, testdata.want)
-			}
+			assert.EqualValues(t, testdata.want, got)
 		})
 	}
 }

@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/tiagomelo/go-clipboard/clipboard"
 	"github.com/tlinden/tablizer/cfg"
 )
@@ -59,14 +60,9 @@ func DISABLED_TestYankColumns(t *testing.T) {
 			printData(&writer, conf, &data)
 
 			got, err := cb.PasteText()
-			if err != nil {
-				t.Errorf("failed to fetch yanked text from clipboard")
-			}
 
-			if got != testdata.expect {
-				t.Errorf("not yanked correctly:\n+++ got:\n%s\n+++ want:\n%s",
-					got, testdata.expect)
-			}
+			assert.NoError(t, err)
+			assert.EqualValues(t, testdata.expect, got)
 		})
 	}
 }

@@ -19,9 +19,9 @@ package lib
 
 import (
 	"fmt"
-	"reflect"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/tlinden/tablizer/cfg"
 )
 
@@ -56,13 +56,11 @@ func TestMatchPattern(t *testing.T) {
 			}
 
 			err := conf.PreparePattern(inputdata.patterns)
-			if err != nil {
-				t.Errorf("PreparePattern returned error: %s", err)
-			}
 
-			if !matchPattern(conf, inputdata.line) {
-				t.Errorf("matchPattern() did not match\nExp: true\nGot: false\n")
-			}
+			assert.NoError(t, err)
+
+			res := matchPattern(conf, inputdata.line)
+			assert.EqualValues(t, true, res)
 		})
 	}
 }
@@ -163,14 +161,12 @@ func TestFilterByFields(t *testing.T) {
 			conf := cfg.Config{Rawfilters: inputdata.filter, InvertMatch: inputdata.invert}
 
 			err := conf.PrepareFilters()
-			if err != nil {
-				t.Errorf("PrepareFilters returned error: %s", err)
-			}
+
+			assert.NoError(t, err)
 
 			data, _, _ := FilterByFields(conf, &data)
-			if !reflect.DeepEqual(*data, inputdata.expect) {
-				t.Errorf("Filtered data does not match expected data:\ngot: %+v\nexp: %+v", data, inputdata.expect)
-			}
+
+			assert.EqualValues(t, inputdata.expect, *data)
 		})
 	}
 }

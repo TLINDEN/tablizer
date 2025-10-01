@@ -21,6 +21,8 @@ import (
 	"fmt"
 	//	"reflect"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPrepareModeFlags(t *testing.T) {
@@ -44,9 +46,8 @@ func TestPrepareModeFlags(t *testing.T) {
 			conf := Config{}
 
 			conf.PrepareModeFlags(testdata.flag)
-			if conf.OutputMode != testdata.expect {
-				t.Errorf("got: %d, expect: %d", conf.OutputMode, testdata.expect)
-			}
+
+			assert.EqualValues(t, testdata.expect, conf.OutputMode)
 		})
 	}
 }
@@ -70,9 +71,7 @@ func TestPrepareSortFlags(t *testing.T) {
 
 			conf.PrepareSortFlags(testdata.flag)
 
-			if conf.SortMode != testdata.expect {
-				t.Errorf("got: %s, expect: %s", conf.SortMode, testdata.expect)
-			}
+			assert.EqualValues(t, testdata.expect, conf.SortMode)
 		})
 	}
 }
@@ -81,7 +80,7 @@ func TestPreparePattern(t *testing.T) {
 	var tests = []struct {
 		patterns  []*Pattern
 		name      string
-		wanterr   bool
+		wanterror bool
 		wanticase bool
 		wantneg   bool
 	}{
@@ -123,16 +122,16 @@ func TestPreparePattern(t *testing.T) {
 	}
 
 	for _, testdata := range tests {
-		testname := fmt.Sprintf("PreparePattern-pattern-%s-wanterr-%t", testdata.name, testdata.wanterr)
+		testname := fmt.Sprintf("PreparePattern-pattern-%s-wanterr-%t", testdata.name, testdata.wanterror)
 		t.Run(testname, func(t *testing.T) {
 			conf := Config{}
 
 			err := conf.PreparePattern(testdata.patterns)
 
-			if err != nil {
-				if !testdata.wanterr {
-					t.Errorf("PreparePattern returned error: %s", err)
-				}
+			if testdata.wanterror {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
 			}
 		})
 	}

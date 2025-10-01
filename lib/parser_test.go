@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 Thomas von Dein
+Copyright © 2022-2025 Thomas von Dein
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,10 +19,11 @@ package lib
 
 import (
 	"fmt"
-	"reflect"
+	"io"
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/tlinden/tablizer/cfg"
 )
 
@@ -67,27 +68,21 @@ func TestParser(t *testing.T) {
 		t.Run(testname, func(t *testing.T) {
 			readFd := strings.NewReader(strings.TrimSpace(testdata.text))
 			conf := cfg.Config{Separator: testdata.separator}
-			gotdata, err := Parse(conf, readFd)
+			gotdata, err := wrapValidateParser(conf, readFd)
 
-			if err != nil {
-				t.Errorf("Parser returned error: %s\nData processed so far: %+v", err, gotdata)
-			}
-
-			if !reflect.DeepEqual(data, gotdata) {
-				t.Errorf("Parser returned invalid data\nExp: %+v\nGot: %+v\n",
-					data, gotdata)
-			}
+			assert.NoError(t, err)
+			assert.EqualValues(t, data, gotdata)
 		})
 	}
 }
 
 func TestParserPatternmatching(t *testing.T) {
 	var tests = []struct {
-		name     string
-		entries  [][]string
-		patterns []*cfg.Pattern
-		invert   bool
-		want     bool
+		name      string
+		entries   [][]string
+		patterns  []*cfg.Pattern
+		invert    bool
+		wanterror bool
 	}{
 		{
 			name: "match",
@@ -121,18 +116,13 @@ func TestParserPatternmatching(t *testing.T) {
 				_ = conf.PreparePattern(testdata.patterns)
 
 				readFd := strings.NewReader(strings.TrimSpace(inputdata.text))
-				gotdata, err := Parse(conf, readFd)
+				data, err := wrapValidateParser(conf, readFd)
 
-				if err != nil {
-					if !testdata.want {
-						t.Errorf("Parser returned error: %s\nData processed so far: %+v",
-							err, gotdata)
-					}
+				if testdata.wanterror {
+					assert.Error(t, err)
 				} else {
-					if !reflect.DeepEqual(testdata.entries, gotdata.entries) {
-						t.Errorf("Parser returned invalid data (pattern: %s, invert: %t)\nExp: %+v\nGot: %+v\n",
-							testdata.name, testdata.invert, testdata.entries, gotdata.entries)
-					}
+					assert.NoError(t, err)
+					assert.EqualValues(t, testdata.entries, data.entries)
 				}
 			})
 		}
@@ -159,16 +149,10 @@ asd    igig
 
 	readFd := strings.NewReader(strings.TrimSpace(table))
 	conf := cfg.Config{Separator: cfg.DefaultSeparator}
-	gotdata, err := Parse(conf, readFd)
+	gotdata, err := wrapValidateParser(conf, readFd)
 
-	if err != nil {
-		t.Errorf("Parser returned error: %s\nData processed so far: %+v", err, gotdata)
-	}
-
-	if !reflect.DeepEqual(data, gotdata) {
-		t.Errorf("Parser returned invalid data, Regex: %s\nExp: %+v\nGot: %+v\n",
-			conf.Separator, data, gotdata)
-	}
+	assert.NoError(t, err)
+	assert.EqualValues(t, data, gotdata)
 }
 
 func TestParserJSONInput(t *testing.T) {
@@ -179,6 +163,7 @@ func TestParserJSONInput(t *testing.T) {
 		wanterror bool // true: expect fail, false: expect success
 	}{
 		{
+			// too deep nesting
 			name:      "invalidjson",
 			wanterror: true,
 			input: `[
@@ -191,13 +176,15 @@ func TestParserJSONInput(t *testing.T) {
        "AGE": "24h"
     }
   }
-`, // one field missing different order
+`,
 			expect: Tabdata{},
 		},
 
 		{
+			// one field missing + different order
+			// but shall not fail
 			name:      "kgpfail",
-			wanterror: true,
+			wanterror: false,
 			input: `[
   {
     "NAME": "postgres-operator-7f4c7c8485-ntlns",
@@ -212,7 +199,7 @@ func TestParserJSONInput(t *testing.T) {
     "READY": "1/1",
     "AGE": "24h"
   }
-]`, // one field missing different order
+]`,
 			expect: Tabdata{
 				columns: 5,
 				headers: []string{"NAME", "READY", "STATUS", "RESTARTS", "AGE"},
@@ -237,7 +224,7 @@ func TestParserJSONInput(t *testing.T) {
 
 		{
 			name:      "kgp",
-			wanterror: true,
+			wanterror: false,
 			input: `[
   {
     "NAME": "postgres-operator-7f4c7c8485-ntlns",
@@ -283,25 +270,26 @@ func TestParserJSONInput(t *testing.T) {
 			conf := cfg.Config{InputJSON: true}
 
 			readFd := strings.NewReader(strings.TrimSpace(testdata.input))
-			gotdata, err := Parse(conf, readFd)
+			data, err := wrapValidateParser(conf, readFd)
 
-			if err != nil && !testdata.wanterror {
-				t.Errorf("Parser returned error: %s\nData processed so far: %+v",
-					err, gotdata)
+			if testdata.wanterror {
+				assert.Error(t, err)
 			} else {
-				err = ValidateConsistency(&gotdata)
-
-				if err != nil {
-					if !testdata.wanterror {
-						t.Errorf("Parser returned error: %s", err)
-					}
-				} else {
-					if !reflect.DeepEqual(testdata.expect, gotdata) {
-						t.Errorf("Parser returned invalid data\nExp: %+v\nGot: %+v\n",
-							testdata.expect, gotdata)
-					}
-				}
+				assert.NoError(t, err)
+				assert.EqualValues(t, testdata.expect, data)
 			}
 		})
 	}
+}
+
+func wrapValidateParser(conf cfg.Config, input io.Reader) (Tabdata, error) {
+	data, err := Parse(conf, input)
+
+	if err != nil {
+		return data, err
+	}
+
+	err = ValidateConsistency(&data)
+
+	return data, err
 }
