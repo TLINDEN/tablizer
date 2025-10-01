@@ -20,6 +20,7 @@ SYNOPSIS
           -F, --filter <field[!]=reg>        Filter given field with regex, can be used multiple times
           -T, --transpose-columns string     Transpose the speficied columns (separated by ,)
           -R, --regex-transposer </from/to/> Apply /search/replace/ regexp to fields given in -T
+          -j, --json                         Read JSON input (must be array of hashes)
           -I, --interactive                  Interactively filter and select rows
 
         Output Flags (mutually exclusive):
@@ -463,6 +464,7 @@ Operational Flags:
   -F, --filter <field[!]=reg>        Filter given field with regex, can be used multiple times
   -T, --transpose-columns string     Transpose the speficied columns (separated by ,)
   -R, --regex-transposer </from/to/> Apply /search/replace/ regexp to fields given in -T
+  -j, --json                         Read JSON input (must be array of hashes)
   -I, --interactive                  Interactively filter and select rows
 
 Output Flags (mutually exclusive):

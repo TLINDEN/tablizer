@@ -170,3 +170,138 @@ asd    igig
 			conf.Separator, data, gotdata)
 	}
 }
+
+func TestParserJSONInput(t *testing.T) {
+	var tests = []struct {
+		name      string
+		input     string
+		expect    Tabdata
+		wanterror bool // true: expect fail, false: expect success
+	}{
+		{
+			name:      "invalidjson",
+			wanterror: true,
+			input: `[
+  {
+    "item": {
+       "NAME": "postgres-operator-7f4c7c8485-ntlns",
+       "READY": "1/1",
+       "STATUS": "Running",
+       "RESTARTS": "0",
+       "AGE": "24h"
+    }
+  }
+`, // one field missing different order
+			expect: Tabdata{},
+		},
+
+		{
+			name:      "kgpfail",
+			wanterror: true,
+			input: `[
+  {
+    "NAME": "postgres-operator-7f4c7c8485-ntlns",
+    "READY": "1/1",
+    "STATUS": "Running",
+    "RESTARTS": "0",
+    "AGE": "24h"
+  },
+  {
+    "NAME": "wal-g-exporter-778dcd95f5-wcjzn",
+    "RESTARTS": "0",
+    "READY": "1/1",
+    "AGE": "24h"
+  }
+]`, // one field missing different order
+			expect: Tabdata{
+				columns: 5,
+				headers: []string{"NAME", "READY", "STATUS", "RESTARTS", "AGE"},
+				entries: [][]string{
+					[]string{
+						"postgres-operator-7f4c7c8485-ntlns",
+						"1/1",
+						"Running",
+						"0",
+						"24h",
+					},
+					[]string{
+						"wal-g-exporter-778dcd95f5-wcjzn",
+						"1/1",
+						"",
+						"0",
+						"24h",
+					},
+				},
+			},
+		},
+
+		{
+			name:      "kgp",
+			wanterror: true,
+			input: `[
+  {
+    "NAME": "postgres-operator-7f4c7c8485-ntlns",
+    "READY": "1/1",
+    "STATUS": "Running",
+    "RESTARTS": "0",
+    "AGE": "24h"
+  },
+  {
+    "NAME": "wal-g-exporter-778dcd95f5-wcjzn",
+    "STATUS": "Running",
+    "READY": "1/1",
+    "RESTARTS": "0",
+    "AGE": "24h"
+  }
+]`,
+			expect: Tabdata{
+				columns: 5,
+				headers: []string{"NAME", "READY", "STATUS", "RESTARTS", "AGE"},
+				entries: [][]string{
+					[]string{
+						"postgres-operator-7f4c7c8485-ntlns",
+						"1/1",
+						"Running",
+						"0",
+						"24h",
+					},
+					[]string{
+						"wal-g-exporter-778dcd95f5-wcjzn",
+						"1/1",
+						"Running",
+						"0",
+						"24h",
+					},
+				},
+			},
+		},
+	}
+
+	for _, testdata := range tests {
+		testname := fmt.Sprintf("parse-json-%s", testdata.name)
+		t.Run(testname, func(t *testing.T) {
+			conf := cfg.Config{InputJSON: true}
+
+			readFd := strings.NewReader(strings.TrimSpace(testdata.input))
+			gotdata, err := Parse(conf, readFd)
+
+			if err != nil && !testdata.wanterror {
+				t.Errorf("Parser returned error: %s\nData processed so far: %+v",
+					err, gotdata)
+			} else {
+				err = ValidateConsistency(&gotdata)
+
+				if err != nil {
+					if !testdata.wanterror {
+						t.Errorf("Parser returned error: %s", err)
+					}
+				} else {
+					if !reflect.DeepEqual(testdata.expect, gotdata) {
+						t.Errorf("Parser returned invalid data\nExp: %+v\nGot: %+v\n",
+							testdata.expect, gotdata)
+					}
+				}
+			}
+		})
+	}
+}

@@ -21,8 +21,10 @@ import (
 	"bufio"
 	"encoding/csv"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"log"
 	"regexp"
 	"strings"
 
@@ -177,64 +179,106 @@ func parseTabular(conf cfg.Config, input io.Reader) (Tabdata, error) {
 
 /*
 Parse JSON input.  We only support an array of  maps.
-
-FIXME:  does not  preserve order,  so,  columns are  added in  some
-random order as JSON maps are unordered
 */
-func parseJSON(conf cfg.Config, input io.Reader) (Tabdata, error) {
-	var data Tabdata
-	var rawdata []map[string]string
-
-	scanner := bufio.NewScanner(input)
-	var rawjson string
-
-	for scanner.Scan() {
-		rawjson += scanner.Text()
+func parseRawJSON(conf cfg.Config, input io.Reader) (Tabdata, error) {
+	type Message struct {
+		Name, Status string
 	}
 
-	if scanner.Err() != nil {
-		return data, fmt.Errorf("failed to read from io.Reader: %w", scanner.Err())
-	}
-
-	if err := json.Unmarshal([]byte(rawjson), &rawdata); err != nil {
-		return data, fmt.Errorf("failed to unmarshal json: %w", err)
-	}
-
-	if len(rawdata) == 0 {
-		return data, nil
-	}
-
-	// setup header fields
-	headers := make(map[string]int, len(rawdata))
+	dec := json.NewDecoder(input)
+	headers := []string{}
+	idxmap := map[string]int{}
+	data := [][]string{}
+	row := []string{}
+	iskey := true
+	haveheaders := false
+	var currentfield string
 	var idx int
+	var isjson bool
 
-	for key := range rawdata[0] {
-		data.headers = append(data.headers, key)
-		headers[key] = idx
-
-		idx++
-	}
-
-	// setup data entries
-	for _, entry := range rawdata {
-		row := make([]string, len(data.headers))
-		var line string
-
-		for idx, field := range data.headers {
-			if Exists(entry, field) {
-				row[idx] = entry[field]
-			} else {
-				row[idx] = ""
-			}
-			line += " " + row[idx]
+	for {
+		t, err := dec.Token()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatal(err)
 		}
 
-		// apply line filter
+		switch val := t.(type) {
+		case string:
+			if iskey {
+				if !haveheaders {
+					// consider only the keys of the first item as headers
+					headers = append(headers, val)
+				}
+				currentfield = val
+			} else {
+				if !haveheaders {
+					// the first row uses the order as it comes in
+					row = append(row, val)
+				} else {
+					// use  the pre-determined  order, that  way items
+					// can be in any order as long as they contain all
+					// neccessary  fields. They may also  contain less
+					// fields than the  first item, these will contain
+					// the empty string
+					row[idxmap[currentfield]] = val
+				}
+			}
+		case json.Delim:
+			if val.String() == "}" {
+				data = append(data, row)
+				row = make([]string, len(headers))
+				idx++
+
+				if !haveheaders {
+					// remember  the array position of  header fields,
+					// which we use to  assign elements to the correct
+					// row index
+					for i, header := range headers {
+						idxmap[header] = i
+					}
+				}
+
+				haveheaders = true
+			}
+			isjson = true
+		}
+
+		iskey = !iskey
+	}
+
+	if isjson && (len(headers) == 0 || len(data) == 0) {
+		return Tabdata{}, errors.New("failed to parse JSON, input did not contain array of hashes")
+	}
+
+	return Tabdata{headers: headers, entries: data, columns: len(headers)}, nil
+}
+
+func parseJSON(conf cfg.Config, input io.Reader) (Tabdata, error) {
+	// parse raw json
+	data, err := parseRawJSON(conf, input)
+	if err != nil {
+		return data, err
+	}
+
+	// apply filter, if any
+	filtered := [][]string{}
+	var line string
+
+	for _, row := range data.entries {
+		line = strings.Join(row, " ")
+
 		if matchPattern(conf, line) == conf.InvertMatch {
 			continue
 		}
 
-		data.entries = append(data.entries, row)
+		filtered = append(filtered, row)
+	}
+
+	if len(filtered) != len(data.entries) {
+		data.entries = filtered
 	}
 
 	return data, nil
