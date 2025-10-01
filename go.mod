@@ -10,7 +10,7 @@ require (
 	github.com/charmbracelet/bubbles v0.21.0
 	github.com/charmbracelet/bubbletea v1.3.6
 	github.com/charmbracelet/lipgloss v1.1.0
-	github.com/evertras/bubble-table v0.19.0
+	github.com/evertras/bubble-table v0.19.2
 	github.com/gookit/color v1.6.0
 	github.com/hashicorp/hcl/v2 v2.24.0
 	github.com/lithammer/fuzzysearch v1.1.8
