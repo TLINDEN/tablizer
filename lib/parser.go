@@ -181,10 +181,6 @@ func parseTabular(conf cfg.Config, input io.Reader) (Tabdata, error) {
 Parse JSON input.  We only support an array of  maps.
 */
 func parseRawJSON(conf cfg.Config, input io.Reader) (Tabdata, error) {
-	type Message struct {
-		Name, Status string
-	}
-
 	dec := json.NewDecoder(input)
 	headers := []string{}
 	idxmap := map[string]int{}
