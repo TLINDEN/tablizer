@@ -28,7 +28,7 @@ import (
 )
 
 const DefaultSeparator string = `(\s\s+|\t)`
-const Version string = "v1.5.5"
+const Version string = "v1.5.6"
 const MAXPARTS = 2
 
 var DefaultConfigfile = os.Getenv("HOME") + "/.config/tablizer/config"
@@ -79,6 +79,7 @@ type Config struct {
 	UseFuzzySearch bool
 	UseHighlight   bool
 	Interactive    bool
+	InputJSON      bool
 
 	SortMode        string
 	SortDescending  bool

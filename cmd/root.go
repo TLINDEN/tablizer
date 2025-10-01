@@ -131,9 +131,11 @@ func Execute() {
 	rootCmd.PersistentFlags().StringVarP(&conf.TransposeColumns, "transpose-columns", "T", "",
 		"Transpose the speficied columns (separated by ,)")
 	rootCmd.PersistentFlags().BoolVarP(&conf.Interactive, "interactive", "I", false,
-		"interactive mode (experimental)")
+		"interactive mode")
 	rootCmd.PersistentFlags().StringVarP(&conf.OFS, "ofs", "", "",
 		"Output field separator (' ' for ascii table, ',' for CSV)")
+	rootCmd.PersistentFlags().BoolVarP(&conf.InputJSON, "json", "j", false,
+		"JSON input mode")
 
 	// sort options
 	rootCmd.PersistentFlags().StringVarP(&conf.SortByColumn, "sort-by", "k", "",

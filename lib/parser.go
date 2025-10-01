@@ -1,5 +1,5 @@
 /*
-Copyright © 2022-2024 Thomas von Dein
+Copyright © 2022-2025 Thomas von Dein
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,8 +20,11 @@ package lib
 import (
 	"bufio"
 	"encoding/csv"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"log"
 	"regexp"
 	"strings"
 
@@ -39,6 +42,8 @@ func Parse(conf cfg.Config, input io.Reader) (Tabdata, error) {
 	// first step, parse the data
 	if len(conf.Separator) == 1 {
 		data, err = parseCSV(conf, input)
+	} else if conf.InputJSON {
+		data, err = parseJSON(conf, input)
 	} else {
 		data, err = parseTabular(conf, input)
 	}
@@ -167,6 +172,109 @@ func parseTabular(conf cfg.Config, input io.Reader) (Tabdata, error) {
 
 	if scanner.Err() != nil {
 		return data, fmt.Errorf("failed to read from io.Reader: %w", scanner.Err())
+	}
+
+	return data, nil
+}
+
+/*
+Parse JSON input.  We only support an array of  maps.
+*/
+func parseRawJSON(conf cfg.Config, input io.Reader) (Tabdata, error) {
+	dec := json.NewDecoder(input)
+	headers := []string{}
+	idxmap := map[string]int{}
+	data := [][]string{}
+	row := []string{}
+	iskey := true
+	haveheaders := false
+	var currentfield string
+	var idx int
+	var isjson bool
+
+	for {
+		t, err := dec.Token()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		switch val := t.(type) {
+		case string:
+			if iskey {
+				if !haveheaders {
+					// consider only the keys of the first item as headers
+					headers = append(headers, val)
+				}
+				currentfield = val
+			} else {
+				if !haveheaders {
+					// the first row uses the order as it comes in
+					row = append(row, val)
+				} else {
+					// use  the pre-determined  order, that  way items
+					// can be in any order as long as they contain all
+					// neccessary  fields. They may also  contain less
+					// fields than the  first item, these will contain
+					// the empty string
+					row[idxmap[currentfield]] = val
+				}
+			}
+		case json.Delim:
+			if val.String() == "}" {
+				data = append(data, row)
+				row = make([]string, len(headers))
+				idx++
+
+				if !haveheaders {
+					// remember  the array position of  header fields,
+					// which we use to  assign elements to the correct
+					// row index
+					for i, header := range headers {
+						idxmap[header] = i
+					}
+				}
+
+				haveheaders = true
+			}
+			isjson = true
+		}
+
+		iskey = !iskey
+	}
+
+	if isjson && (len(headers) == 0 || len(data) == 0) {
+		return Tabdata{}, errors.New("failed to parse JSON, input did not contain array of hashes")
+	}
+
+	return Tabdata{headers: headers, entries: data, columns: len(headers)}, nil
+}
+
+func parseJSON(conf cfg.Config, input io.Reader) (Tabdata, error) {
+	// parse raw json
+	data, err := parseRawJSON(conf, input)
+	if err != nil {
+		return data, err
+	}
+
+	// apply filter, if any
+	filtered := [][]string{}
+	var line string
+
+	for _, row := range data.entries {
+		line = strings.Join(row, " ")
+
+		if matchPattern(conf, line) == conf.InvertMatch {
+			continue
+		}
+
+		filtered = append(filtered, row)
+	}
+
+	if len(filtered) != len(data.entries) {
+		data.entries = filtered
 	}
 
 	return data, nil

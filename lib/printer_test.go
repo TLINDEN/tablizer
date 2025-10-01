@@ -23,6 +23,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/tlinden/tablizer/cfg"
 )
 
@@ -307,13 +308,7 @@ func TestPrinter(t *testing.T) {
 
 			got := strings.TrimSpace(writer.String())
 
-			if got != exp {
-				t.Errorf("not rendered correctly:\n+++ got:\n%s\n+++ want:\n%s",
-					got, exp,
-					// strings.ReplaceAll(got, " ", "_"),
-					// strings.ReplaceAll(exp, " ", "_")
-				)
-			}
+			assert.EqualValues(t, exp, got)
 		})
 	}
 }
