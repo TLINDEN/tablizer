@@ -14,9 +14,11 @@ require (
 	github.com/gookit/color v1.6.0
 	github.com/hashicorp/hcl/v2 v2.24.0
 	github.com/lithammer/fuzzysearch v1.1.8
-	github.com/olekukonko/tablewriter v1.0.9
+	github.com/mattn/go-isatty v0.0.20
+	github.com/olekukonko/tablewriter v1.1.0
 	github.com/rogpeppe/go-internal v1.14.1
 	github.com/spf13/cobra v1.9.1
+	github.com/stretchr/testify v1.11.1
 	github.com/tiagomelo/go-clipboard v0.1.2
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -37,7 +39,6 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
-	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/mattn/go-localereader v0.0.1 // indirect
 	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
@@ -51,7 +52,6 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/spf13/pflag v1.0.6 // indirect
-	github.com/stretchr/testify v1.11.1 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/zclconf/go-cty v1.16.3 // indirect
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d // indirect
