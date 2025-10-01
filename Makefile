@@ -65,7 +65,7 @@ clean:
 	rm -rf $(tool) releases coverage.out
 
 test: clean
-	go test ./... $(OPTS)
+	go test -cover ./... $(OPTS)
 
 singletest:
 	@echo "Call like this: 'make singletest TEST=TestPrepareColumns MOD=lib'"
