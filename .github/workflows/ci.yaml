@@ -4,7 +4,7 @@ jobs:
   build:
     strategy:
       matrix:
-        version: ['1.23']
+        version: ['1.24']
         os: [ubuntu-latest, macos-latest, windows-latest]
     name: Build
     runs-on: ${{ matrix.os }}
@@ -30,7 +30,7 @@ jobs:
     steps:
       - uses: actions/setup-go@v5
         with:
-          go-version: 1.23
+          go-version: 1.24
       - uses: actions/checkout@v5
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
