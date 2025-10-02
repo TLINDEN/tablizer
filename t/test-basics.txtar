@@ -1,6 +1,9 @@
 # usage
-exec tablizer -h
+exec tablizer --help
 stdout Usage
+
+exec tablizer -h
+stdout show
 
 # version
 exec tablizer -V

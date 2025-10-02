@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"slices"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -186,6 +187,11 @@ func Execute() {
 		"Read input data from file")
 
 	rootCmd.SetUsageTemplate(strings.TrimSpace(usage) + "\n")
+
+	if slices.Contains(os.Args, "-h") {
+		fmt.Println(shortusage)
+		os.Exit(0)
+	}
 
 	err := rootCmd.Execute()
 	if err != nil {
