@@ -192,10 +192,9 @@ hesitate to ask me about it, I'll add it.
 ## Documentation
 
 The  documentation  is  provided  as  a unix  man-page.   It  will  be
-automatically installed if  you install from source.  However, you can
-read the man-page online:
+automatically installed if  you install from source.
 
-https://github.com/TLINDEN/tablizer/blob/main/tablizer.pod
+[However, you can read the man-page online](https://github.com/TLINDEN/tablizer/blob/main/tablizer.pod).
 
 Or if you cloned  the repository you can read it  this way (perl needs
 to be installed though): `perldoc tablizer.pod`.
