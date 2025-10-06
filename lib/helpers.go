@@ -22,23 +22,13 @@ import (
 	"fmt"
 	"os"
 	"regexp"
-	"sort"
+	"slices"
 	"strconv"
 	"strings"
 
 	"github.com/gookit/color"
 	"github.com/tlinden/tablizer/cfg"
 )
-
-func contains(s []int, e int) bool {
-	for _, a := range s {
-		if a == e {
-			return true
-		}
-	}
-
-	return false
-}
 
 func findindex(s []int, e int) (int, bool) {
 	for i, a := range s {
@@ -174,46 +164,31 @@ func PrepareColumnVars(columns string, data *Tabdata) ([]int, error) {
 
 	// deduplicate: put all values into a map (value gets map key)
 	// thereby  removing duplicates,  extract keys into  new slice
-	// and sort it
-	imap := make(map[int]int, len(usecolumns))
+	deduped := []int{}
 	for _, i := range usecolumns {
-		imap[i] = 0
+		if !slices.Contains(deduped, i) {
+			deduped = append(deduped, i)
+		}
 	}
 
-	// fill with deduplicated columns
-	usecolumns = nil
-
-	for k := range imap {
-		usecolumns = append(usecolumns, k)
-	}
-
-	sort.Ints(usecolumns)
-
-	return usecolumns, nil
+	return deduped, nil
 }
 
 // prepare headers: add numbers to headers
 func numberizeAndReduceHeaders(conf cfg.Config, data *Tabdata) {
-	numberedHeaders := []string{}
+	numberedHeaders := make([]string, len(data.headers))
+
 	maxwidth := 0 // start from scratch, so we only look at displayed column widths
 
+	// add numbers to headers if needed, get widest cell width
 	for idx, head := range data.headers {
 		var headlen int
 
-		if len(conf.Columns) > 0 {
-			// -c specified
-			if !contains(conf.UseColumns, idx+1) {
-				// ignore this one
-				continue
-			}
-		}
-
 		if conf.Numbering {
-			numhead := fmt.Sprintf("%s(%d)", head, idx+1)
-			headlen = len(numhead)
-			numberedHeaders = append(numberedHeaders, numhead)
+			newhead := fmt.Sprintf("%s(%d)", head, idx+1)
+			numberedHeaders[idx] = newhead
+			headlen = len(newhead)
 		} else {
-			numberedHeaders = append(numberedHeaders, head)
 			headlen = len(head)
 		}
 
@@ -222,7 +197,24 @@ func numberizeAndReduceHeaders(conf cfg.Config, data *Tabdata) {
 		}
 	}
 
-	data.headers = numberedHeaders
+	if conf.Numbering {
+		data.headers = numberedHeaders
+	}
+
+	if len(conf.UseColumns) > 0 {
+		// re-align headers based on user requested column list
+		headers := make([]string, len(conf.UseColumns))
+
+		for i, col := range conf.UseColumns {
+			for idx := range data.headers {
+				if col-1 == idx {
+					headers[i] = data.headers[col-1]
+				}
+			}
+		}
+
+		data.headers = headers
+	}
 
 	if data.maxwidthHeader != maxwidth && maxwidth > 0 {
 		data.maxwidthHeader = maxwidth
@@ -234,17 +226,17 @@ func reduceColumns(conf cfg.Config, data *Tabdata) {
 	if len(conf.Columns) > 0 {
 		reducedEntries := [][]string{}
 
-		var reducedEntry []string
-
 		for _, entry := range data.entries {
-			reducedEntry = nil
+			var reducedEntry []string
 
-			for i, value := range entry {
-				if !contains(conf.UseColumns, i+1) {
-					continue
+			for _, col := range conf.UseColumns {
+				col--
+
+				for idx, value := range entry {
+					if idx == col {
+						reducedEntry = append(reducedEntry, value)
+					}
 				}
-
-				reducedEntry = append(reducedEntry, value)
 			}
 
 			reducedEntries = append(reducedEntries, reducedEntry)
