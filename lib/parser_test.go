@@ -181,6 +181,38 @@ func TestParserJSONInput(t *testing.T) {
 		},
 
 		{
+			// contains nil, int and float values
+			name:      "niljson",
+			wanterror: false,
+			input: `[
+  {
+    "NAME": "postgres-operator-7f4c7c8485-ntlns",
+    "READY": "1/1",
+    "STATUS": "Running",
+    "RESTARTS": 0,
+    "AGE": null,
+    "X": 12,
+    "Y": 34.222
+  }
+]`,
+			expect: Tabdata{
+				columns: 7,
+				headers: []string{"NAME", "READY", "STATUS", "RESTARTS", "AGE", "X", "Y"},
+				entries: [][]string{
+					[]string{
+						"postgres-operator-7f4c7c8485-ntlns",
+						"1/1",
+						"Running",
+						"0",
+						"",
+						"12",
+						"34.222000",
+					},
+				},
+			},
+		},
+
+		{
 			// one field missing + different order
 			// but shall not fail
 			name:      "kgpfail",
