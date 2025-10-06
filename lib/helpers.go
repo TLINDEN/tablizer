@@ -162,8 +162,7 @@ func PrepareColumnVars(columns string, data *Tabdata) ([]int, error) {
 		}
 	}
 
-	// deduplicate: put all values into a map (value gets map key)
-	// thereby  removing duplicates,  extract keys into  new slice
+	// deduplicate columns, preserve order
 	deduped := []int{}
 	for _, i := range usecolumns {
 		if !slices.Contains(deduped, i) {
