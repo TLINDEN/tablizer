@@ -19,6 +19,7 @@ package lib
 
 import (
 	"fmt"
+	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -38,7 +39,7 @@ func TestContains(t *testing.T) {
 	for _, tt := range tests {
 		testname := fmt.Sprintf("contains-%d,%d,%t", tt.list, tt.search, tt.want)
 		t.Run(testname, func(t *testing.T) {
-			answer := contains(tt.list, tt.search)
+			answer := slices.Contains(tt.list, tt.search)
 
 			assert.EqualValues(t, tt.want, answer)
 		})
@@ -72,7 +73,8 @@ func TestPrepareColumns(t *testing.T) {
 	}
 
 	for _, testdata := range tests {
-		testname := fmt.Sprintf("PrepareColumns-%s-%t", testdata.input, testdata.wanterror)
+		testname := fmt.Sprintf("PrepareColumns-%s-%t",
+			testdata.input, testdata.wanterror)
 		t.Run(testname, func(t *testing.T) {
 			conf := cfg.Config{Columns: testdata.input}
 			err := PrepareColumns(&conf, &data)
