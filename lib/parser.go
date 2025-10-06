@@ -25,6 +25,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"regexp"
 	"strings"
 
@@ -222,6 +223,32 @@ func parseRawJSON(conf cfg.Config, input io.Reader) (Tabdata, error) {
 					row[idxmap[currentfield]] = val
 				}
 			}
+
+		case float64:
+			var value string
+
+			// we set precision to 0 if the float is a whole number
+			if val == math.Trunc(val) {
+				value = fmt.Sprintf("%.f", val)
+			} else {
+				value = fmt.Sprintf("%f", val)
+			}
+
+			if !haveheaders {
+				row = append(row, value)
+			} else {
+				row[idxmap[currentfield]] = value
+			}
+
+		case nil:
+			// we ignore here if a value  shall be an int or a string,
+			// because tablizer only works with strings anyway
+			if !haveheaders {
+				row = append(row, "")
+			} else {
+				row[idxmap[currentfield]] = ""
+			}
+
 		case json.Delim:
 			if val.String() == "}" {
 				data = append(data, row)
@@ -240,6 +267,8 @@ func parseRawJSON(conf cfg.Config, input io.Reader) (Tabdata, error) {
 				haveheaders = true
 			}
 			isjson = true
+		default:
+			fmt.Printf("unknown token: %v type: %T\n", t, t)
 		}
 
 		iskey = !iskey
