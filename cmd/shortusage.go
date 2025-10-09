@@ -7,7 +7,7 @@ const shortusage = `tablizer [regex,...] [-r file] [flags]
 -T col,...   transpose specified columns           -n  numberize columns
 -R /from/to/ apply replacement to columns in -T    -N  do not use colors
 -y col,...   yank columns to clipboard             -H  do not show headers
---ofs char   output field separator	               -s  specify field separator
+--ofs char   output field separator                -s  specify field separator
 -r file      read input from file                  -z  use fuzzy search
 -f file      read config from file                 -I  interactive filter mode
                                                    -d  debug
