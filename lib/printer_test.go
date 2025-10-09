@@ -292,6 +292,7 @@ func TestPrinter(t *testing.T) {
 				conf.UseSortByColumn = []int{testdata.column}
 			}
 
+			conf.Separator = cfg.SeparatorTemplates[":default:"]
 			conf.ApplyDefaults()
 
 			// the test checks the len!
