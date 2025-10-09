@@ -34,7 +34,7 @@ var input = []struct {
 }{
 	{
 		name:      "tabular-data",
-		separator: cfg.DefaultSeparator,
+		separator: cfg.SeparatorTemplates[":default:"],
 		text: `
 ONE    TWO    THREE  
 asd    igig   cxxxncnc  
@@ -148,7 +148,7 @@ asd    igig
 19191  EDD 1  X`
 
 	readFd := strings.NewReader(strings.TrimSpace(table))
-	conf := cfg.Config{Separator: cfg.DefaultSeparator}
+	conf := cfg.Config{Separator: cfg.SeparatorTemplates[":default:"]}
 	gotdata, err := wrapValidateParser(conf, readFd)
 
 	assert.NoError(t, err)
@@ -310,6 +310,58 @@ func TestParserJSONInput(t *testing.T) {
 				assert.NoError(t, err)
 				assert.EqualValues(t, testdata.expect, data)
 			}
+		})
+	}
+}
+
+func TestParserSeparators(t *testing.T) {
+	list := []string{"alpha", "beta", "delta"}
+
+	tests := []struct {
+		input string
+		sep   string
+	}{
+		{
+			input: `🎲`,
+			sep:   ":nonprint:",
+		},
+		{
+			input: `|`,
+			sep:   ":pipe:",
+		},
+		{
+			input: `   `,
+			sep:   ":spaces:",
+		},
+		{
+			input: "   \t  ",
+			sep:   ":tab:",
+		},
+		{
+			input: `-`,
+			sep:   ":nonword:",
+		},
+		{
+			input: `//$`,
+			sep:   ":special:",
+		},
+	}
+
+	for _, testdata := range tests {
+		testname := fmt.Sprintf("parse-%s", testdata.sep)
+		t.Run(testname, func(t *testing.T) {
+			header := strings.Join(list, testdata.input)
+			row := header
+			content := header + "\n" + row
+
+			readFd := strings.NewReader(strings.TrimSpace(content))
+			conf := cfg.Config{Separator: testdata.sep}
+			conf.ApplyDefaults()
+
+			gotdata, err := wrapValidateParser(conf, readFd)
+
+			assert.NoError(t, err)
+			assert.EqualValues(t, [][]string{list}, gotdata.entries)
 		})
 	}
 }

@@ -27,13 +27,26 @@ import (
 	"github.com/hashicorp/hcl/v2/hclsimple"
 )
 
-const DefaultSeparator string = `(\s\s+|\t)`
-const Version string = "v1.5.8"
-const MAXPARTS = 2
+const (
+	Version  string = "v1.5.9"
+	MAXPARTS        = 2
+)
 
-var DefaultConfigfile = os.Getenv("HOME") + "/.config/tablizer/config"
+var (
+	DefaultConfigfile = os.Getenv("HOME") + "/.config/tablizer/config"
+	VERSION           string // maintained by -x
 
-var VERSION string // maintained by -x
+	SeparatorTemplates = map[string]string{
+		":tab:":      `\s*\t\s*`,                               // tab but eats spaces around
+		":spaces:":   `\s{2,}`,                                 // 2 or more spaces
+		":pipe:":     `\s*\|\s*`,                               // one pipe eating spaces around
+		":default:":  `(\s\s+|\t)`,                             // 2 or more spaces or tab
+		":nonword:":  `\W`,                                     // word boundary
+		":nondigit:": `\D`,                                     // same for numbers
+		":special:":  `[\*\+\-_\(\)\[\]\{\}?\\/<>=&$§"':,\^]+`, // match any special char
+		":nonprint:": `[[:^print:]]+`,                          // non printables
+	}
+)
 
 // public config, set via config file or using defaults
 type Settings struct {
@@ -355,6 +368,13 @@ func (conf *Config) ApplyDefaults() {
 	// mode specific defaults
 	if conf.OutputMode == Yaml || conf.OutputMode == CSV {
 		conf.Numbering = false
+	}
+
+	if conf.Separator[0] == ':' && conf.Separator[len(conf.Separator)-1] == ':' {
+		separator, ok := SeparatorTemplates[conf.Separator]
+		if ok {
+			conf.Separator = separator
+		}
 	}
 }
 

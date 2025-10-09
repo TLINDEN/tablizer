@@ -123,7 +123,7 @@ func Execute() {
 		"Use alternating background colors")
 	rootCmd.PersistentFlags().StringVarP(&ShowCompletion, "completion", "", "",
 		"Display completion code")
-	rootCmd.PersistentFlags().StringVarP(&conf.Separator, "separator", "s", cfg.DefaultSeparator,
+	rootCmd.PersistentFlags().StringVarP(&conf.Separator, "separator", "s", cfg.SeparatorTemplates[":default:"],
 		"Custom field separator")
 	rootCmd.PersistentFlags().StringVarP(&conf.Columns, "columns", "c", "",
 		"Only show the speficied columns (separated by ,)")
