@@ -28,8 +28,8 @@ import (
 )
 
 const (
-	Version  string = "v1.5.9"
-	MAXPARTS        = 2
+	Version  = "v1.5.9"
+	MAXPARTS = 2
 )
 
 var (
