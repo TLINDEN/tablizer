@@ -200,11 +200,9 @@ Matches a non-digit character.
 
 *		:special:
 
-Matches one or more of the following special chars
+Matches one or more special chars like brackets, dollar sign, slashes etc.
 
-    [\*\+\-_\(\)\[\]\{\}?\\/<>=&$§':,\^"]+`
-
-*		:nonprint: `[[:^print:]]+`
+*		:nonprint:
 
 Matches one or more non-printable characters.
 

@@ -14,7 +14,7 @@ SYNOPSIS
           -n, --numbering                    Enable header numbering
           -N, --no-color                     Disable pattern highlighting
           -H, --no-headers                   Disable headers display
-          -s, --separator <string>           Custom field separator
+          -s, --separator <string>           Custom field separator (maybe char, string or :class:)
           -k, --sort-by <int|name>           Sort by column (default: 1)
           -z, --fuzzy                        Use fuzzy search [experimental]
           -F, --filter <field[!]=reg>        Filter given field with regex, can be used multiple times
@@ -140,6 +140,57 @@ DESCRIPTION
 
     Finally the -d option enables debugging output which is mostly useful
     for the developer.
+
+  SEPARATOR
+    The option -s can be a single character, in which case the CSV parser
+    will be invoked. You can also specify a string as separator. The string
+    will be interpreted as literal string unless it is a valid go regular
+    expression. For example:
+
+        -s '\t{2,}\'
+
+    is being used as a regexp and will match two or more consecutive tabs.
+
+        -s 'foo'
+
+    on the other hand is no regular expression and will be used literally.
+
+    To make live easier, there are a couple of predefined regular
+    expressions, which you can specify as classes:
+
+        * :tab:
+
+        Matches a tab and eats spaces around it.
+
+        * :spaces:
+
+        Matches 2 or more spaces.
+
+        * :pipe:
+
+        Matches a pipe character and eats spaces around it.
+
+        * :default:
+
+        Matches 2 or more spaces or tab. This is the default separator if
+        none is specified.
+
+        * :nonword:
+
+        Matches a non-word character.
+
+        * :nondigit:
+
+        Matches a non-digit character.
+
+        * :special:
+
+        Matches one or more special chars like brackets, dollar sign,
+        slashes etc.
+
+        * :nonprint:
+
+        Matches one or more non-printable characters.
 
   PATTERNS AND FILTERING
     You can reduce the rows being displayed by using one or more regular
@@ -458,7 +509,7 @@ Operational Flags:
   -n, --numbering                    Enable header numbering
   -N, --no-color                     Disable pattern highlighting
   -H, --no-headers                   Disable headers display
-  -s, --separator <string>           Custom field separator
+  -s, --separator <string>           Custom field separator (maybe char, string or :class:)
   -k, --sort-by <int|name>           Sort by column (default: 1)
   -z, --fuzzy                        Use fuzzy search [experimental]
   -F, --filter <field[!]=reg>        Filter given field with regex, can be used multiple times
