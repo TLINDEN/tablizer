@@ -28,7 +28,7 @@ import (
 )
 
 const (
-	Version  = "v1.5.9"
+	Version  = "v1.5.10"
 	MAXPARTS = 2
 )
 
@@ -93,6 +93,8 @@ type Config struct {
 	UseHighlight   bool
 	Interactive    bool
 	InputJSON      bool
+	AutoHeaders    bool
+	CustomHeaders  []string
 
 	SortMode        string
 	SortDescending  bool
@@ -411,6 +413,12 @@ func (conf *Config) PreparePattern(patterns []*Pattern) error {
 	conf.Patterns = patterns
 
 	return nil
+}
+
+func (conf *Config) PrepareCustomHeaders(custom string) {
+	if len(custom) > 0 {
+		conf.CustomHeaders = strings.Split(custom, ",")
+	}
 }
 
 // Parse config file.  Ignore if the file doesn't exist  but return an

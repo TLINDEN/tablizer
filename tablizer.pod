@@ -21,6 +21,8 @@ tablizer - Manipulate tabular output of other programs
       -R, --regex-transposer </from/to/> Apply /search/replace/ regexp to fields given in -T
       -j, --json                         Read JSON input (must be array of hashes)
       -I, --interactive                  Interactively filter and select rows
+          --auto-headers                 Generate headers if there are none present in input
+          --custom-headers a,b,...       Use custom headers, separated by comma
 
     Output Flags (mutually exclusive):
       -X, --extended                     Enable extended output

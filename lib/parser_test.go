@@ -366,6 +366,56 @@ func TestParserSeparators(t *testing.T) {
 	}
 }
 
+func TestParserSetHeaders(t *testing.T) {
+	row := []string{"c", "b", "c", "d", "e"}
+
+	tests := []struct {
+		name   string
+		custom []string
+		expect []string
+		auto   bool
+	}{
+		{
+			name:   "default",
+			expect: row,
+		},
+		{
+			name:   "auto",
+			expect: strings.Split("1 2 3 4 5", " "),
+			auto:   true,
+		},
+		{
+			name:   "custom-complete",
+			custom: strings.Split("A B C D E", " "),
+			expect: strings.Split("A B C D E", " "),
+		},
+		{
+			name:   "custom-too-short",
+			custom: strings.Split("A B", " "),
+			expect: strings.Split("A B 3 4 5", " "),
+		},
+		{
+			name:   "custom-too-long",
+			custom: strings.Split("A B C D E F G", " "),
+			expect: strings.Split("A B C D E", " "),
+		},
+	}
+
+	for _, testdata := range tests {
+		testname := fmt.Sprintf("parse-%s", testdata.name)
+		t.Run(testname, func(t *testing.T) {
+			conf := cfg.Config{
+				AutoHeaders:   testdata.auto,
+				CustomHeaders: testdata.custom,
+			}
+			headers := SetHeaders(conf, row)
+
+			assert.NotNil(t, headers)
+			assert.EqualValues(t, testdata.expect, headers)
+		})
+	}
+}
+
 func wrapValidateParser(conf cfg.Config, input io.Reader) (Tabdata, error) {
 	data, err := Parse(conf, input)
 
