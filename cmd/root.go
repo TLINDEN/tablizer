@@ -59,6 +59,7 @@ func Execute() {
 		ShowCompletion string
 		modeflag       cfg.Modeflag
 		sortmode       cfg.Sortmode
+		headers        string
 	)
 
 	var rootCmd = &cobra.Command{
@@ -91,6 +92,7 @@ func Execute() {
 			conf.CheckEnv()
 			conf.PrepareModeFlags(modeflag)
 			conf.PrepareSortFlags(sortmode)
+			conf.PrepareCustomHeaders(headers)
 
 			wrapE(conf.PrepareFilters())
 
@@ -137,6 +139,10 @@ func Execute() {
 		"Output field separator (' ' for ascii table, ',' for CSV)")
 	rootCmd.PersistentFlags().BoolVarP(&conf.InputJSON, "json", "j", false,
 		"JSON input mode")
+	rootCmd.PersistentFlags().BoolVarP(&conf.AutoHeaders, "auto-headers", "", false,
+		"Generate headers automatically")
+	rootCmd.PersistentFlags().StringVarP(&headers, "custom-headers", "", "",
+		"Custom headers")
 
 	// sort options
 	rootCmd.PersistentFlags().StringVarP(&conf.SortByColumn, "sort-by", "k", "",

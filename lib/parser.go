@@ -67,6 +67,43 @@ func Parse(conf cfg.Config, input io.Reader) (Tabdata, error) {
 }
 
 /*
+ * Setup headers,  given headers might  be usable headers or  just the
+ * first row, which we use to  determine how many headers to generate,
+ * if enabled.
+ */
+func SetHeaders(conf cfg.Config, headers []string) []string {
+	if !conf.AutoHeaders && len(conf.CustomHeaders) == 0 {
+		return headers
+	}
+
+	if conf.AutoHeaders {
+		heads := make([]string, len(headers))
+		for idx := range headers {
+			heads[idx] = fmt.Sprintf("%d", idx+1)
+		}
+
+		return heads
+	}
+
+	if len(conf.CustomHeaders) == len(headers) {
+		return conf.CustomHeaders
+	}
+
+	// use as much custom ones we have, generate the remainder
+	heads := make([]string, len(headers))
+
+	for idx := range headers {
+		if idx < len(conf.CustomHeaders) {
+			heads[idx] = conf.CustomHeaders[idx]
+		} else {
+			heads[idx] = fmt.Sprintf("%d", idx+1)
+		}
+	}
+
+	return heads
+}
+
+/*
 Parse CSV input.
 */
 func parseCSV(conf cfg.Config, input io.Reader) (Tabdata, error) {
@@ -87,7 +124,7 @@ func parseCSV(conf cfg.Config, input io.Reader) (Tabdata, error) {
 	}
 
 	if len(records) >= 1 {
-		data.headers = records[0]
+		data.headers = SetHeaders(conf, records[0])
 		data.columns = len(records)
 
 		for _, head := range data.headers {
@@ -98,9 +135,14 @@ func parseCSV(conf cfg.Config, input io.Reader) (Tabdata, error) {
 			}
 		}
 
-		if len(records) > 1 {
-			data.entries = records[1:]
+		if len(records) >= 1 {
+			if conf.AutoHeaders || len(conf.CustomHeaders) > 0 {
+				data.entries = records
+			} else {
+				data.entries = records[1:]
+			}
 		}
+
 	}
 
 	return data, nil
@@ -128,7 +170,9 @@ func parseTabular(conf cfg.Config, input io.Reader) (Tabdata, error) {
 			data.columns = len(parts)
 
 			// process all header fields
-			for _, part := range parts {
+			firstrow := make([]string, len(parts))
+
+			for idx, part := range parts {
 				// register widest header field
 				headerlen := len(part)
 				if headerlen > data.maxwidthHeader {
@@ -136,10 +180,21 @@ func parseTabular(conf cfg.Config, input io.Reader) (Tabdata, error) {
 				}
 
 				// register fields data
-				data.headers = append(data.headers, strings.TrimSpace(part))
+				firstrow[idx] = strings.TrimSpace(part)
 
 				// done
 				hadFirst = true
+			}
+
+			data.headers = SetHeaders(conf, firstrow)
+
+			if conf.AutoHeaders || len(conf.CustomHeaders) > 0 {
+				// we do not use generated headers, consider as row
+				if matchPattern(conf, line) == conf.InvertMatch {
+					continue
+				}
+
+				data.entries = append(data.entries, firstrow)
 			}
 		} else {
 			// data processing
