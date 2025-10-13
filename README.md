@@ -11,6 +11,23 @@ ignore certain column[s] by regex, name or number. It can output the
 tabular data in a range of formats (see below). There's even an
 interactive filter/selection tool available.
 
+## FEATURES
+
+- supports csv, json or ascii format
+- split any tabular input data by character or regular expression into columns
+- add headers if input data doesn't contain them (automatically or manually)
+- print tabular data as ascii table, org-mode, markdown, csv, shell-evaluable or yaml format
+- filter rows by regular expression (saves a call to `| grep ...`)
+- filter rows by column filter
+- filters may also be negations eg `-Fname!=cow.*` or `-v`
+- modify cells wih regular expressions
+- reduce columns by specifying which columns to show, with regex support
+- color support
+- sort by any field[s], multiple sort modes are supported
+- shell completion for options
+- regular used options can be put into a config file
+- filter TUI where where you can interactively sort and filter rows
+
 ## Demo
 
 ![demo cast](vhsdemo/demo.gif)
@@ -36,6 +53,9 @@ Operational Flags:
   -R, --regex-transposer </from/to/> Apply /search/replace/ regexp to fields given in -T
   -j, --json                         Read JSON input (must be array of hashes)
   -I, --interactive                  Interactively filter and select rows
+      --auto-headers                 Generate headers if there are none present in input
+      --custom-headers a,b,...       Use custom headers, separated by comma
+
 
 Output Flags (mutually exclusive):
   -X, --extended                     Enable extended output
