@@ -13,7 +13,7 @@ interactive filter/selection tool available.
 
 ## FEATURES
 
-- supports csv, json or ascii format
+- supports csv, json or ascii format input from files or stdin
 - split any tabular input data by character or regular expression into columns
 - add headers if input data doesn't contain them (automatically or manually)
 - print tabular data as ascii table, org-mode, markdown, csv, shell-evaluable or yaml format
