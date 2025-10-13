@@ -28,7 +28,7 @@ import (
 )
 
 const (
-	Version  = "v1.5.10"
+	Version  = "v1.5.11"
 	MAXPARTS = 2
 )
 
@@ -141,6 +141,7 @@ type Modeflag struct {
 	Y bool
 	A bool
 	C bool
+	J bool
 }
 
 // used for switching printers
@@ -152,6 +153,7 @@ const (
 	Yaml
 	CSV
 	ASCII
+	Json
 )
 
 // various sort types
@@ -290,6 +292,8 @@ func (conf *Config) PrepareModeFlags(flag Modeflag) {
 		conf.OutputMode = Yaml
 	case flag.C:
 		conf.OutputMode = CSV
+	case flag.J:
+		conf.OutputMode = Json
 	default:
 		conf.OutputMode = ASCII
 	}
