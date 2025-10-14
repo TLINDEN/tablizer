@@ -295,32 +295,31 @@ func printShellData(writer io.Writer, data *Tabdata) {
 }
 
 func printJsonData(writer io.Writer, data *Tabdata) {
-	hashlist := make([]map[string]any, len(data.entries))
+	objlist := make([]map[string]any, len(data.entries))
 
 	if len(data.entries) > 0 {
 		for i, entry := range data.entries {
-			hash := make(map[string]any, len(entry))
+			obj := make(map[string]any, len(entry))
 
 			for idx, value := range entry {
 				num, err := strconv.Atoi(value)
 				if err == nil {
-					hash[data.headers[idx]] = num
+					obj[data.headers[idx]] = num
 				} else {
-					hash[data.headers[idx]] = value
+					obj[data.headers[idx]] = value
 				}
 			}
 
-			hashlist[i] = hash
+			objlist[i] = obj
 		}
 	}
 
-	jsonstr, err := json.Marshal(&hashlist)
+	jsonstr, err := json.MarshalIndent(&objlist, "", "  ")
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	//repr.Println(jsonstr)
 	output(writer, string(jsonstr))
 }
 
