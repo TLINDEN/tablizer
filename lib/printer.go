@@ -19,6 +19,7 @@ package lib
 
 import (
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -61,6 +62,8 @@ func printData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 		printShellData(writer, data)
 	case cfg.Yaml:
 		printYamlData(writer, data)
+	case cfg.Json:
+		printJsonData(writer, data)
 	case cfg.CSV:
 		printCSVData(writer, conf, data)
 	default:
@@ -289,6 +292,35 @@ func printShellData(writer io.Writer, data *Tabdata) {
 
 	// no colorization here
 	output(writer, out)
+}
+
+func printJsonData(writer io.Writer, data *Tabdata) {
+	objlist := make([]map[string]any, len(data.entries))
+
+	if len(data.entries) > 0 {
+		for i, entry := range data.entries {
+			obj := make(map[string]any, len(entry))
+
+			for idx, value := range entry {
+				num, err := strconv.Atoi(value)
+				if err == nil {
+					obj[data.headers[idx]] = num
+				} else {
+					obj[data.headers[idx]] = value
+				}
+			}
+
+			objlist[i] = obj
+		}
+	}
+
+	jsonstr, err := json.MarshalIndent(&objlist, "", "  ")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	output(writer, string(jsonstr))
 }
 
 func printYamlData(writer io.Writer, data *Tabdata) {

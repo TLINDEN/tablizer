@@ -135,13 +135,13 @@ func Execute() {
 		"Transpose the speficied columns (separated by ,)")
 	rootCmd.PersistentFlags().BoolVarP(&conf.Interactive, "interactive", "I", false,
 		"interactive mode")
-	rootCmd.PersistentFlags().StringVarP(&conf.OFS, "ofs", "", "",
+	rootCmd.PersistentFlags().StringVarP(&conf.OFS, "ofs", "o", "",
 		"Output field separator (' ' for ascii table, ',' for CSV)")
 	rootCmd.PersistentFlags().BoolVarP(&conf.InputJSON, "json", "j", false,
 		"JSON input mode")
-	rootCmd.PersistentFlags().BoolVarP(&conf.AutoHeaders, "auto-headers", "", false,
+	rootCmd.PersistentFlags().BoolVarP(&conf.AutoHeaders, "auto-headers", "g", false,
 		"Generate headers automatically")
-	rootCmd.PersistentFlags().StringVarP(&headers, "custom-headers", "", "",
+	rootCmd.PersistentFlags().StringVarP(&headers, "custom-headers", "x", "",
 		"Custom headers")
 
 	// sort options
@@ -171,6 +171,8 @@ func Execute() {
 		"Enable shell mode output")
 	rootCmd.PersistentFlags().BoolVarP(&modeflag.Y, "yaml", "Y", false,
 		"Enable yaml output")
+	rootCmd.PersistentFlags().BoolVarP(&modeflag.J, "jsonout", "J", false,
+		"Enable json output")
 	rootCmd.PersistentFlags().BoolVarP(&modeflag.C, "csv", "C", false,
 		"Enable CSV output")
 	rootCmd.PersistentFlags().BoolVarP(&modeflag.A, "ascii", "A", false,

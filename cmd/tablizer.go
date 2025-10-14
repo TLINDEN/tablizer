@@ -22,8 +22,8 @@ SYNOPSIS
           -R, --regex-transposer </from/to/> Apply /search/replace/ regexp to fields given in -T
           -j, --json                         Read JSON input (must be array of hashes)
           -I, --interactive                  Interactively filter and select rows
-              --auto-headers                 Generate headers if there are none present in input
-              --custom-headers a,b,...       Use custom headers, separated by comma
+          -g, --auto-headers                 Generate headers if there are none present in input
+          -x, --custom-headers a,b,...       Use custom headers, separated by comma
 
         Output Flags (mutually exclusive):
           -X, --extended                     Enable extended output
@@ -31,12 +31,13 @@ SYNOPSIS
           -O, --orgtbl                       Enable org-mode table output
           -S, --shell                        Enable shell evaluable output
           -Y, --yaml                         Enable yaml output
+          -J, --jsonout                      Enable JSON output
           -C, --csv                          Enable CSV output
           -A, --ascii                        Default output mode, ascii tabular
           -L, --hightlight-lines             Use alternating background colors for tables
+          -o, --ofs <char>                   Output field separator, used by -A and -C. 
           -y, --yank-columns                 Yank specified columns (separated by ,) to clipboard,
                                              space separated
-              --ofs <char>                   Output field separator, used by -A and -C. 
 
         Sort Mode Flags (mutually exclusive):
           -a, --sort-age                     sort according to age (duration) string
@@ -519,8 +520,8 @@ Operational Flags:
   -R, --regex-transposer </from/to/> Apply /search/replace/ regexp to fields given in -T
   -j, --json                         Read JSON input (must be array of hashes)
   -I, --interactive                  Interactively filter and select rows
-      --auto-headers                 Generate headers if there are none present in input
-      --custom-headers a,b,...       Use custom headers, separated by comma
+  -g, --auto-headers                 Generate headers if there are none present in input
+  -x, --custom-headers a,b,...       Use custom headers, separated by comma
 
 Output Flags (mutually exclusive):
   -X, --extended                     Enable extended output
@@ -528,12 +529,13 @@ Output Flags (mutually exclusive):
   -O, --orgtbl                       Enable org-mode table output
   -S, --shell                        Enable shell evaluable output
   -Y, --yaml                         Enable yaml output
+  -J, --jsonout                      Enable JSON output
   -C, --csv                          Enable CSV output
   -A, --ascii                        Default output mode, ascii tabular
   -L, --hightlight-lines             Use alternating background colors for tables
+  -o, --ofs <char>                   Output field separator, used by -A and -C. 
   -y, --yank-columns                 Yank specified columns (separated by ,) to clipboard,
                                      space separated
-      --ofs <char>                   Output field separator, used by -A and -C. 
 
 Sort Mode Flags (mutually exclusive):
   -a, --sort-age                     sort according to age (duration) string

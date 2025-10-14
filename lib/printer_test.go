@@ -127,6 +127,31 @@ NAME="alpha" DURATION="4h35m" COUNT="170" WHEN="2013-Feb-03"
 NAME="ceta" DURATION="33d12h" COUNT="9" WHEN="06/Jan/2008 15:04:05 -0700"`,
 	},
 	{
+		name:      "json",
+		mode:      cfg.Json,
+		numberize: false,
+		expect: `[
+  {
+    "COUNT": 33,
+    "DURATION": "1d10h5m1s",
+    "NAME": "beta",
+    "WHEN": "3/1/2014"
+  },
+  {
+    "COUNT": 170,
+    "DURATION": "4h35m",
+    "NAME": "alpha",
+    "WHEN": "2013-Feb-03"
+  },
+  {
+    "COUNT": 9,
+    "DURATION": "33d12h",
+    "NAME": "ceta",
+    "WHEN": "06/Jan/2008 15:04:05 -0700"
+  }
+]`,
+	},
+	{
 		name:      "yaml",
 		mode:      cfg.Yaml,
 		numberize: false,
