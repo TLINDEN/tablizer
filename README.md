@@ -187,6 +187,11 @@ you can interactively filter and select rows:
 
 There are multiple ways to install **tablizer**:
 
+- You can use [stew](https://github.com/marwanhawari/stew) to install epuppy:
+  ```default
+  stew install tlinden/epuppy
+  ```
+
 - Go to the [latest release page](https://github.com/tlinden/tablizer/releases/latest),
   locate the binary for your operating system and platform.
   
