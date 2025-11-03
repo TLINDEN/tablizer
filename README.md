@@ -4,6 +4,9 @@
 
 ## tablizer - Manipulate tabular output of other programs
 
+> [!IMPORTANT]
+> This software is now being maintained on [Codeberg](https://codeberg.org/scip/tablizer/).
+
 Tablizer  can   be  used   to  re-format   tabular  output   of  other
 programs. While you  could do this using standard unix  tools, in some
 cases it's a hard job. With tablizer you can filter by column[s],
