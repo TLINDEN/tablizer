@@ -27,7 +27,7 @@ import (
 	"strings"
 
 	"github.com/gookit/color"
-	"github.com/tlinden/tablizer/cfg"
+	"codeberg.org/scip/tablizer/cfg"
 )
 
 func findindex(s []int, e int) (int, bool) {

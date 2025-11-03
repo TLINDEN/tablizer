@@ -4,9 +4,9 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org).
 
-## [v1.0.14](https://github.com/TLINDEN/tablizer/tree/v1.0.14) - 2023-01-23
+## [v1.0.14](https://codeberg.org/scip/tablizer/tree/v1.0.14) - 2023-01-23
 
-[Full Changelog](https://github.com/TLINDEN/tablizer/compare/v1.0.13...v1.0.14)
+[Full Changelog](https://codeberg.org/scip/tablizer/compare/v1.0.13...v1.0.14)
 
 ### Fixed
 
@@ -28,9 +28,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - updated dependencies (go module versions)
 
 
-## [v1.0.13](https://github.com/TLINDEN/tablizer/tree/v1.0.13) - 2022-11-03
+## [v1.0.13](https://codeberg.org/scip/tablizer/tree/v1.0.13) - 2022-11-03
 
-[Full Changelog](https://github.com/TLINDEN/tablizer/compare/v1.0.12...v1.0.13)
+[Full Changelog](https://codeberg.org/scip/tablizer/compare/v1.0.12...v1.0.13)
 
 ### Added
 
@@ -47,9 +47,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
   manpage.
 
 
-## [v1.0.12](https://github.com/TLINDEN/tablizer/tree/v1.0.12) - 2022-10-25
+## [v1.0.12](https://codeberg.org/scip/tablizer/tree/v1.0.12) - 2022-10-25
 
-[Full Changelog](https://github.com/TLINDEN/tablizer/compare/v1.0.11...v1.0.12)
+[Full Changelog](https://codeberg.org/scip/tablizer/compare/v1.0.11...v1.0.12)
 
 ### Added
 
@@ -72,14 +72,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
   
 ### Fixed
 
-- Fixed  [Bug #5](https://github.com/TLINDEN/tablizer/issues/5), where
+- Fixed  [Bug #5](https://codeberg.org/scip/tablizer/issues/5), where
   matches have not been highlighted correctly in some rare cases.
 
 
 
-## [v1.0.11](https://github.com/TLINDEN/tablizer/tree/v1.0.11) - 2022-10-19
+## [v1.0.11](https://codeberg.org/scip/tablizer/tree/v1.0.11) - 2022-10-19
 
-[Full Changelog](https://github.com/TLINDEN/tablizer/compare/v1.0.10...v1.0.11)
+[Full Changelog](https://codeberg.org/scip/tablizer/compare/v1.0.10...v1.0.11)
 
 ### Added
 
@@ -101,9 +101,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 
 
-## [v1.0.10](https://github.com/TLINDEN/tablizer/tree/v1.0.10) - 2022-10-15
+## [v1.0.10](https://codeberg.org/scip/tablizer/tree/v1.0.10) - 2022-10-15
 
-[Full Changelog](https://github.com/TLINDEN/tablizer/compare/v1.0.9...v1.0.10)
+[Full Changelog](https://codeberg.org/scip/tablizer/compare/v1.0.9...v1.0.10)
 
 ### Added
 
@@ -123,9 +123,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 
 
-## [v1.0.9](https://github.com/TLINDEN/tablizer/tree/v1.0.9) - 2022-10-14
+## [v1.0.9](https://codeberg.org/scip/tablizer/tree/v1.0.9) - 2022-10-14
 
-[Full Changelog](https://github.com/TLINDEN/tablizer/compare/v1.0.8...v1.0.9)
+[Full Changelog](https://codeberg.org/scip/tablizer/compare/v1.0.8...v1.0.9)
 
 ### Added
 
@@ -137,9 +137,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 
 
-## [v1.0.8](https://github.com/TLINDEN/tablizer/tree/v1.0.8) - 2022-10-13
+## [v1.0.8](https://codeberg.org/scip/tablizer/tree/v1.0.8) - 2022-10-13
 
-[Full Changelog](https://github.com/TLINDEN/tablizer/compare/v1.0.7...v1.0.8)
+[Full Changelog](https://codeberg.org/scip/tablizer/compare/v1.0.7...v1.0.8)
 
 ### Added
 
@@ -147,9 +147,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 
 
-## [v1.0.7](https://github.com/TLINDEN/tablizer/tree/v1.0.7) - 2022-10-11
+## [v1.0.7](https://codeberg.org/scip/tablizer/tree/v1.0.7) - 2022-10-11
 
-[Full Changelog](https://github.com/TLINDEN/tablizer/compare/v1.0.6...v1.0.7)
+[Full Changelog](https://codeberg.org/scip/tablizer/compare/v1.0.6...v1.0.7)
 
 ### Added
 
@@ -165,9 +165,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 
 
-## [v1.0.6](https://github.com/TLINDEN/tablizer/tree/v1.0.6) - 2022-10-05
+## [v1.0.6](https://codeberg.org/scip/tablizer/tree/v1.0.6) - 2022-10-05
 
-[Full Changelog](https://github.com/TLINDEN/tablizer/compare/v1.0.5...v1.0.6)
+[Full Changelog](https://codeberg.org/scip/tablizer/compare/v1.0.5...v1.0.6)
 
 ### Added
 
@@ -183,9 +183,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 
 
-## [v1.0.5](https://github.com/TLINDEN/tablizer/tree/v1.0.5) - 2022-10-05
+## [v1.0.5](https://codeberg.org/scip/tablizer/tree/v1.0.5) - 2022-10-05
 
-[Full Changelog](https://github.com/TLINDEN/tablizer/compare/v1.0.4...v1.0.5)
+[Full Changelog](https://codeberg.org/scip/tablizer/compare/v1.0.4...v1.0.5)
 
 ### Added
 
@@ -203,9 +203,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
   
 
 
-## [v1.0.4](https://github.com/TLINDEN/tablizer/tree/v1.0.4) - 2022-10-04
+## [v1.0.4](https://codeberg.org/scip/tablizer/tree/v1.0.4) - 2022-10-04
 
-[Full Changelog](https://github.com/TLINDEN/tablizer/compare/v1.0.3...v1.0.4)
+[Full Changelog](https://codeberg.org/scip/tablizer/compare/v1.0.3...v1.0.4)
 
 ### Added
 
@@ -221,9 +221,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 
 
-## [v1.0.3](https://github.com/TLINDEN/tablizer/tree/v1.0.3) - 2022-10-03
+## [v1.0.3](https://codeberg.org/scip/tablizer/tree/v1.0.3) - 2022-10-03
 
-[Full Changelog](https://github.com/TLINDEN/tablizer/compare/v1.0.2...v1.0.3)
+[Full Changelog](https://codeberg.org/scip/tablizer/compare/v1.0.2...v1.0.3)
 
 ### Added
 
@@ -237,9 +237,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 
 
-## [v1.0.2](https://github.com/TLINDEN/tablizer/tree/v1.0.2) - 2022-10-02
+## [v1.0.2](https://codeberg.org/scip/tablizer/tree/v1.0.2) - 2022-10-02
 
-[Full Changelog](https://github.com/TLINDEN/tablizer/compare/v1.0.1...v1.0.2)
+[Full Changelog](https://codeberg.org/scip/tablizer/compare/v1.0.1...v1.0.2)
 
 ### Added
 
@@ -255,9 +255,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 
 
-## [v1.0.1](https://github.com/TLINDEN/tablizer/tree/v1.0.1) - 2022-09-30
+## [v1.0.1](https://codeberg.org/scip/tablizer/tree/v1.0.1) - 2022-09-30
 
-[Full Changelog](https://github.com/TLINDEN/tablizer/compare/v1.0.0...v1.0.1)
+[Full Changelog](https://codeberg.org/scip/tablizer/compare/v1.0.0...v1.0.1)
 
 ### Added
 
@@ -271,8 +271,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 
 
-## [v1.0.0](https://github.com/TLINDEN/tablizer/tree/v1.0.0) - 2022-09-28
+## [v1.0.0](https://codeberg.org/scip/tablizer/tree/v1.0.0) - 2022-09-28
 
-[Full Changelog](https://github.com/TLINDEN/tablizer/compare/02a64a5c3fe4220df2c791ff1421d16ebd428c19...v1.0.0)
+[Full Changelog](https://codeberg.org/scip/tablizer/compare/02a64a5c3fe4220df2c791ff1421d16ebd428c19...v1.0.0)
 
 Initial release.

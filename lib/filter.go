@@ -23,7 +23,7 @@ import (
 	"strings"
 
 	"github.com/lithammer/fuzzysearch/fuzzy"
-	"github.com/tlinden/tablizer/cfg"
+	"codeberg.org/scip/tablizer/cfg"
 )
 
 /*

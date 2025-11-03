@@ -1,6 +1,6 @@
-[![Actions](https://github.com/tlinden/tablizer/actions/workflows/ci.yaml/badge.svg)](https://github.com/tlinden/tablizer/actions)
-[![License](https://img.shields.io/badge/license-GPL-blue.svg)](https://github.com/tlinden/tablizer/blob/master/LICENSE)
-[![Go Report Card](https://goreportcard.com/badge/github.com/tlinden/tablizer)](https://goreportcard.com/report/github.com/tlinden/tablizer)
+[![status-badge](https://ci.codeberg.org/api/badges/15519/status.svg)](https://ci.codeberg.org/repos/15519)
+[![License](https://img.shields.io/badge/license-GPL-blue.svg)](https://codeberg.org/scip/tablizer/blob/master/LICENSE)
+[![Go Report Card](https://goreportcard.com/badge/codeberg.org/scip/tablizer)](https://goreportcard.com/report/codeberg.org/scip/tablizer)
 
 ## tablizer - Manipulate tabular output of other programs
 
@@ -192,7 +192,7 @@ There are multiple ways to install **tablizer**:
   stew install tlinden/tablizer
   ```
 
-- Go to the [latest release page](https://github.com/tlinden/tablizer/releases/latest),
+- Go to the [latest release page](https://codeberg.org/scip/tablizer/releases),
   locate the binary for your operating system and platform.
   
   Download it and put it into some directory within your `$PATH` variable.
@@ -205,7 +205,7 @@ There are multiple ways to install **tablizer**:
   
 - You can also install from source. Issue the following commands in your shell:
   ```
-  git clone https://github.com/TLINDEN/tablizer.git
+  git clone https://codeberg.org/scip/tablizer.git
   cd tablizer
   make
   sudo make install
@@ -219,7 +219,7 @@ hesitate to ask me about it, I'll add it.
 The  documentation  is  provided  as  a unix  man-page.   It  will  be
 automatically installed if  you install from source.
 
-[However, you can read the man-page online](https://github.com/TLINDEN/tablizer/blob/main/tablizer.pod).
+[However, you can read the man-page online](https://codeberg.org/scip/tablizer/raw/branch/tablizer.pod).
 
 Or if you cloned  the repository you can read it  this way (perl needs
 to be installed though): `perldoc tablizer.pod`.
@@ -236,7 +236,7 @@ that's the best way for me to forget to do something.
 
 In order to report a bug, unexpected behavior, feature requests
 or to submit a patch, please open an issue on github:
-https://github.com/TLINDEN/tablizer/issues.
+https://codeberg.org/scip/tablizer/issues.
 
 ## Prior Art
 
@@ -283,4 +283,4 @@ T.v.Dein <tom AT vondein DOT org>
 
 ## Project homepage
 
-https://github.com/TLINDEN/tablizer
+https://codeberg.org/scip/tablizer

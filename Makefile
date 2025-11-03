@@ -50,7 +50,7 @@ ifdef HAVE_POD
 endif
 
 buildlocal:
-	go build -ldflags "-X 'github.com/tlinden/tablizer/cfg.VERSION=$(VERSION)'"
+	go build -ldflags "-X 'codeberg.org/scip/tablizer/cfg.VERSION=$(VERSION)'"
 
 release:
 	gh release create $(version) --generate-notes
@@ -69,7 +69,7 @@ test: clean
 
 singletest:
 	@echo "Call like this: 'make singletest TEST=TestPrepareColumns MOD=lib'"
-	go test -run $(TEST) github.com/tlinden/tablizer/$(MOD) $(OPTS)
+	go test -run $(TEST) codeberg.org/scip/tablizer/$(MOD) $(OPTS)
 
 cover-report:
 	go test ./... -cover -coverprofile=coverage.out

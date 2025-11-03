@@ -20,7 +20,7 @@ package main
 import (
 	"os"
 
-	"github.com/tlinden/tablizer/cmd"
+	"codeberg.org/scip/tablizer/cmd"
 )
 
 func main() {

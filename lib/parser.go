@@ -30,7 +30,7 @@ import (
 	"strings"
 
 	"github.com/alecthomas/repr"
-	"github.com/tlinden/tablizer/cfg"
+	"codeberg.org/scip/tablizer/cfg"
 )
 
 /*

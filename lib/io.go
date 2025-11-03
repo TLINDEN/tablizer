@@ -23,7 +23,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/tlinden/tablizer/cfg"
+	"codeberg.org/scip/tablizer/cfg"
 )
 
 const RWRR = 0755

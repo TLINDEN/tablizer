@@ -22,7 +22,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/tlinden/tablizer/cfg"
+	"codeberg.org/scip/tablizer/cfg"
 )
 
 func TestDuration2Seconds(t *testing.T) {

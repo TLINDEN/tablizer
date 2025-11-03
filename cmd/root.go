@@ -24,8 +24,8 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/tlinden/tablizer/cfg"
-	"github.com/tlinden/tablizer/lib"
+	"codeberg.org/scip/tablizer/cfg"
+	"codeberg.org/scip/tablizer/lib"
 )
 
 func completion(cmd *cobra.Command, mode string) error {

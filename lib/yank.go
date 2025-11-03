@@ -22,7 +22,7 @@ import (
 	"strings"
 
 	"github.com/tiagomelo/go-clipboard/clipboard"
-	"github.com/tlinden/tablizer/cfg"
+	"codeberg.org/scip/tablizer/cfg"
 )
 
 func yankColumns(conf cfg.Config, data *Tabdata) {

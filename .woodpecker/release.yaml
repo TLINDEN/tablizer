@@ -1,0 +1,15 @@
+# build release
+
+labels:
+  platform: linux/amd64
+    
+steps:
+  goreleaser:
+    image: goreleaser/goreleaser
+    when:
+      event: [tag]
+    environment:
+      GITEA_TOKEN:
+        from_secret: DEPLOY_TOKEN
+    commands:
+      - goreleaser release --clean --verbose

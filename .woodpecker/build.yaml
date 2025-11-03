@@ -1,0 +1,36 @@
+matrix:
+  platform:
+    - linux/amd64
+  goversion:
+    - 1.24
+
+labels:
+  platform: ${platform}
+    
+steps:
+  build:
+    when:
+      event: [push]
+    image: golang:${goversion}
+    commands:
+      - go get
+      - go build
+
+  linter:
+    when:
+      event: [push]
+    image: golang:${goversion}
+    commands:
+      - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.5.0
+      - golangci-lint --version
+      - golangci-lint run ./...
+    depends_on: [build]
+
+  test:
+    when:
+      event: [push]
+    image: golang:${goversion}
+    commands:
+      - go get
+      - go test -v -cover
+    depends_on: [build,linter]

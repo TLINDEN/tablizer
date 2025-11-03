@@ -1,4 +1,4 @@
-module github.com/tlinden/tablizer
+module codeberg.org/scip/tablizer
 
 go 1.24.0
 

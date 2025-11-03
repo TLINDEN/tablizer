@@ -26,11 +26,11 @@ import (
 	"strconv"
 	"strings"
 
+	"codeberg.org/scip/tablizer/cfg"
 	"github.com/gookit/color"
 	"github.com/olekukonko/tablewriter"
 	"github.com/olekukonko/tablewriter/renderer"
 	"github.com/olekukonko/tablewriter/tw"
-	"github.com/tlinden/tablizer/cfg"
 	"gopkg.in/yaml.v3"
 )
 
@@ -72,7 +72,10 @@ func printData(writer io.Writer, conf cfg.Config, data *Tabdata) {
 }
 
 func output(writer io.Writer, str string) {
-	fmt.Fprint(writer, str)
+	_, err := fmt.Fprint(writer, str)
+	if err != nil {
+		log.Fatalf("failed to print output: %s", err)
+	}
 }
 
 /*

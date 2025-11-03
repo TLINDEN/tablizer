@@ -24,7 +24,7 @@ import (
 	"strconv"
 
 	"github.com/araddon/dateparse"
-	"github.com/tlinden/tablizer/cfg"
+	"codeberg.org/scip/tablizer/cfg"
 )
 
 func sortTable(conf cfg.Config, data *Tabdata) {

@@ -1,0 +1,20 @@
+# -*-make-*-
+
+.PHONY: install all
+
+tool   = rpn
+PREFIX = /usr/local
+UID    = root
+GID    = 0
+
+all:
+	@echo "Type 'sudo make install' to install the tool."
+	@echo "To change prefix, type 'sudo make install PREFIX=/opt'"
+
+install:
+	install -d -o $(UID) -g $(GID) $(PREFIX)/bin
+	install -d -o $(UID) -g $(GID) $(PREFIX)/man/man1
+	install -d -o $(UID) -g $(GID) $(PREFIX)/share/doc
+	install -o $(UID) -g $(GID) -m 555 $(tool)  $(PREFIX)/sbin/
+	install -o $(UID) -g $(GID) -m 444 $(tool).1 $(PREFIX)/man/man1/
+	install -o $(UID) -g $(GID) -m 444 *.md $(PREFIX)/share/doc/

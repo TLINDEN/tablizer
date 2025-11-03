@@ -49,7 +49,7 @@ for D in $DIST; do
     fi
     
     set -x
-    GOOS=${os} GOARCH=${arch} go build -tags osusergo,netgo -ldflags "-extldflags=-static -w -X 'github.com/tlinden/tablizer/cfg.VERSION=${version}'" --trimpath $pie -o ${binfile}
+    GOOS=${os} GOARCH=${arch} go build -tags osusergo,netgo -ldflags "-extldflags=-static -w -X 'codeberg.org/scip/tablizer/cfg.VERSION=${version}'" --trimpath $pie -o ${binfile}
     strip --strip-all ${binfile}
     mkdir -p ${tardir}
     cp ${binfile} README.md LICENSE ${tardir}/
