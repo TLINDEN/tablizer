@@ -66,4 +66,4 @@ release:
 
     ---
 
-    Full Changelog: [{{ .PreviousTag }}...{{ .Tag }}](https://codeberg.org/scip/epuppy/compare/{{ .PreviousTag }}...{{ .Tag }})
+    Full Changelog: [{{ .PreviousTag }}...{{ .Tag }}](https://codeberg.org/scip/tablizer/compare/{{ .PreviousTag }}...{{ .Tag }})
